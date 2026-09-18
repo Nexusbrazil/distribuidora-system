@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Escritório · Sunap</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-variant-numeric: tabular-nums; }
+    .cell-input { width: 100%; padding: 0.4rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; text-align: right; background-color: #fff; }
+    .cell-input:focus { outline: 2px solid #2563eb; border-color: #2563eb; }
+    .cell-calc { text-align: right; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
+
+  <!-- NAVEGAÇÃO -->
+  <nav class="bg-slate-900 text-white shadow-md sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+      <a href="#" onclick="mudarAba('fechamento')" class="font-bold text-lg flex items-center gap-2">
+        <span>🥤</span> Painel do Escritório · Sunap
+      </a>
+      <div class="flex gap-1 text-sm">
+        <button onclick="mudarAba('fechamento')" id="tab-fechamento" class="px-3 py-2 rounded-md transition hover:bg-slate-700 bg-slate-700 font-semibold">Fechamento</button>
+        <button onclick="mudarAba('vendedores')" id="tab-vendedores" class="px-3 py-2 rounded-md transition hover:bg-slate-700">Vendedores</button>
+        <button onclick="mudarAba('dashboard')" id="tab-dashboard" class="px-3 py-2 rounded-md transition hover:bg-slate-700">Relatório Mensal</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- SEÇÃO 1: FECHAMENTO DIÁRIO -->
+    <section id="sec-fechamento">
+      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-4">
+        <div class="flex flex-wrap gap-3 items-end">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Vendedor</label>
+            <select id="selVendedor" class="border border-slate-300 rounded-md px-3 py-2 min-w-[220px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Carregando vendedores...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Data da Rota</label>
+            <input type="date" id="selData" class="border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <button onclick="abrirFechamento()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition">
+            Abrir / Carregar Fechamento
+          </button>
+        </div>
+      </div>
+
+      <div id="painel-principal" class="hidden">
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h1 class="text-2xl font-bold">
+            Fechamento — <span id="lblVendedorNome">Vendedor</span>
+            <span class="text-slate-400 font-normal text-lg" id="lblData"></span>
+          </h1>
+          <span id="badgeStatus" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">📝 RASCUNHO</span>
+        </div>
+
+        <div id="resumo-banner" class="mb-4 px-4 py-2 rounded-md bg-slate-50 text-slate-500 border border-slate-200 text-sm font-medium">
+          Calculando divergências...
+        </div>
+
+        <!-- MATRIZ DE ESTOQUE -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto">
+          <table class="w-full text-sm min-w-[900px]">
+            <thead class="bg-slate-800 text-white">
+              <tr>
+                <th class="px-3 py-2 text-left">Produto</th>
+                <th class="px-3 py-2 text-right w-32">Retorno Dia Ant.</th>
+                <th class="px-3 py-2 text-right w-32">Saídas Hoje</th>
+                <th class="px-3 py-2 text-right w-32 bg-slate-700">Total Carga</th>
+                <th class="px-3 py-2 text-right w-32">Vendas do Dia</th>
+                <th class="px-3 py-2 text-right w-32">Trocas / Avarias</th>
+                <th class="px-3 py-2 text-right w-32">Retorno Atual</th>
+                <th class="px-3 py-2 text-right w-36 bg-slate-700">Divergência</th>
+              </tr>
+            </thead>
+            <tbody id="gridEstoque">
+              <!-- Linhas geradas via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CONCILIAÇÃO FINANCEIRA -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mt-6">
+          <h2 class="font-semibold mb-3 text-slate-700">Conciliação Financeira</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Dinheiro (Soma da Folha / Vendas)</label>
+              <input type="number" step="0.01" min="0" id="fin_dinheiro" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Notas Assinadas (A Prazo)</label>
+              <input type="number" step="0.01" min="0" id="fin_notas_assinadas" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Notas Recebidas (Cobranças)</label>
+              <input type="number" step="0.01" min="0" id="fin_notas_recebidas" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Total em PIX</label>
+              <input type="number" step="0.01" min="0" id="fin_pix" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+          </div>
+
+          <h3 class="text-sm font-semibold text-slate-600 mb-2">Despesas do Vendedor</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Combustível (R$)</label>
+              <input type="number" step="0.01" min="0" id="desp_combustivel" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Almoço (R$)</label>
+              <input type="number" step="0.01" min="0" id="desp_almoco" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Outras Despesas (R$)</label>
+              <input type="number" step="0.01" min="0" id="desp_outras" value="0" class="cell-input" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Total Despesas</label>
+              <div class="cell-calc px-3 py-2 bg-slate-100 rounded-md" id="lbl_total_despesas">R$ 0,00</div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-200 pt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Dinheiro Entregue</label>
+              <input type="number" step="0.01" min="0" id="dinheiro_entregue" value="0" class="cell-input font-semibold" oninput="recalcularTudo()">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Caixa Esperado em Dinheiro</label>
+              <div class="cell-calc px-3 py-2 bg-slate-100 rounded-md" id="lbl_caixa_esperado">R$ 0,00</div>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs text-slate-500 mb-1">Diferença de Caixa (Falta / Sobra)</label>
+              <div class="cell-calc text-lg px-3 py-2 bg-slate-100 rounded-md" id="lbl_diferenca_caixa">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end items-center gap-3 mt-6 mb-10">
+          <button onclick="salvarFechamento('RASCUNHO')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2.5 rounded-md font-medium transition">
+            💾 Salvar Rascunho
+          </button>
+          <button onclick="salvarFechamento('APROVADO')" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-md font-medium transition">
+            ✅ Aprovar &amp; Travar Fechamento
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2: VENDEDORES -->
+    <section id="sec-vendedores" class="hidden">
+      <h1 class="text-2xl font-bold mb-4">Gerenciar Vendedores</h1>
+      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-6">
+        <h2 class="font-semibold mb-3 text-slate-700">Adicionar novo vendedor</h2>
+        <div class="flex gap-2 max-w-lg">
+          <input type="text" id="txtNovoVendedor" placeholder="Nome do vendedor" class="flex-1 border border-slate-300 rounded-md px-3 py-2 focus:outline-none">
+          <button onclick="adicionarVendedor()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition">+ Adicionar</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800 text-white">
+            <tr>
+              <th class="px-4 py-2 text-left">Nome</th>
+              <th class="px-4 py-2 text-center w-32">Status</th>
+            </tr>
+          </thead>
+          <tbody id="tblVendedores">
+            <!-- Vendedores via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 3: RELATÓRIO MENSAL -->
+    <section id="sec-dashboard" class="hidden">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h1 class="text-2xl font-bold">Relatório Mensal — Fechamentos Aprovados</h1>
+        <div class="flex gap-2 items-end">
+          <input type="month" id="selMesRelatorio" class="border border-slate-300 rounded-md px-3 py-2">
+          <button onclick="carregarRelatorioMensal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+          <div class="text-xs text-slate-500 mb-1">Total Dinheiro Entregue</div>
+          <div class="text-2xl font-bold text-emerald-600" id="dash_dinheiro">R$ 0,00</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+          <div class="text-xs text-slate-500 mb-1">Total PIX</div>
+          <div class="text-2xl font-bold text-blue-600" id="dash_pix">R$ 0,00</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+          <div class="text-xs text-slate-500 mb-1">Diferença de Caixa Acumulada</div>
+          <div class="text-2xl font-bold" id="dash_diferenca">R$ 0,00</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ==========================================
+    // CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'COLE_AQUI_SUA_URL_DO_SUPABASE';
+    const SUPABASE_KEY = 'COLE_AQUI_SUA_CHAVE_ANON_DO_SUPABASE';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const PRODUTOS_FIXOS = ["330ML", "900ML", "UVA", "ÁGUA S/G", "ÁGUA C/G", "GELO", "ÁGUA 1,5L"];
+
+    document.getElementById('selData').value = new Date().toISOString().split('T')[0];
+    document.getElementById('selMesRelatorio').value = new Date().toISOString().slice(0, 7);
+
+    // Mudar abas da navegação
+    function mudarAba(aba) {
+      ['fechamento', 'vendedores', 'dashboard'].forEach(a => {
+        document.getElementById(`sec-${a}`).classList.add('hidden');
+        document.getElementById(`tab-${a}`).classList.remove('bg-slate-700', 'font-semibold');
+      });
+      document.getElementById(`sec-${aba}`).classList.remove('hidden');
+      document.getElementById(`tab-${aba}`).classList.add('bg-slate-700', 'font-semibold');
+
+      if (aba === 'vendedores') carregarVendedoresTabela();
+      if (aba === 'dashboard') carregarRelatorioMensal();
+    }
+
+    // Carregar Lista de Vendedores no Select
+    async function carregarVendedoresSelect() {
+      const { data } = await supabase.from('clientes_rotas').select('vendedor_nome');
+      const vendedoresUnicos = [...new Set(data.map(item => item.vendedor_nome))];
+      
+      const sel = document.getElementById('selVendedor');
+      sel.innerHTML = '<option value="">Selecione...</option>';
+      vendedoresUnicos.forEach(v => {
+        sel.innerHTML += `<option value="${v}">${v}</option>`;
+      });
+    }
+
+    // Montar a Matriz de Estoque
+    function renderizarGridEstoque() {
+      const grid = document.getElementById('gridEstoque');
+      grid.innerHTML = '';
+      PRODUTOS_FIXOS.forEach((prod, idx) => {
+        grid.innerHTML += `
+          <tr class="border-t border-slate-100 ${idx % 2 ? 'bg-slate-50' : ''}">
+            <td class="px-3 py-2 font-medium whitespace-nowrap">${prod}</td>
+            <td class="px-1 py-1"><input type="number" min="0" id="ra_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
+            <td class="px-1 py-1"><input type="number" min="0" id="sh_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
+            <td class="px-3 py-2 cell-calc bg-slate-50" id="tc_${idx}">0</td>
+            <td class="px-1 py-1"><input type="number" min="0" id="vd_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
+            <td class="px-1 py-1"><input type="number" min="0" id="ta_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
+            <td class="px-1 py-1"><input type="number" min="0" id="rat_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
+            <td class="px-3 py-2 text-right font-semibold" id="div_${idx}">0</td>
+          </tr>
+        `;
+      });
+    }
+
+    function abrirFechamento() {
+      const v = document.getElementById('selVendedor').value;
+      const d = document.getElementById('selData').value;
+      if (!v) return alert('Selecione o vendedor!');
+
+      document.getElementById('lblVendedorNome').innerText = v;
+      document.getElementById('lblData').innerText = `(${d})`;
+      document.getElementById('painel-principal').classList.remove('hidden');
+      renderizarGridEstoque();
+      recalcularTudo();
+    }
+
+    function recalcularTudo() {
+      let countDivergente = 0;
+      PRODUTOS_FIXOS.forEach((_, idx) => {
+        const ra = parseFloat(document.getElementById(`ra_${idx}`)?.value || 0);
+        const sh = parseFloat(document.getElementById(`sh_${idx}`)?.value || 0);
+        const vd = parseFloat(document.getElementById(`vd_${idx}`)?.value || 0);
+        const ta = parseFloat(document.getElementById(`ta_${idx}`)?.value || 0);
+        const rat = parseFloat(document.getElementById(`rat_${idx}`)?.value || 0);
+
+        const totalCarga = ra + sh;
+        const divergencia = rat - (totalCarga - vd - ta);
+
+        if (document.getElementById(`tc_${idx}`)) document.getElementById(`tc_${idx}`).innerText = totalCarga;
+        if (document.getElementById(`div_${idx}`)) {
+          document.getElementById(`div_${idx}`).innerText = (divergencia > 0 ? '+' : '') + divergencia;
+          if (divergencia !== 0) countDivergente++;
+        }
+      });
+
+      // Recálculo financeiro
+      const din = parseFloat(document.getElementById('fin_dinheiro').value || 0);
+      const rec = parseFloat(document.getElementById('fin_notas_recebidas').value || 0);
+      const c = parseFloat(document.getElementById('desp_combustivel').value || 0);
+      const a = parseFloat(document.getElementById('desp_almoco').value || 0);
+      const o = parseFloat(document.getElementById('desp_outras').value || 0);
+      const ent = parseFloat(document.getElementById('dinheiro_entregue').value || 0);
+
+      const totalDespesas = c + a + o;
+      const caixaEsperado = din + rec - totalDespesas;
+      const diferenca = ent - caixaEsperado;
+
+      document.getElementById('lbl_total_despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+      document.getElementById('lbl_caixa_esperado').innerText = `R$ ${caixaEsperado.toFixed(2)}`;
+      document.getElementById('lbl_diferenca_caixa').innerText = `R$ ${diferenca.toFixed(2)}`;
+    }
+
+    carregarVendedoresSelect();
+  </script>
+</body>
+</html>
