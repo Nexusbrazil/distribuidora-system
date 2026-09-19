@@ -234,11 +234,11 @@
     // ==========================================
     // CONFIGURAÇÃO DO SUPABASE
     // ==========================================
-    const SUPABASE_URL = 'COLE_AQUI_SUA_URL_DO_SUPABASE';
-    const SUPABASE_KEY = 'COLE_AQUI_SUA_CHAVE_ANON_DO_SUPABASE';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = 'https://podnijlrofkhcbbqliem.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const PRODUTOS_FIXOS = ["330ML", "900ML", "UVA", "ÁGUA S/G", "ÁGUA C/G", "GELO", "ÁGUA 1,5L"];
+    const PRODUTOS_FIXOS = ["330ML", "900ML", "UVA", "FARDO_SG", "FARDO_CG", "AGUA_15L"];
 
     document.getElementById('selData').value = new Date().toISOString().split('T')[0];
     document.getElementById('selMesRelatorio').value = new Date().toISOString().slice(0, 7);
