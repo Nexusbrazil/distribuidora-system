@@ -177,28 +177,197 @@
       </div>
     </section>
 
-    <!-- SEÇÃO 2: VENDEDORES -->
-    <section id="sec-vendedores" class="hidden">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">Gerenciar Vendedores</h2>
-        <p class="text-slate-500 text-sm">Lista de vendedores ativos e rotas cadastradas no sistema.</p>
+    <!-- ABA VENDEDORES -->
+<div id="aba-vendedores" class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Gerenciar Vendedores</h1>
+      <p class="text-slate-500 text-sm">Lista de vendedores ativos e acompanhamento de rotas em tempo real.</p>
+    </div>
+  </div>
+
+  <!-- LISTA DE VENDEDORES -->
+  <div id="visao-lista-vendedores" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+    <div class="bg-slate-800 text-white font-semibold flex justify-between px-6 py-3 text-sm">
+      <span>Nome do Vendedor</span>
+      <span>Status do Dia</span>
+    </div>
+    
+    <!-- Linhas dos Vendedores (Injetadas via JS) -->
+    <div id="container-lista-vendedores" class="divide-y divide-slate-100">
+      <!-- Exemplo estático/carregando -->
+      <div class="p-4 text-center text-slate-400">Carregando lista de vendedores...</div>
+    </div>
+
+    <!-- Botão Adicionar Vendedor -->
+    <div class="p-4 bg-slate-50 border-t border-slate-100">
+      <button onclick="alert('Funcionalidade de cadastrar novo vendedor em breve!')" class="w-full py-2 border-2 border-dashed border-slate-300 text-slate-600 rounded-lg font-medium hover:border-slate-400 hover:text-slate-800 transition flex items-center justify-center gap-2">
+        <span>+ Adicionar Vendedor</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- VISÃO DETALHADA / FOLHA DE FECHAMENTO (Oculta por padrão) -->
+  <div id="visao-detalhe-vendedor" class="hidden">
+    <button onclick="voltarParaListaVendedores()" class="mb-4 px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition flex items-center gap-2">
+      ← Voltar para Lista de Vendedores
+    </button>
+
+    <!-- FOLHA A4 CENTRALIZADA -->
+    <div class="max-w-4xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800">
+      
+      <!-- CABEÇALHO DO VENDEDOR -->
+      <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-end">
+        <div>
+          <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900">Vendedor</h2>
+          <p id="folha-vendedor-rota" class="text-sm text-slate-600">Rota: --</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-slate-500">Data do Atendimento</p>
+          <p id="folha-data" class="font-bold text-slate-800">--/--/----</p>
+        </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-slate-800 text-white">
+      <!-- LISTA DE ATENDIMENTOS DA ROTA -->
+      <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos do Dia (Ao Vivo)</h3>
+      <div class="overflow-x-auto mb-8 border border-slate-200 rounded">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
             <tr>
-              <th class="px-4 py-3 text-left rounded-l-lg">Nome do Vendedor</th>
-              <th class="px-4 py-3 text-center w-32 rounded-r-lg">Status</th>
+              <th class="p-2">Cliente</th>
+              <th class="p-2">Cidade</th>
+              <th class="p-2">Forma Pgto</th>
+              <th class="p-2 text-center">330ml</th>
+              <th class="p-2 text-center">900ml</th>
+              <th class="p-2 text-center">Uva</th>
+              <th class="p-2 text-center">Água S/G</th>
+              <th class="p-2 text-center">Água C/G</th>
+              <th class="p-2 text-center">1.5L</th>
+              <th class="p-2 text-right">Total (R$)</th>
             </tr>
           </thead>
-          <tbody id="tblVendedores" class="divide-y divide-slate-100">
-            <!-- Vendedores via JS -->
+          <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-100">
+            <!-- Linhas de clientes inseridas dinamicamente -->
           </tbody>
         </table>
       </div>
-    </section>
 
+      <!-- QUADRO DE FECHAMENTO FÍSICO (TABELA DE CONFERÊNCIA) -->
+      <div class="mt-8 border-t-2 border-slate-800 pt-4">
+        <h3 class="font-bold text-lg mb-3 text-center uppercase tracking-wide border-b pb-1">Fechamento de Carga e Caixa</h3>
+        
+        <!-- TABELA DE CAIXAS / PRODUTOS -->
+        <table class="w-full border-collapse border border-slate-400 text-xs mb-6 text-center">
+          <thead>
+            <tr class="bg-slate-200 font-bold border-b border-slate-400">
+              <th class="border border-slate-400 p-2 text-left">PRODUTOS</th>
+              <th class="border border-slate-400 p-2">330ML</th>
+              <th class="border border-slate-400 p-2">900ML</th>
+              <th class="border border-slate-400 p-2">UVA</th>
+              <th class="border border-slate-400 p-2">ÁGUA S/G</th>
+              <th class="border border-slate-400 p-2">ÁGUA C/G</th>
+              <th class="border border-slate-400 p-2">ÁGUA 1.5L</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">RETORNO DIA ANTERIOR</td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="ret-15l" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+            </tr>
+            <tr>
+              <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">SAÍDAS (CARGA)</td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+              <td class="border border-slate-400 p-1"><input type="number" id="sai-15l" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
+            </tr>
+            <tr class="bg-slate-100 font-bold">
+              <td class="border border-slate-400 p-2 text-left">TOTAL CARGA</td>
+              <td id="tot-330" class="border border-slate-400 p-2">0</td>
+              <td id="tot-900" class="border border-slate-400 p-2">0</td>
+              <td id="tot-uva" class="border border-slate-400 p-2">0</td>
+              <td id="tot-sg" class="border border-slate-400 p-2">0</td>
+              <td id="tot-cg" class="border border-slate-400 p-2">0</td>
+              <td id="tot-15l" class="border border-slate-400 p-2">0</td>
+            </tr>
+            <tr class="text-blue-700 font-bold">
+              <td class="border border-slate-400 p-2 text-left bg-slate-50">VENDAS (SISTEMA)</td>
+              <td id="venda-330" class="border border-slate-400 p-2">0</td>
+              <td id="venda-900" class="border border-slate-400 p-2">0</td>
+              <td id="venda-uva" class="border border-slate-400 p-2">0</td>
+              <td id="venda-sg" class="border border-slate-400 p-2">0</td>
+              <td id="venda-cg" class="border border-slate-400 p-2">0</td>
+              <td id="venda-15l" class="border border-slate-400 p-2">0</td>
+            </tr>
+            <tr class="bg-emerald-50 font-bold">
+              <td class="border border-slate-400 p-2 text-left">RETORNO ATUAL (ESTOQUE)</td>
+              <td id="ret-atual-330" class="border border-slate-400 p-2">0</td>
+              <td id="ret-atual-900" class="border border-slate-400 p-2">0</td>
+              <td id="ret-atual-uva" class="border border-slate-400 p-2">0</td>
+              <td id="ret-atual-sg" class="border border-slate-400 p-2">0</td>
+              <td id="ret-atual-cg" class="border border-slate-400 p-2">0</td>
+              <td id="ret-atual-15l" class="border border-slate-400 p-2">0</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- RESUMO FINANCEIRO E DESPESAS -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="border border-slate-400 p-3 rounded">
+            <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Resumo do Caixa (R$)</h4>
+            <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+              <span>Dinheiro:</span>
+              <strong id="fin-dinheiro" class="text-emerald-700">R$ 0,00</strong>
+            </div>
+            <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+              <span>PIX:</span>
+              <strong id="fin-pix" class="text-blue-700">R$ 0,00</strong>
+            </div>
+            <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+              <span>A Prazo / Boleto:</span>
+              <strong id="fin-prazo" class="text-amber-700">R$ 0,00</strong>
+            </div>
+            <div class="flex justify-between py-2 text-sm font-bold bg-slate-100 px-2 rounded mt-2">
+              <span>Total Vendido:</span>
+              <span id="fin-total-geral">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- DESPESAS (COMBUSTÍVEL, ALMOÇO, OUTRAS) -->
+          <div class="border border-slate-400 p-3 rounded">
+            <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Despesas do Dia (R$)</h4>
+            <div class="flex justify-between items-center py-1 text-xs">
+              <span>Combustível:</span>
+              <input type="number" id="desp-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+            </div>
+            <div class="flex justify-between items-center py-1 text-xs">
+              <span>Almoço:</span>
+              <input type="number" id="desp-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+            </div>
+            <div class="flex justify-between items-center py-1 text-xs">
+              <span>Outras:</span>
+              <input type="number" id="desp-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+            </div>
+            <div class="flex justify-between py-2 text-sm font-bold bg-red-50 text-red-700 px-2 rounded mt-2">
+              <span>Total Despesas:</span>
+              <span id="desp-total">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+    
     <!-- SEÇÃO 3: RELATÓRIO MENSAL -->
     <section id="sec-dashboard" class="hidden">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -244,21 +413,31 @@
     document.getElementById('selMesRelatorio').value = new Date().toISOString().slice(0, 7);
 
     function mudarAba(aba) {
-      ['fechamento', 'vendedores', 'dashboard'].forEach(a => {
-        document.getElementById(`sec-${a}`).classList.add('hidden');
-        const btn = document.getElementById(`nav-${a}`);
-        btn.classList.remove('bg-sky-600', 'text-white');
-        btn.classList.add('text-slate-300');
-      });
-
-      document.getElementById(`sec-${aba}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`nav-${aba}`);
-      activeBtn.classList.add('bg-sky-600', 'text-white');
-      activeBtn.classList.remove('text-slate-300');
-
-      if (aba === 'vendedores') carregarVendedoresTabela();
-      if (aba === 'dashboard') carregarRelatorioMensal();
+  ['fechamento', 'vendedores', 'dashboard'].forEach(a => {
+    const el = document.getElementById(`sec-${a}`) || document.getElementById(`aba-${a}`);
+    if (el) el.classList.add('hidden');
+    
+    const btn = document.getElementById(`nav-${a}`);
+    if (btn) {
+      btn.classList.remove('bg-sky-600', 'text-white');
+      btn.classList.add('text-slate-300');
     }
+  });
+
+  const secAtiva = document.getElementById(`sec-${aba}`) || document.getElementById(`aba-${aba}`);
+  if (secAtiva) secAtiva.classList.remove('hidden');
+
+  const activeBtn = document.getElementById(`nav-${aba}`);
+  if (activeBtn) {
+    activeBtn.classList.remove('text-slate-300');
+    activeBtn.classList.add('bg-sky-600', 'text-white');
+  }
+
+  // Se clicar na aba vendedores, atualiza a lista de vendedores em tempo real
+  if (aba === 'vendedores' && typeof carregarAbaVendedores === 'function') {
+    carregarAbaVendedores();
+  }
+}
 
     async function carregarVendedoresSelect() {
       const { data, error } = await supabase.from('clientes_rotas').select('vendedor_nome');
@@ -354,6 +533,184 @@
     }
 
     carregarVendedoresSelect();
+    // LISTA FIXA DE VENDEDORES
+const VENDEDORES_SISTEMA = [
+  "Charles",
+  "Vendedor 2",
+  "Vendedor 3",
+  "Vendedor 4",
+  "Vendedor 5",
+  "Vendedor 6"
+];
+
+let dadosAtendimentoAtuais = [];
+
+// 1. CARREGAR LISTA DE VENDEDORES E STATUS
+async function carregarAbaVendedores() {
+  const container = document.getElementById('container-lista-vendedores');
+  container.innerHTML = '';
+
+  const hojeInicio = new Date();
+  hojeInicio.setHours(0,0,0,0);
+  const isoHoje = hojeInicio.toISOString();
+
+  // Busca vendas de hoje do Supabase
+  const { data: fechamentosHoje, error } = await supabaseClient
+    .from('fechamentos')
+    .select('*')
+    .gte('data_atendimento', isoHoje);
+
+  if (error) console.error("Erro ao carregar status dos vendedores:", error);
+
+  VENDEDORES_SISTEMA.forEach(vendedor => {
+    const atendimentosVendedor = (fechamentosHoje || []).filter(f => f.vendedor_nome === vendedor);
+    
+    let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Não Iniciado</span>`;
+
+    if (atendimentosVendedor.length > 0) {
+      const possuiConcluido = atendimentosVendedor.some(f => f.status === 'CONCLUIDO' || f.status === 'BLOQUEADO');
+      
+      if (possuiConcluido) {
+        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">🔴 Concluído</span>`;
+      } else {
+        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">🟢 Em Rota</span>`;
+      }
+    }
+
+    const linha = document.createElement('div');
+    linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
+    linha.onclick = () => abrirDetalheVendedor(vendedor);
+    linha.innerHTML = `
+      <span class="font-medium text-slate-800">${vendedor}</span>
+      <div>${statusHTML}</div>
+    `;
+    container.appendChild(linha);
+  });
+}
+
+// 2. ABRIR DETALHES E FOLHA DE FECHAMENTO DO VENDEDOR
+async function abrirDetalheVendedor(vendedorNome) {
+  document.getElementById('visao-lista-vendedores').classList.add('hidden');
+  document.getElementById('visao-detalhe-vendedor').classList.remove('hidden');
+
+  document.getElementById('folha-vendedor-nome').innerText = vendedorNome;
+  document.getElementById('folha-data').innerText = new Date().toLocaleDateString('pt-BR');
+
+  const hojeInicio = new Date();
+  hojeInicio.setHours(0,0,0,0);
+
+  const { data: atendimentos, error } = await supabaseClient
+    .from('fechamentos')
+    .select('*')
+    .eq('vendedor_nome', vendedorNome)
+    .gte('data_atendimento', hojeInicio.toISOString());
+
+  dadosAtendimentoAtuais = atendimentos || [];
+  renderizarTabelaAtendimentos();
+  calcularFechamentoFisico();
+}
+
+function voltarParaListaVendedores() {
+  document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
+  document.getElementById('visao-lista-vendedores').classList.remove('hidden');
+  carregarAbaVendedores();
+}
+
+// 3. RENDERIZAR TABELA DE ATENDIMENTOS DA ROTA
+function renderizarTabelaAtendimentos() {
+  const tbody = document.getElementById('tabela-atendimentos-body');
+  tbody.innerHTML = '';
+
+  if (dadosAtendimentoAtuais.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400">Nenhum atendimento registrado hoje.</td></tr>`;
+    return;
+  }
+
+  dadosAtendimentoAtuais.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = "hover:bg-slate-50";
+    tr.innerHTML = `
+      <td class="p-2 font-medium">${item.cliente_nome || 'Cliente'}</td>
+      <td class="p-2">${item.cidade || '-'}</td>
+      <td class="p-2">${item.forma_pagamento || 'N/A'}</td>
+      <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
+      <td class="p-2 text-center">${item.qtd_900ml || 0}</td>
+      <td class="p-2 text-center">${item.qtd_uva || 0}</td>
+      <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td>
+      <td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
+      <td class="p-2 text-center">${item.qtd_agua_15l || 0}</td>
+      <td class="p-2 text-right font-bold">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// 4. SOMAS AUTOMÁTICAS DA FOLHA DE FECHAMENTO (PRODUTOS E CAIXA)
+function calcularFechamentoFisico() {
+  // Somas de Vendas vindo do Supabase
+  let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0, v15l = 0;
+  let totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
+
+  dadosAtendimentoAtuais.forEach(item => {
+    v330 += Number(item.qtd_330ml || 0);
+    v900 += Number(item.qtd_900ml || 0);
+    vuva += Number(item.qtd_uva || 0);
+    vsg += Number(item.qtd_agua_sg || 0);
+    vcg += Number(item.qtd_agua_cg || 0);
+    v15l += Number(item.qtd_agua_15l || 0);
+
+    const val = Number(item.valor_total || 0);
+    totGeral += val;
+
+    const pgto = (item.forma_pagamento || '').toUpperCase();
+    if (pgto.includes('DINHEIRO')) totDinheiro += val;
+    else if (pgto.includes('PIX')) totPix += val;
+    else totPrazo += val;
+  });
+
+  // Atualiza linha VENDAS na tabela física
+  document.getElementById('venda-330').innerText = v330;
+  document.getElementById('venda-900').innerText = v900;
+  document.getElementById('venda-uva').innerText = vuva;
+  document.getElementById('venda-sg').innerText = vsg;
+  document.getElementById('venda-cg').innerText = vcg;
+  document.getElementById('venda-15l').innerText = v15l;
+
+  // Função auxiliar para pegar valor dos inputs
+  const getVal = (id) => Number(document.getElementById(id)?.value || 0);
+
+  // Totais Carga = Retorno Anterior + Saídas
+  document.getElementById('tot-330').innerText = getVal('ret-330') + getVal('sai-330');
+  document.getElementById('tot-900').innerText = getVal('ret-900') + getVal('sai-900');
+  document.getElementById('tot-uva').innerText = getVal('ret-uva') + getVal('sai-uva');
+  document.getElementById('tot-sg').innerText = getVal('ret-sg') + getVal('sai-sg');
+  document.getElementById('tot-cg').innerText = getVal('ret-cg') + getVal('sai-cg');
+  document.getElementById('tot-15l').innerText = getVal('ret-15l') + getVal('sai-15l');
+
+  // Retorno Atual = Total Carga - Vendas
+  document.getElementById('ret-atual-330').innerText = (getVal('ret-330') + getVal('sai-330')) - v330;
+  document.getElementById('ret-atual-900').innerText = (getVal('ret-900') + getVal('sai-900')) - v900;
+  document.getElementById('ret-atual-uva').innerText = (getVal('ret-uva') + getVal('sai-uva')) - vuva;
+  document.getElementById('ret-atual-sg').innerText = (getVal('ret-sg') + getVal('sai-sg')) - vsg;
+  document.getElementById('ret-atual-cg').innerText = (getVal('ret-cg') + getVal('sai-cg')) - vcg;
+  document.getElementById('ret-atual-15l').innerText = (getVal('ret-15l') + getVal('sai-15l')) - v15l;
+
+  // Atualiza Valores Financeiros
+  document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
+  document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+  document.getElementById('fin-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
+  document.getElementById('fin-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+
+  // Calcula Despesas
+  const totalDespesas = getVal('desp-combustivel') + getVal('desp-almoco') + getVal('desp-outras');
+  document.getElementById('desp-total').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+}
+
+// Iniciar aba Vendedores ao carregar a tela
+document.addEventListener('DOMContentLoaded', () => {
+  carregarAbaVendedores();
+});
+    
   </script>
 </body>
 </html>
