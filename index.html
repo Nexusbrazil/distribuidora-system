@@ -242,7 +242,6 @@
               <th class="p-2 text-center">Uva</th>
               <th class="p-2 text-center">Água S/G</th>
               <th class="p-2 text-center">Água C/G</th>
-              <th class="p-2 text-center">1.5L</th>
               <th class="p-2 text-right">Total (R$)</th>
             </tr>
           </thead>
@@ -266,7 +265,6 @@
               <th class="border border-slate-400 p-2">UVA</th>
               <th class="border border-slate-400 p-2">ÁGUA S/G</th>
               <th class="border border-slate-400 p-2">ÁGUA C/G</th>
-              <th class="border border-slate-400 p-2">ÁGUA 1.5L</th>
             </tr>
           </thead>
           <tbody>
@@ -277,7 +275,6 @@
               <td class="border border-slate-400 p-1"><input type="number" id="ret-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
               <td class="border border-slate-400 p-1"><input type="number" id="ret-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
               <td class="border border-slate-400 p-1"><input type="number" id="ret-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-              <td class="border border-slate-400 p-1"><input type="number" id="ret-15l" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
             </tr>
             <tr>
               <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">SAÍDAS (CARGA)</td>
@@ -286,7 +283,6 @@
               <td class="border border-slate-400 p-1"><input type="number" id="sai-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
               <td class="border border-slate-400 p-1"><input type="number" id="sai-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
               <td class="border border-slate-400 p-1"><input type="number" id="sai-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-              <td class="border border-slate-400 p-1"><input type="number" id="sai-15l" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
             </tr>
             <tr class="bg-slate-100 font-bold">
               <td class="border border-slate-400 p-2 text-left">TOTAL CARGA</td>
@@ -295,7 +291,6 @@
               <td id="tot-uva" class="border border-slate-400 p-2">0</td>
               <td id="tot-sg" class="border border-slate-400 p-2">0</td>
               <td id="tot-cg" class="border border-slate-400 p-2">0</td>
-              <td id="tot-15l" class="border border-slate-400 p-2">0</td>
             </tr>
             <tr class="text-blue-700 font-bold">
               <td class="border border-slate-400 p-2 text-left bg-slate-50">VENDAS (SISTEMA)</td>
@@ -304,7 +299,6 @@
               <td id="venda-uva" class="border border-slate-400 p-2">0</td>
               <td id="venda-sg" class="border border-slate-400 p-2">0</td>
               <td id="venda-cg" class="border border-slate-400 p-2">0</td>
-              <td id="venda-15l" class="border border-slate-400 p-2">0</td>
             </tr>
             <tr class="bg-emerald-50 font-bold">
               <td class="border border-slate-400 p-2 text-left">RETORNO ATUAL (ESTOQUE)</td>
@@ -313,7 +307,6 @@
               <td id="ret-atual-uva" class="border border-slate-400 p-2">0</td>
               <td id="ret-atual-sg" class="border border-slate-400 p-2">0</td>
               <td id="ret-atual-cg" class="border border-slate-400 p-2">0</td>
-              <td id="ret-atual-15l" class="border border-slate-400 p-2">0</td>
             </tr>
           </tbody>
         </table>
@@ -407,7 +400,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const PRODUTOS_FIXOS = ["330ML", "900ML", "UVA", "FARDO_SG", "FARDO_CG", "AGUA_15L"];
+    const PRODUTOS_FIXOS = ["330ML", "900ML", "UVA", "FARDO_SG", "FARDO_CG"];
 
     document.getElementById('selData').value = new Date().toISOString().split('T')[0];
     document.getElementById('selMesRelatorio').value = new Date().toISOString().slice(0, 7);
@@ -438,142 +431,84 @@
     carregarAbaVendedores();
   }
 }
+    
+    let dadosAtendimentoAtuais = [];
 
-    async function carregarVendedoresSelect() {
-      const { data, error } = await supabase.from('clientes_rotas').select('vendedor_nome');
-      if (error) return console.error('Erro ao buscar vendedores:', error);
+// Retorna o início do dia atual em ISO para filtrar registros de hoje
+function getIsoHojeInicio() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
 
-      const vendedoresUnicos = [...new Set(data.map(item => item.vendedor_nome))];
-      const sel = document.getElementById('selVendedor');
-      sel.innerHTML = '<option value="">Selecione...</option>';
-      vendedoresUnicos.forEach(v => {
-        sel.innerHTML += `<option value="${v}">${v}</option>`;
-      });
-    }
-
-    async function carregarVendedoresTabela() {
-      const { data } = await supabase.from('clientes_rotas').select('vendedor_nome');
-      const vendedoresUnicos = [...new Set(data.map(item => item.vendedor_nome))];
-      const tbody = document.getElementById('tblVendedores');
-      tbody.innerHTML = '';
-      vendedoresUnicos.forEach(v => {
-        tbody.innerHTML += `
-          <tr>
-            <td class="px-4 py-3 font-semibold text-slate-800">${v}</td>
-            <td class="px-4 py-3 text-center"><span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-bold">Ativo</span></td>
-          </tr>
-        `;
-      });
-    }
-
-    function renderizarGridEstoque() {
-      const grid = document.getElementById('gridEstoque');
-      grid.innerHTML = '';
-      PRODUTOS_FIXOS.forEach((prod, idx) => {
-        grid.innerHTML += `
-          <tr class="${idx % 2 ? 'bg-slate-50' : ''}">
-            <td class="px-3 py-2 font-medium whitespace-nowrap">${prod}</td>
-            <td class="px-1 py-1"><input type="number" min="0" id="ra_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
-            <td class="px-1 py-1"><input type="number" min="0" id="sh_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
-            <td class="px-3 py-2 cell-calc bg-slate-50" id="tc_${idx}">0</td>
-            <td class="px-1 py-1"><input type="number" min="0" id="vd_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
-            <td class="px-1 py-1"><input type="number" min="0" id="ta_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
-            <td class="px-1 py-1"><input type="number" min="0" id="rat_${idx}" value="0" class="cell-input" oninput="recalcularTudo()"></td>
-            <td class="px-3 py-2 text-right font-semibold" id="div_${idx}">0</td>
-          </tr>
-        `;
-      });
-    }
-
-    function abrirFechamento() {
-      const v = document.getElementById('selVendedor').value;
-      const d = document.getElementById('selData').value;
-      if (!v) return alert('Selecione o vendedor!');
-
-      document.getElementById('lblVendedorNome').innerText = v;
-      document.getElementById('lblData').innerText = `(${d})`;
-      document.getElementById('painel-principal').classList.remove('hidden');
-      renderizarGridEstoque();
-      recalcularTudo();
-    }
-
-    function recalcularTudo() {
-      let countDivergente = 0;
-      PRODUTOS_FIXOS.forEach((_, idx) => {
-        const ra = parseFloat(document.getElementById(`ra_${idx}`)?.value || 0);
-        const sh = parseFloat(document.getElementById(`sh_${idx}`)?.value || 0);
-        const vd = parseFloat(document.getElementById(`vd_${idx}`)?.value || 0);
-        const ta = parseFloat(document.getElementById(`ta_${idx}`)?.value || 0);
-        const rat = parseFloat(document.getElementById(`rat_${idx}`)?.value || 0);
-
-        const totalCarga = ra + sh;
-        const divergencia = rat - (totalCarga - vd - ta);
-
-        if (document.getElementById(`tc_${idx}`)) document.getElementById(`tc_${idx}`).innerText = totalCarga;
-        if (document.getElementById(`div_${idx}`)) {
-          document.getElementById(`div_${idx}`).innerText = (divergencia > 0 ? '+' : '') + divergencia;
-          if (divergencia !== 0) countDivergente++;
-        }
-      });
-
-      const din = parseFloat(document.getElementById('fin_dinheiro').value || 0);
-      const rec = parseFloat(document.getElementById('fin_notas_recebidas').value || 0);
-      const c = parseFloat(document.getElementById('desp_combustivel').value || 0);
-      const a = parseFloat(document.getElementById('desp_almoco').value || 0);
-      const o = parseFloat(document.getElementById('desp_outras').value || 0);
-      const ent = parseFloat(document.getElementById('dinheiro_entregue').value || 0);
-
-      const totalDespesas = c + a + o;
-      const caixaEsperado = din + rec - totalDespesas;
-      const diferenca = ent - caixaEsperado;
-
-      document.getElementById('lbl_total_despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
-      document.getElementById('lbl_caixa_esperado').innerText = `R$ ${caixaEsperado.toFixed(2)}`;
-      document.getElementById('lbl_diferenca_caixa').innerText = `R$ ${diferenca.toFixed(2)}`;
-    }
-
-    carregarVendedoresSelect();
-    // LISTA FIXA DE VENDEDORES
-const VENDEDORES_SISTEMA = [
-  "Charles",
-  "Vendedor 2",
-  "Vendedor 3",
-  "Vendedor 4",
-  "Vendedor 5",
-  "Vendedor 6"
-];
-
-let dadosAtendimentoAtuais = [];
-
-// 1. CARREGAR LISTA DE VENDEDORES E STATUS
+// 1. BUSCA DINAMICAMENTE OS VENDEDORES E O STATUS DE HOJE NO SUPABASE
 async function carregarAbaVendedores() {
   const container = document.getElementById('container-lista-vendedores');
-  container.innerHTML = '';
+  if (!container) return;
+  
+  container.innerHTML = '<div class="p-4 text-center text-slate-400">Buscando vendedores no Supabase...</div>';
 
-  const hojeInicio = new Date();
-  hojeInicio.setHours(0,0,0,0);
-  const isoHoje = hojeInicio.toISOString();
+  // 1. Busca todos os nomes únicos cadastrados nas tabelas de vendedores/rotas
+  const { data: rotasData, error: rotasErr } = await supabaseClient
+    .from('vendedores_cidades')
+    .select('vendedor_nome');
 
-  // Busca vendas de hoje do Supabase
-  const { data: fechamentosHoje, error } = await supabaseClient
+  let nomesVendedores = [];
+  if (rotasData && rotasData.length > 0) {
+    // Extrai e remove duplicados
+    nomesVendedores = [...new Set(rotasData.map(item => (item.vendedor_nome || '').trim()).filter(Boolean))];
+  }
+
+  // Se a tabela de vendedores_cidades estiver vazia, tenta pegar da clientes_rotas
+  if (nomesVendedores.length === 0) {
+    const { data: clientesData } = await supabaseClient
+      .from('clientes_rotas')
+      .select('vendedor_nome');
+    if (clientesData) {
+      nomesVendedores = [...new Set(clientesData.map(item => (item.vendedor_nome || '').trim()).filter(Boolean))];
+    }
+  }
+
+  // 2. Busca lançamentos/fechamentos de hoje no Supabase
+  const isoHoje = getIsoHojeInicio();
+  const { data: fechamentosHoje } = await supabaseClient
     .from('fechamentos')
     .select('*')
     .gte('data_atendimento', isoHoje);
 
-  if (error) console.error("Erro ao carregar status dos vendedores:", error);
+  // Se houver algum vendedor que vendeu hoje mas não estava na tabela fixa de rotas, inclui ele
+  if (fechamentosHoje) {
+    fechamentosHoje.forEach(f => {
+      if (f.vendedor_nome && !nomesVendedores.some(n => n.toLowerCase() === f.vendedor_nome.trim().toLowerCase())) {
+        nomesVendedores.push(f.vendedor_nome.trim());
+      }
+    });
+  }
 
-  VENDEDORES_SISTEMA.forEach(vendedor => {
-    const atendimentosVendedor = (fechamentosHoje || []).filter(f => f.vendedor_nome === vendedor);
-    
-    let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Não Iniciado</span>`;
+  container.innerHTML = '';
+
+  if (nomesVendedores.length === 0) {
+    container.innerHTML = '<div class="p-4 text-center text-slate-400">Nenhum vendedor encontrado no banco de dados.</div>';
+    return;
+  }
+
+  // 3. Monta a lista na tela verificando o status no Supabase
+  nomesVendedores.forEach(vendedor => {
+    const atendimentosVendedor = (fechamentosHoje || []).filter(f => 
+      (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase()
+    );
+
+    let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
 
     if (atendimentosVendedor.length > 0) {
-      const possuiConcluido = atendimentosVendedor.some(f => f.status === 'CONCLUIDO' || f.status === 'BLOQUEADO');
-      
+      const possuiConcluido = atendimentosVendedor.some(f => 
+        f.status === 'CONCLUIDO' || f.status === 'BLOQUEADO'
+      );
+
       if (possuiConcluido) {
-        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">🔴 Concluído</span>`;
+        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Concluído</span>`;
       } else {
-        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">🟢 Em Rota</span>`;
+        statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
       }
     }
 
@@ -581,14 +516,17 @@ async function carregarAbaVendedores() {
     linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
     linha.onclick = () => abrirDetalheVendedor(vendedor);
     linha.innerHTML = `
-      <span class="font-medium text-slate-800">${vendedor}</span>
+      <div class="flex items-center gap-2">
+        <span class="font-medium text-slate-800">${vendedor}</span>
+        <span class="text-xs text-slate-400">(${atendimentosVendedor.length} atendimentos hoje)</span>
+      </div>
       <div>${statusHTML}</div>
     `;
     container.appendChild(linha);
   });
 }
 
-// 2. ABRIR DETALHES E FOLHA DE FECHAMENTO DO VENDEDOR
+// 2. DETALHES E FOLHA DO VENDEDOR SELECIONADO
 async function abrirDetalheVendedor(vendedorNome) {
   document.getElementById('visao-lista-vendedores').classList.add('hidden');
   document.getElementById('visao-detalhe-vendedor').classList.remove('hidden');
@@ -596,16 +534,27 @@ async function abrirDetalheVendedor(vendedorNome) {
   document.getElementById('folha-vendedor-nome').innerText = vendedorNome;
   document.getElementById('folha-data').innerText = new Date().toLocaleDateString('pt-BR');
 
-  const hojeInicio = new Date();
-  hojeInicio.setHours(0,0,0,0);
+  const tbody = document.getElementById('tabela-atendimentos-body');
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Buscando atendimentos do Supabase...</td></tr>`;
+  }
+
+  const isoHoje = getIsoHojeInicio();
 
   const { data: atendimentos, error } = await supabaseClient
     .from('fechamentos')
     .select('*')
-    .eq('vendedor_nome', vendedorNome)
-    .gte('data_atendimento', hojeInicio.toISOString());
+    .gte('data_atendimento', isoHoje)
+    .order('data_atendimento', { ascending: true });
 
-  dadosAtendimentoAtuais = atendimentos || [];
+  if (error) {
+    console.error("Erro ao buscar atendimentos do vendedor:", error);
+  }
+
+  dadosAtendimentoAtuais = (atendimentos || []).filter(f => 
+    (f.vendedor_nome || '').trim().toLowerCase() === vendedorNome.trim().toLowerCase()
+  );
+
   renderizarTabelaAtendimentos();
   calcularFechamentoFisico();
 }
@@ -616,13 +565,14 @@ function voltarParaListaVendedores() {
   carregarAbaVendedores();
 }
 
-// 3. RENDERIZAR TABELA DE ATENDIMENTOS DA ROTA
+// 3. RENDERIZA TABELA SEM A ÁGUA DE 1,5L
 function renderizarTabelaAtendimentos() {
   const tbody = document.getElementById('tabela-atendimentos-body');
+  if (!tbody) return;
   tbody.innerHTML = '';
 
   if (dadosAtendimentoAtuais.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400">Nenhum atendimento registrado hoje.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Nenhum atendimento registrado hoje para este vendedor.</td></tr>`;
     return;
   }
 
@@ -630,25 +580,23 @@ function renderizarTabelaAtendimentos() {
     const tr = document.createElement('tr');
     tr.className = "hover:bg-slate-50";
     tr.innerHTML = `
-      <td class="p-2 font-medium">${item.cliente_nome || 'Cliente'}</td>
-      <td class="p-2">${item.cidade || '-'}</td>
-      <td class="p-2">${item.forma_pagamento || 'N/A'}</td>
+      <td class="p-2 font-medium text-slate-800">${item.cliente_nome || item.cliente || 'Cliente'}</td>
+      <td class="p-2 text-slate-600">${item.cidade || '-'}</td>
+      <td class="p-2 text-slate-600">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
       <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
       <td class="p-2 text-center">${item.qtd_900ml || 0}</td>
       <td class="p-2 text-center">${item.qtd_uva || 0}</td>
       <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td>
       <td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
-      <td class="p-2 text-center">${item.qtd_agua_15l || 0}</td>
-      <td class="p-2 text-right font-bold">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
+      <td class="p-2 text-right font-bold text-emerald-700">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// 4. SOMAS AUTOMÁTICAS DA FOLHA DE FECHAMENTO (PRODUTOS E CAIXA)
+// 4. SOMAS E CONCILIAÇÃO
 function calcularFechamentoFisico() {
-  // Somas de Vendas vindo do Supabase
-  let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0, v15l = 0;
+  let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0;
   let totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
 
   dadosAtendimentoAtuais.forEach(item => {
@@ -657,59 +605,49 @@ function calcularFechamentoFisico() {
     vuva += Number(item.qtd_uva || 0);
     vsg += Number(item.qtd_agua_sg || 0);
     vcg += Number(item.qtd_agua_cg || 0);
-    v15l += Number(item.qtd_agua_15l || 0);
 
     const val = Number(item.valor_total || 0);
     totGeral += val;
 
-    const pgto = (item.forma_pagamento || '').toUpperCase();
+    const pgto = String(item.forma_pagamento || '').toUpperCase();
     if (pgto.includes('DINHEIRO')) totDinheiro += val;
     else if (pgto.includes('PIX')) totPix += val;
     else totPrazo += val;
   });
 
-  // Atualiza linha VENDAS na tabela física
-  document.getElementById('venda-330').innerText = v330;
-  document.getElementById('venda-900').innerText = v900;
-  document.getElementById('venda-uva').innerText = vuva;
-  document.getElementById('venda-sg').innerText = vsg;
-  document.getElementById('venda-cg').innerText = vcg;
-  document.getElementById('venda-15l').innerText = v15l;
+  // Atualiza linha de Vendas Totais
+  if(document.getElementById('venda-330')) document.getElementById('venda-330').innerText = v330;
+  if(document.getElementById('venda-900')) document.getElementById('venda-900').innerText = v900;
+  if(document.getElementById('venda-uva')) document.getElementById('venda-uva').innerText = vuva;
+  if(document.getElementById('venda-sg')) document.getElementById('venda-sg').innerText = vsg;
+  if(document.getElementById('venda-cg')) document.getElementById('venda-cg').innerText = vcg;
 
-  // Função auxiliar para pegar valor dos inputs
   const getVal = (id) => Number(document.getElementById(id)?.value || 0);
 
-  // Totais Carga = Retorno Anterior + Saídas
-  document.getElementById('tot-330').innerText = getVal('ret-330') + getVal('sai-330');
-  document.getElementById('tot-900').innerText = getVal('ret-900') + getVal('sai-900');
-  document.getElementById('tot-uva').innerText = getVal('ret-uva') + getVal('sai-uva');
-  document.getElementById('tot-sg').innerText = getVal('ret-sg') + getVal('sai-sg');
-  document.getElementById('tot-cg').innerText = getVal('ret-cg') + getVal('sai-cg');
-  document.getElementById('tot-15l').innerText = getVal('ret-15l') + getVal('sai-15l');
+  // Carga
+  if(document.getElementById('tot-330')) document.getElementById('tot-330').innerText = getVal('ret-330') + getVal('sai-330');
+  if(document.getElementById('tot-900')) document.getElementById('tot-900').innerText = getVal('ret-900') + getVal('sai-900');
+  if(document.getElementById('tot-uva')) document.getElementById('tot-uva').innerText = getVal('ret-uva') + getVal('sai-uva');
+  if(document.getElementById('tot-sg')) document.getElementById('tot-sg').innerText = getVal('ret-sg') + getVal('sai-sg');
+  if(document.getElementById('tot-cg')) document.getElementById('tot-cg').innerText = getVal('ret-cg') + getVal('sai-cg');
 
-  // Retorno Atual = Total Carga - Vendas
-  document.getElementById('ret-atual-330').innerText = (getVal('ret-330') + getVal('sai-330')) - v330;
-  document.getElementById('ret-atual-900').innerText = (getVal('ret-900') + getVal('sai-900')) - v900;
-  document.getElementById('ret-atual-uva').innerText = (getVal('ret-uva') + getVal('sai-uva')) - vuva;
-  document.getElementById('ret-atual-sg').innerText = (getVal('ret-sg') + getVal('sai-sg')) - vsg;
-  document.getElementById('ret-atual-cg').innerText = (getVal('ret-cg') + getVal('sai-cg')) - vcg;
-  document.getElementById('ret-atual-15l').innerText = (getVal('ret-15l') + getVal('sai-15l')) - v15l;
+  // Retorno Atual
+  if(document.getElementById('ret-atual-330')) document.getElementById('ret-atual-330').innerText = (getVal('ret-330') + getVal('sai-330')) - v330;
+  if(document.getElementById('ret-atual-900')) document.getElementById('ret-atual-900').innerText = (getVal('ret-900') + getVal('sai-900')) - v900;
+  if(document.getElementById('ret-atual-uva')) document.getElementById('ret-atual-uva').innerText = (getVal('ret-uva') + getVal('sai-uva')) - vuva;
+  if(document.getElementById('ret-atual-sg')) document.getElementById('ret-atual-sg').innerText = (getVal('ret-sg') + getVal('sai-sg')) - vsg;
+  if(document.getElementById('ret-atual-cg')) document.getElementById('ret-atual-cg').innerText = (getVal('ret-cg') + getVal('sai-cg')) - vcg;
 
-  // Atualiza Valores Financeiros
-  document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
-  document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
-  document.getElementById('fin-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
-  document.getElementById('fin-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+  // Financeiro
+  if(document.getElementById('fin-dinheiro')) document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
+  if(document.getElementById('fin-pix')) document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+  if(document.getElementById('fin-prazo')) document.getElementById('fin-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
+  if(document.getElementById('fin-total-geral')) document.getElementById('fin-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
 
-  // Calcula Despesas
+  // Despesas
   const totalDespesas = getVal('desp-combustivel') + getVal('desp-almoco') + getVal('desp-outras');
-  document.getElementById('desp-total').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+  if(document.getElementById('desp-total')) document.getElementById('desp-total').innerText = `R$ ${totalDespesas.toFixed(2)}`;
 }
-
-// Iniciar aba Vendedores ao carregar a tela
-document.addEventListener('DOMContentLoaded', () => {
-  carregarAbaVendedores();
-});
     
   </script>
 </body>
