@@ -213,6 +213,12 @@
       ← Voltar para Lista de Vendedores
     </button>
 
+    <!-- Botão Excluir/Resetar -->
+  <button onclick="excluirFechamentoAtual()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition">
+    🗑️ Excluir Fechamento
+  </button>
+</div>
+
     <!-- FOLHA A4 CENTRALIZADA -->
     <div class="max-w-4xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800">
       
@@ -393,6 +399,16 @@
   </main>
 
   <script>
+    function formatarDataBR(dataString) {
+  if (!dataString) return '-';
+  const partes = dataString.split('T')[0].split('-');
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+  return new Date(dataString).toLocaleDateString('pt-BR');
+}
+
+    
     
     // ==========================================
     // CONFIGURAÇÃO DO SUPABASE
@@ -468,11 +484,45 @@
         activeBtn.classList.remove('text-slate-300');
         activeBtn.classList.add('bg-sky-600', 'text-white');
       }
+      if (aba === 'fechamento') {
+  carregarSelectVendedoresFechamento();
+}
 
       if (aba === 'vendedores') {
         carregarAbaVendedores();
       }
     }
+    async function carregarSelectVendedoresFechamento() {
+  // Ajuste o ID do seu <select> aqui se no HTML estiver com outro nome
+  const select = document.getElementById('selVendedor') || document.getElementById('select-vendedor-fechamento');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">Carregando vendedores...</option>';
+
+  const { data: rotasData } = await supabaseClient.from('vendedores_cidades').select('vendedor_nome');
+  let nomes = [];
+
+  if (rotasData && rotasData.length > 0) {
+    nomes = [...new Set(rotasData.map(item => (item.vendedor_nome || '').trim()).filter(Boolean))];
+  }
+
+  if (nomes.length === 0) {
+    const { data: clientesData } = await supabaseClient.from('clientes_rotas').select('vendedor_nome');
+    if (clientesData) {
+      nomes = [...new Set(clientesData.map(item => (item.vendedor_nome || '').trim()).filter(Boolean))];
+    }
+  }
+
+  select.innerHTML = '<option value="">Selecione um vendedor</option>';
+  nomes.forEach(nome => {
+    const opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    select.appendChild(opt);
+  });
+}
+
+    
 
     // Retorna o intervalo do dia selecionado em ISO
     function getIntervaloDataSelecionada() {
@@ -621,6 +671,38 @@
       document.getElementById('visao-lista-vendedores').classList.remove('hidden');
       carregarAbaVendedores();
     }
+    // Função para zerar/excluir o fechamento do vendedor com dupla confirmação
+async function excluirFechamentoAtual() {
+  if (!vendedorSelecionadoAtual) return;
+
+  const { inicio, fim, dataFormatada } = getIntervaloDataSelecionada();
+
+  // 1ª Confirmação
+  const confirm1 = confirm(`Tem certeza que quer excluir o fechamento de ${vendedorSelecionadoAtual} do dia ${dataFormatada}?`);
+  if (!confirm1) return;
+
+  // 2ª Confirmação
+  const confirm2 = confirm(`⚠️ ATENÇÃO: Esta ação irá ZERAR as vendas de ${vendedorSelecionadoAtual} no painel para o dia ${dataFormatada}. Confirma o reset?`);
+  if (!confirm2) return;
+
+  // Marca como EXCLUIDO no Supabase para não somar no painel
+  const { error } = await supabaseClient
+    .from('fechamentos')
+    .update({ status: 'EXCLUIDO' })
+    .gte('data_atendimento', inicio)
+    .lte('data_atendimento', fim)
+    .ilike('vendedor_nome', vendedorSelecionadoAtual);
+
+  if (error) {
+    alert('Erro ao resetar fechamento: ' + error.message);
+    return;
+  }
+
+  alert(`Fechamento de ${vendedorSelecionadoAtual} zerado com sucesso!`);
+  voltarParaListaVendedores();
+}
+
+    
 
     // ==========================================
     // 3. RENDERIZAR TABELA DE ATENDIMENTOS
