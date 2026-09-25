@@ -547,7 +547,7 @@
 
       const { inicio, fim } = getIntervaloDataSelecionada();
 
-      // Busca vendedores cadastrados
+      // 1. Busca estritamente os vendedores cadastrados no banco de dados (Evita nomes antigos/sobrando)
       const { data: rotasData } = await supabaseClient
         .from('vendedores_cidades')
         .select('vendedor_nome');
@@ -557,6 +557,7 @@
         nomesVendedores = [...new Set(rotasData.map(item => (item.vendedor_nome || '').trim()).filter(Boolean))];
       }
 
+      // Fallback apenas se a tabela de cadastro de vendedores estiver totalmente vazia
       if (nomesVendedores.length === 0) {
         const { data: clientesData } = await supabaseClient.from('clientes_rotas').select('vendedor_nome');
         if (clientesData) {
@@ -564,22 +565,13 @@
         }
       }
 
-      // Busca vendas registradas na data selecionada
+      // 2. Busca vendas/atendimentos registrados na data selecionada
       const { data: fechamentosData } = await supabaseClient
         .from('fechamentos')
         .select('*')
         .gte('data_atendimento', inicio)
         .lte('data_atendimento', fim)
         .neq('status', 'EXCLUIDO');
-
-      // Inclui vendedores que registraram vendas na data, caso não estejam no cadastro base
-      if (fechamentosData) {
-        fechamentosData.forEach(f => {
-          if (f.vendedor_nome && !nomesVendedores.some(n => n.toLowerCase() === f.vendedor_nome.trim().toLowerCase())) {
-            nomesVendedores.push(f.vendedor_nome.trim());
-          }
-        });
-      }
 
       container.innerHTML = '';
 
@@ -588,6 +580,7 @@
         return;
       }
 
+      // 3. Monta a exibição dos cards/linhas mantendo todas as funções visuais
       nomesVendedores.forEach(vendedor => {
         const atendimentosVendedor = (fechamentosData || []).filter(f => 
           (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase()
@@ -599,11 +592,12 @@
         if (atendimentosVendedor.length > 0) {
           totalAcumulado = atendimentosVendedor.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
 
-          const rotaFinalizada = atendimentosVendedor.some(f => 
-            f.status && ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(f.status.toUpperCase())
+          // Verifica se o dia foi encerrado pelo botão de Concluir Fechamento
+          const rotaConcluida = atendimentosVendedor.some(f => 
+            f.status && ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(String(f.status).toUpperCase())
           );
 
-          if (rotaFinalizada) {
+          if (rotaConcluida) {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
           } else {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota (Ao Vivo)</span>`;
