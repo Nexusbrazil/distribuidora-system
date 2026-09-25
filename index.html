@@ -569,7 +569,8 @@
         .from('fechamentos')
         .select('*')
         .gte('data_atendimento', inicio)
-        .lte('data_atendimento', fim);
+        .lte('data_atendimento', fim)
+        .neq('status', 'EXCLUIDO');
 
       // Inclui vendedores que registraram vendas na data, caso não estejam no cadastro base
       if (fechamentosData) {
@@ -598,11 +599,11 @@
         if (atendimentosVendedor.length > 0) {
           totalAcumulado = atendimentosVendedor.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
 
-          const possuiConcluido = atendimentosVendedor.some(f => 
-            f.status === 'CONCLUIDO' || f.status === 'BLOQUEADO' || f.status === 'FECHADO'
+          const rotaFinalizada = atendimentosVendedor.some(f => 
+            f.status && ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(f.status.toUpperCase())
           );
 
-          if (possuiConcluido) {
+          if (rotaFinalizada) {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
           } else {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota (Ao Vivo)</span>`;
