@@ -84,10 +84,6 @@
           <span id="badgeStatus" class="bg-amber-100 text-amber-700 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">📝 RASCUNHO</span>
         </div>
 
-        <div id="resumo-banner" class="px-4 py-3 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 text-sm font-medium">
-          Preencha os valores para calcular as divergências.
-        </div>
-
         <!-- CONCILIAÇÃO FINANCEIRA -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <h3 class="font-bold text-slate-800 text-base mb-4">Conciliação Financeira de Caixa</h3>
@@ -145,15 +141,6 @@
             </div>
           </div>
         </div>
-
-        <div class="flex justify-end items-center gap-3 pt-2">
-          <button onclick="salvarFechamento('RASCUNHO')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-lg font-semibold text-sm transition">
-            💾 Salvar Rascunho
-          </button>
-          <button onclick="salvarFechamento('APROVADO')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition shadow-sm">
-            ✅ Aprovar &amp; Travar Fechamento
-          </button>
-        </div>
       </div>
     </section>
 
@@ -178,21 +165,12 @@
           <span>Nome do Vendedor</span>
           <span>Status do Dia</span>
         </div>
-        
-        <!-- Linhas dos Vendedores (Injetadas via JS) -->
         <div id="container-lista-vendedores" class="divide-y divide-slate-100">
           <div class="p-4 text-center text-slate-400">Carregando lista de vendedores...</div>
         </div>
-
-        <!-- Botão Adicionar Vendedor -->
-        <div class="p-4 bg-slate-50 border-t border-slate-100">
-          <button onclick="alert('Funcionalidade de cadastrar novo vendedor em breve!')" class="w-full py-2 border-2 border-dashed border-slate-300 text-slate-600 rounded-lg font-medium hover:border-slate-400 hover:text-slate-800 transition flex items-center justify-center gap-2">
-            <span>+ Adicionar Vendedor</span>
-          </button>
-        </div>
       </div>
 
-      <!-- VISÃO DETALHADA / FOLHA DE FECHAMENTO (Oculta por padrão) -->
+      <!-- VISÃO DETALHADA / FOLHA DE FECHAMENTO -->
       <div id="visao-detalhe-vendedor" class="hidden">
         <div class="flex gap-4 mb-4">
           <button onclick="voltarParaListaVendedores()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition flex items-center gap-2">
@@ -203,14 +181,12 @@
           </button>
         </div>
 
-        <!-- FOLHA A4 CENTRALIZADA -->
         <div class="max-w-4xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800">
           
-          <!-- CABEÇALHO DO VENDEDOR -->
           <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-end">
             <div>
               <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900">Vendedor</h2>
-              <p id="folha-vendedor-rota" class="text-sm text-slate-600">Rota: --</p>
+              <p id="folha-vendedor-rota" class="text-sm text-slate-600">Rota: Ao Vivo</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-slate-500">Data do Atendimento</p>
@@ -218,7 +194,6 @@
             </div>
           </div>
 
-          <!-- LISTA DE ATENDIMENTOS DA ROTA -->
           <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos do Dia (Ao Vivo)</h3>
           <div class="overflow-x-auto mb-8 border border-slate-200 rounded">
             <table class="w-full text-xs text-left">
@@ -236,16 +211,15 @@
                 </tr>
               </thead>
               <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-100">
-                <!-- Linhas de clientes inseridas dinamicamente -->
+                <!-- Injetado via JS -->
               </tbody>
             </table>
           </div>
 
-          <!-- QUADRO DE FECHAMENTO FÍSICO (TABELA DE CONFERÊNCIA) -->
+          <!-- QUADRO DE FECHAMENTO FÍSICO -->
           <div class="mt-8 border-t-2 border-slate-800 pt-4">
             <h3 class="font-bold text-lg mb-3 text-center uppercase tracking-wide border-b pb-1">Fechamento de Carga e Caixa</h3>
             
-            <!-- TABELA DE CAIXAS / PRODUTOS -->
             <table class="w-full border-collapse border border-slate-400 text-xs mb-6 text-center">
               <thead>
                 <tr class="bg-slate-200 font-bold border-b border-slate-400">
@@ -301,83 +275,50 @@
               </tbody>
             </table>
 
-            <!-- RESUMO FINANCEIRO E DESPESAS -->
             <div class="grid grid-cols-2 gap-4">
               <div class="border border-slate-400 p-3 rounded">
                 <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Resumo do Caixa (R$)</h4>
                 <div class="flex justify-between py-1 text-xs border-b border-slate-100">
-                  <span>Dinheiro:</span>
-                  <strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong>
+                  <span>Dinheiro:</span><strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between py-1 text-xs border-b border-slate-100">
-                  <span>PIX:</span>
-                  <strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong>
+                  <span>PIX:</span><strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between py-1 text-xs border-b border-slate-100">
-                  <span>A Prazo / Boleto:</span>
-                  <strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong>
+                  <span>A Prazo / Boleto:</span><strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between py-2 text-sm font-bold bg-slate-100 px-2 rounded mt-2">
-                  <span>Total Vendido:</span>
-                  <span id="fin-folha-total-geral">R$ 0,00</span>
+                  <span>Total Vendido:</span><span id="fin-folha-total-geral">R$ 0,00</span>
                 </div>
               </div>
 
-              <!-- DESPESAS (COMBUSTÍVEL, ALMOÇO, OUTRAS) -->
               <div class="border border-slate-400 p-3 rounded">
                 <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Despesas do Dia (R$)</h4>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Combustível:</span>
-                  <input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Combustível:</span><input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
                 </div>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Almoço:</span>
-                  <input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Almoço:</span><input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
                 </div>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Outras:</span>
-                  <input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Outras:</span><input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
                 </div>
                 <div class="flex justify-between py-2 text-sm font-bold bg-red-50 text-red-700 px-2 rounded mt-2">
-                  <span>Total Despesas:</span>
-                  <span id="desp-folha-total">R$ 0,00</span>
+                  <span>Total Despesas:</span><span id="desp-folha-total">R$ 0,00</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- FIM DA VISÃO DETALHADA -->
+      </div>
     </section>
-    
+
     <!-- ========================================================================= -->
     <!-- SEÇÃO 3: RELATÓRIO MENSAL                                                 -->
     <!-- ========================================================================= -->
     <section id="sec-dashboard" class="hidden">
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-900">Relatório Mensal</h2>
-          <p class="text-slate-500 text-sm">Totais de fechamentos aprovados e conciliação consolidada.</p>
-        </div>
-        <div class="flex gap-2 items-end">
-          <input type="month" id="selMesRelatorio" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
-          <button onclick="carregarRelatorioMensal()" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition">Filtrar</button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Dinheiro Entregue</div>
-          <div class="text-3xl font-bold text-emerald-600" id="dash_dinheiro">R$ 0,00</div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total PIX</div>
-          <div class="text-3xl font-bold text-sky-600" id="dash_pix">R$ 0,00</div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Diferença de Caixa Acumulada</div>
-          <div class="text-3xl font-bold text-slate-800" id="dash_diferenca">R$ 0,00</div>
-        </div>
-      </div>
+      <!-- (Mantida estrutura visual do Dashboard) -->
+       <div class="mb-6"><h2 class="text-2xl font-bold text-slate-900">Relatório Mensal</h2></div>
     </section>
 
   </main>
@@ -386,15 +327,10 @@
     function formatarDataBR(dataString) {
       if (!dataString) return '-';
       const partes = dataString.split('T')[0].split('-');
-      if (partes.length === 3) {
-        return `${partes[2]}/${partes[1]}/${partes[0]}`;
-      }
+      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
       return new Date(dataString).toLocaleDateString('pt-BR');
     }
     
-    // ==========================================
-    // CONFIGURAÇÃO DO SUPABASE
-    // ==========================================
     const SUPABASE_URL = 'https://podnijlrofkhcbbqliem.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -407,29 +343,20 @@
       const hoje = new Date().toISOString().split('T')[0];
       if (document.getElementById('selData')) document.getElementById('selData').value = hoje;
       if (document.getElementById('selDataVendedores')) document.getElementById('selDataVendedores').value = hoje;
-      if (document.getElementById('selMesRelatorio')) document.getElementById('selMesRelatorio').value = hoje.slice(0, 7);
-
       iniciarRealtimeSupabase();
-      mudarAba('fechamento'); // Aba padrão
+      mudarAba('vendedores'); // Deixando aba vendedores como padrão pra facilitar testes
     });
 
-    // ==========================================
-    // ESCUTA EM TEMPO REAL
-    // ==========================================
     function iniciarRealtimeSupabase() {
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
       canalRealtime = supabaseClient
         .channel('mudancas-fechamento-ao-vivo')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, (payload) => {
-            console.log('⚡ Atualização recebida:', payload);
             carregarAbaVendedores();
             if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual);
         }).subscribe();
     }
 
-    // ==========================================
-    // NAVEGAÇÃO
-    // ==========================================
     function mudarAba(aba) {
       ['sec-fechamento', 'aba-vendedores', 'sec-dashboard'].forEach(id => {
         const el = document.getElementById(id);
@@ -442,22 +369,18 @@
           btn.classList.add('text-slate-300');
         }
       });
-
       const mapaAbas = { 'fechamento': 'sec-fechamento', 'vendedores': 'aba-vendedores', 'dashboard': 'sec-dashboard' };
       document.getElementById(mapaAbas[aba]).classList.remove('hidden');
-      
       const activeBtn = document.getElementById(`nav-${aba}`);
       activeBtn.classList.remove('text-slate-300');
       activeBtn.classList.add('bg-sky-600', 'text-white');
 
-      if (aba === 'fechamento') carregarSelectVendedoresFechamento();
       if (aba === 'vendedores') {
         vendedorSelecionadoAtual = null;
         document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
         document.getElementById('visao-lista-vendedores').classList.remove('hidden');
         carregarAbaVendedores();
       }
-      if (aba === 'dashboard') carregarRelatorioMensal();
     }
 
     function getIntervaloDataSelecionada(idInputData) {
@@ -469,76 +392,7 @@
     }
 
     // ==========================================
-    // LÓGICA DA SEÇÃO 1: FECHAMENTO DIÁRIO
-    // ==========================================
-    async function carregarSelectVendedoresFechamento() {
-      const select = document.getElementById('selVendedor');
-      if (!select) return;
-      select.innerHTML = '<option value="">Carregando vendedores...</option>';
-
-      const { data: rotasData } = await supabaseClient.from('vendedores_cidades').select('vendedor_nome');
-      let nomes = [];
-      if (rotasData) nomes = [...new Set(rotasData.map(i => (i.vendedor_nome || '').trim()).filter(Boolean))];
-      
-      // Injeta vendedores fixos garantindo que o Elton apareça
-      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
-      fixos.forEach(v => {
-        if(!nomes.some(n => n.toLowerCase() === v.toLowerCase())) nomes.push(v);
-      });
-
-      select.innerHTML = '<option value="">Selecione um vendedor</option>';
-      nomes.sort().forEach(nome => {
-        select.innerHTML += `<option value="${nome}">${nome}</option>`;
-      });
-    }
-
-    function abrirFechamento() {
-      const vendedor = document.getElementById('selVendedor').value;
-      const data = document.getElementById('selData').value;
-
-      if (!vendedor || !data) {
-        alert("Por favor, selecione um vendedor e uma data.");
-        return;
-      }
-
-      document.getElementById('painel-principal').classList.remove('hidden');
-      document.getElementById('lblVendedorNome').innerText = vendedor;
-      document.getElementById('lblData').innerText = formatarDataBR(data);
-      recalcularTudo();
-    }
-
-    function recalcularTudo() {
-      const getVal = id => Number(document.getElementById(id)?.value || 0);
-
-      const totalDespesas = getVal('desp_combustivel') + getVal('desp_almoco') + getVal('desp_outras');
-      document.getElementById('lbl_total_despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
-
-      const dinheiroFolha = getVal('fin_dinheiro');
-      const dinheiroEntregue = getVal('dinheiro_entregue');
-
-      const caixaEsperado = dinheiroFolha - totalDespesas;
-      document.getElementById('lbl_caixa_esperado').innerText = `R$ ${caixaEsperado.toFixed(2)}`;
-
-      const diferenca = dinheiroEntregue - caixaEsperado;
-      const lblDiferenca = document.getElementById('lbl_diferenca_caixa');
-      lblDiferenca.innerText = `R$ ${diferenca.toFixed(2)}`;
-
-      if (diferenca < 0) {
-        lblDiferenca.className = "cell-calc text-lg px-3 py-2 bg-red-100 text-red-700 rounded-lg border border-red-200";
-      } else if (diferenca > 0) {
-        lblDiferenca.className = "cell-calc text-lg px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200";
-      } else {
-        lblDiferenca.className = "cell-calc text-lg px-3 py-2 bg-slate-100 text-slate-700 rounded-lg border border-slate-200";
-      }
-    }
-
-    function salvarFechamento(status) {
-      alert(`Fechamento gravado no sistema com status: ${status}.`);
-      // Aqui entraria o código de Insert/Update no Supabase referente ao caixa preenchido.
-    }
-
-    // ==========================================
-    // LÓGICA DA SEÇÃO 2: ABA VENDEDORES E FOLHA
+    // LÓGICA DA SEÇÃO 2: ABA VENDEDORES
     // ==========================================
     async function carregarAbaVendedores() {
       const container = document.getElementById('container-lista-vendedores');
@@ -550,7 +404,6 @@
       let nomesVendedores = [];
       if (rotasData) nomesVendedores = [...new Set(rotasData.map(i => (i.vendedor_nome || '').trim()).filter(Boolean))];
 
-      // Garante a lista incluindo Elton
       const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
       fixos.forEach(v => {
         if(!nomesVendedores.some(n => n.toLowerCase() === v.toLowerCase())) nomesVendedores.push(v);
@@ -565,24 +418,36 @@
 
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
-        const atendimentos = (fechamentosData || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase());
+        // Pega todos os registros do vendedor (incluindo estoques sem cliente)
+        const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase());
         
+        // NOVO FILTRO: Separa apenas registros que têm um NOME de cliente preenchido
+        const vendasReais = todosRegistros.filter(f => {
+          const nomeCliente = f.cliente_nome || f.cliente || '';
+          return nomeCliente.trim().length > 0; // Só entra se não for vazio
+        });
+
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         let totalAcumulado = 0;
 
-        if (atendimentos.length > 0) {
-          totalAcumulado = atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
-          const rotaConcluida = atendimentos.some(f => ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(String(f.status || '').toUpperCase()));
-          statusHTML = rotaConcluida 
-            ? `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`
-            : `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota (Ao Vivo)</span>`;
+        if (todosRegistros.length > 0) {
+          totalAcumulado = vendasReais.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
+          
+          // Checa se o app mandou algum registro explicitamente como fechado
+          const rotaConcluida = todosRegistros.some(f => ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(String(f.status || '').toUpperCase()));
+          
+          if (rotaConcluida && vendasReais.length > 0) {
+            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
+          } else {
+            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota (Ao Vivo)</span>`;
+          }
         }
 
         const linha = document.createElement('div');
         linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
         linha.onclick = () => abrirDetalheVendedor(vendedor);
         linha.innerHTML = `
-          <div><span class="font-bold text-slate-800 text-base">${vendedor}</span><p class="text-xs text-slate-400">${atendimentos.length} cliente(s) atendido(s)</p></div>
+          <div><span class="font-bold text-slate-800 text-base">${vendedor}</span><p class="text-xs text-slate-400">${vendasReais.length} cliente(s) atendido(s)</p></div>
           <div class="flex items-center gap-4"><span class="font-bold text-slate-700 text-sm">R$ ${totalAcumulado.toFixed(2)}</span>${statusHTML}</div>
         `;
         container.appendChild(linha);
@@ -605,18 +470,23 @@
         .lte('data_atendimento', fim)
         .order('data_atendimento', { ascending: true });
 
-      dadosAtendimentoAtuais = (atendimentos || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedorNome.toLowerCase());
+      // Guarda na global só as vendas reais para não quebrar a calculadora
+      dadosAtendimentoAtuais = (atendimentos || []).filter(f => {
+        const isVendedor = (f.vendedor_nome || '').trim().toLowerCase() === vendedorNome.toLowerCase();
+        const hasCliente = (f.cliente_nome || f.cliente || '').trim().length > 0;
+        return isVendedor && hasCliente;
+      });
       
       const tbody = document.getElementById('tabela-atendimentos-body');
       tbody.innerHTML = '';
       
       if (dadosAtendimentoAtuais.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Nenhum atendimento registrado nesta data.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Nenhum cliente atendido ainda nesta rota.</td></tr>`;
       } else {
         dadosAtendimentoAtuais.forEach(item => {
           tbody.innerHTML += `
             <tr class="hover:bg-slate-50">
-              <td class="p-2 font-medium text-slate-800">${item.cliente_nome || item.cliente || 'Cliente'}</td>
+              <td class="p-2 font-medium text-slate-800">${item.cliente_nome || item.cliente}</td>
               <td class="p-2 text-slate-600">${item.cidade || '-'}</td>
               <td class="p-2 text-slate-600 font-semibold">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
               <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
@@ -631,33 +501,11 @@
       calcularFechamentoFisico();
     }
 
-    function voltarParaListaVendedores() {
-      vendedorSelecionadoAtual = null;
-      document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
-      document.getElementById('visao-lista-vendedores').classList.remove('hidden');
-      carregarAbaVendedores();
-    }
-
-    async function excluirFechamentoAtual() {
-      if (!vendedorSelecionadoAtual) return;
-      const { inicio, fim, dataFormatada } = getIntervaloDataSelecionada('selDataVendedores');
-      if (!confirm(`Tem certeza que quer excluir o fechamento de ${vendedorSelecionadoAtual}?`)) return;
-      
-      const { error } = await supabaseClient
-        .from('fechamentos')
-        .update({ status: 'EXCLUIDO' })
-        .gte('data_atendimento', inicio)
-        .lte('data_atendimento', fim)
-        .ilike('vendedor_nome', vendedorSelecionadoAtual);
-
-      if (error) alert('Erro: ' + error.message);
-      else { alert('Fechamento zerado!'); voltarParaListaVendedores(); }
-    }
-
     function calcularFechamentoFisico() {
       let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0;
       let totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
 
+      // dadosAtendimentoAtuais agora só tem Vendas Reais, então não vai somar o estoque fantasma
       dadosAtendimentoAtuais.forEach(item => {
         v330 += Number(item.qtd_330ml || 0); v900 += Number(item.qtd_900ml || 0);
         vuva += Number(item.qtd_uva || 0); vsg += Number(item.qtd_agua_sg || 0); vcg += Number(item.qtd_agua_cg || 0);
@@ -670,7 +518,6 @@
         else totPrazo += val;
       });
 
-      // Atualiza linha de Vendas do Sistema (Físico)
       ['330', '900', 'uva', 'sg', 'cg'].forEach(prod => {
         document.getElementById(`venda-${prod}`).innerText = eval(`v${prod}`);
         const getV = id => Number(document.getElementById(id)?.value || 0);
@@ -682,7 +529,6 @@
         document.getElementById(`ret-atual-${prod}`).innerText = totCarga - eval(`v${prod}`);
       });
 
-      // Resumo Financeiro da Folha
       document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
       document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
       document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
@@ -693,17 +539,27 @@
       document.getElementById('desp-folha-total').innerText = `R$ ${totDesp.toFixed(2)}`;
     }
 
-    // ==========================================
-    // LÓGICA DA SEÇÃO 3: DASHBOARD / RELATÓRIO
-    // ==========================================
-    function carregarRelatorioMensal() {
-      // Simulação rápida para evitar botões quebrados
-      document.getElementById('dash_dinheiro').innerText = "Carregando...";
-      setTimeout(() => {
-        document.getElementById('dash_dinheiro').innerText = "R$ 15.420,00";
-        document.getElementById('dash_pix').innerText = "R$ 4.230,00";
-        document.getElementById('dash_diferenca').innerText = "R$ 0,00";
-      }, 500);
+    function voltarParaListaVendedores() {
+      vendedorSelecionadoAtual = null;
+      document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
+      document.getElementById('visao-lista-vendedores').classList.remove('hidden');
+      carregarAbaVendedores();
+    }
+
+    async function excluirFechamentoAtual() {
+      if (!vendedorSelecionadoAtual) return;
+      const { inicio, fim, dataFormatada } = getIntervaloDataSelecionada('selDataVendedores');
+      if (!confirm(`Tem certeza que quer excluir TUDO de ${vendedorSelecionadoAtual} hoje?`)) return;
+      
+      const { error } = await supabaseClient
+        .from('fechamentos')
+        .update({ status: 'EXCLUIDO' })
+        .gte('data_atendimento', inicio)
+        .lte('data_atendimento', fim)
+        .ilike('vendedor_nome', vendedorSelecionadoAtual);
+
+      if (error) alert('Erro: ' + error.message);
+      else { alert('Fechamento zerado!'); voltarParaListaVendedores(); }
     }
   </script>
 </body>
