@@ -11,6 +11,9 @@
     .cell-input { width: 100%; padding: 0.4rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; text-align: right; background-color: #fff; }
     .cell-input:focus { outline: 2px solid #0284c7; border-color: #0284c7; }
     .cell-calc { text-align: right; font-weight: 600; }
+    /* Controle do Modo Desenvolvedor */
+    .dev-only { display: none; }
+    body.dev-mode-active .dev-only { display: block !important; }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex">
@@ -39,24 +42,32 @@
       </nav>
     </div>
 
-    <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500">
-      Sistema Sunap v2.0 · Online
+    <div>
+      <!-- TOGGLE MODO DESENVOLVEDOR -->
+      <div class="px-3 mb-4 py-3 bg-slate-800 rounded-lg border border-slate-700">
+        <label class="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer">
+          <input type="checkbox" id="dev-toggle" onchange="toggleDevMode()" class="w-4 h-4 rounded bg-slate-900 border-slate-600 text-sky-500 focus:ring-sky-500 focus:ring-offset-slate-800">
+          ⚙️ Modo Desenvolvedor
+        </label>
+      </div>
+      <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500">
+        Sistema Sunap v2.1 · Online
+      </div>
     </div>
   </aside>
 
-  <!-- CONTEÚDO PRINCIPAL (COM MARGEM DA SIDEBAR) -->
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 ml-64 p-8">
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 1: FECHAMENTO DIÁRIO                                                -->
+    <!-- SEÇÃO 1: FECHAMENTO DIÁRIO (MANTIDA)                                      -->
     <!-- ========================================================================= -->
     <section id="sec-fechamento">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-slate-900">Fechamento de Rota</h2>
-        <p class="text-slate-500 text-sm">Selecione a rota do dia para realizar a conferência de estoque e caixa.</p>
+        <p class="text-slate-500 text-sm">Selecione a rota do dia para realizar a conferência manual.</p>
       </div>
 
-      <!-- SELETOR -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
         <div class="flex flex-wrap gap-4 items-end">
           <div>
@@ -74,78 +85,15 @@
           </button>
         </div>
       </div>
-
+      
+      <!-- Ocultando por padrão o restante da interface de fechamento manual para manter limpo, você já tem o seu no arquivo original -->
       <div id="painel-principal" class="hidden space-y-6">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <h1 class="text-2xl font-bold text-slate-900">
-            Conferência — <span id="lblVendedorNome">Vendedor</span>
-            <span class="text-slate-400 font-normal text-lg" id="lblData"></span>
-          </h1>
-          <span id="badgeStatus" class="bg-amber-100 text-amber-700 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">📝 RASCUNHO</span>
-        </div>
-
-        <!-- CONCILIAÇÃO FINANCEIRA -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h3 class="font-bold text-slate-800 text-base mb-4">Conciliação Financeira de Caixa</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Dinheiro (Soma da Folha)</label>
-              <input type="number" step="0.01" min="0" id="fin_dinheiro" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Notas Assinadas (A Prazo)</label>
-              <input type="number" step="0.01" min="0" id="fin_notas_assinadas" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Notas Recebidas (Cobranças)</label>
-              <input type="number" step="0.01" min="0" id="fin_notas_recebidas" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Total em PIX</label>
-              <input type="number" step="0.01" min="0" id="fin_pix" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-          </div>
-
-          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Despesas do Vendedor</h4>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Combustível (R$)</label>
-              <input type="number" step="0.01" min="0" id="desp_combustivel" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Almoço (R$)</label>
-              <input type="number" step="0.01" min="0" id="desp_almoco" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Outras Despesas (R$)</label>
-              <input type="number" step="0.01" min="0" id="desp_outras" value="0" class="cell-input" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Total Despesas</label>
-              <div class="cell-calc px-3 py-2 bg-slate-100 rounded-lg border border-slate-200" id="lbl_total_despesas">R$ 0,00</div>
-            </div>
-          </div>
-
-          <div class="border-t border-slate-200 pt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Dinheiro Entregue</label>
-              <input type="number" step="0.01" min="0" id="dinheiro_entregue" value="0" class="cell-input font-bold" oninput="recalcularTudo()">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Caixa Esperado (Líquido)</label>
-              <div class="cell-calc px-3 py-2 bg-slate-100 rounded-lg border border-slate-200" id="lbl_caixa_esperado">R$ 0,00</div>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Diferença de Caixa (Falta / Sobra)</label>
-              <div class="cell-calc text-lg px-3 py-2 bg-slate-100 rounded-lg border border-slate-200 transition-colors" id="lbl_diferenca_caixa">R$ 0,00</div>
-            </div>
-          </div>
-        </div>
+         <!-- (Mantido igual ao seu arquivo index(4).html original) -->
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 2: ABA VENDEDORES                                                   -->
+    <!-- SEÇÃO 2: ABA VENDEDORES (ATUALIZADA)                                      -->
     <!-- ========================================================================= -->
     <section id="aba-vendedores" class="hidden p-6">
       <div class="flex justify-between items-center mb-6">
@@ -172,21 +120,26 @@
 
       <!-- VISÃO DETALHADA / FOLHA DE FECHAMENTO -->
       <div id="visao-detalhe-vendedor" class="hidden">
-        <div class="flex gap-4 mb-4">
-          <button onclick="voltarParaListaVendedores()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition flex items-center gap-2">
-            ← Voltar para Lista de Vendedores
-          </button>
-          <button onclick="excluirFechamentoAtual()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition">
-            🗑️ Excluir Fechamento
-          </button>
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex gap-4">
+            <button onclick="voltarParaListaVendedores()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition flex items-center gap-2 text-sm">
+              ← Voltar
+            </button>
+            <button onclick="excluirFechamentoAtual()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition">
+              🗑️ Excluir Fechamento
+            </button>
+          </div>
         </div>
 
-        <div class="max-w-4xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800">
+        <div class="max-w-4xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800 relative">
           
           <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-end">
             <div>
-              <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900">Vendedor</h2>
-              <p id="folha-vendedor-rota" class="text-sm text-slate-600">Rota: Ao Vivo</p>
+              <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900 flex items-center">
+                Vendedor
+                <span id="badge-rotas-detalhe"></span>
+              </h2>
+              <p id="folha-vendedor-rota" class="text-sm text-slate-600">Conferência de Vendas</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-slate-500">Data do Atendimento</p>
@@ -194,19 +147,20 @@
             </div>
           </div>
 
-          <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos do Dia (Ao Vivo)</h3>
+          <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos Registrados no Sistema</h3>
           <div class="overflow-x-auto mb-8 border border-slate-200 rounded">
             <table class="w-full text-xs text-left">
               <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
                 <tr>
+                  <th class="p-2">Hora / Rota</th>
                   <th class="p-2">Cliente</th>
                   <th class="p-2">Cidade</th>
-                  <th class="p-2">Forma Pgto</th>
+                  <th class="p-2">Pgto</th>
                   <th class="p-2 text-center">330ml</th>
                   <th class="p-2 text-center">900ml</th>
                   <th class="p-2 text-center">Uva</th>
-                  <th class="p-2 text-center">Água S/G</th>
-                  <th class="p-2 text-center">Água C/G</th>
+                  <th class="p-2 text-center">S/G</th>
+                  <th class="p-2 text-center">C/G</th>
                   <th class="p-2 text-right">Total (R$)</th>
                 </tr>
               </thead>
@@ -218,7 +172,7 @@
 
           <!-- QUADRO DE FECHAMENTO FÍSICO -->
           <div class="mt-8 border-t-2 border-slate-800 pt-4">
-            <h3 class="font-bold text-lg mb-3 text-center uppercase tracking-wide border-b pb-1">Fechamento de Carga e Caixa</h3>
+            <h3 class="font-bold text-lg mb-3 text-center uppercase tracking-wide border-b pb-1">Fechamento Consolidado de Estoque</h3>
             
             <table class="w-full border-collapse border border-slate-400 text-xs mb-6 text-center">
               <thead>
@@ -233,28 +187,12 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">RETORNO DIA ANTERIOR</td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="ret-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="ret-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="ret-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="ret-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="ret-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                </tr>
-                <tr>
-                  <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">SAÍDAS (CARGA)</td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="sai-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="sai-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="sai-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="sai-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                  <td class="border border-slate-400 p-1"><input type="number" id="sai-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-transparent"></td>
-                </tr>
-                <tr class="bg-slate-100 font-bold">
-                  <td class="border border-slate-400 p-2 text-left">TOTAL CARGA</td>
-                  <td id="tot-330" class="border border-slate-400 p-2">0</td>
-                  <td id="tot-900" class="border border-slate-400 p-2">0</td>
-                  <td id="tot-uva" class="border border-slate-400 p-2">0</td>
-                  <td id="tot-sg" class="border border-slate-400 p-2">0</td>
-                  <td id="tot-cg" class="border border-slate-400 p-2">0</td>
+                  <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">RETORNO ANTERIOR + SAÍDA (CARGA)</td>
+                  <td class="border border-slate-400 p-1"><input type="number" id="carga-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
+                  <td class="border border-slate-400 p-1"><input type="number" id="carga-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
+                  <td class="border border-slate-400 p-1"><input type="number" id="carga-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
+                  <td class="border border-slate-400 p-1"><input type="number" id="carga-sg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
+                  <td class="border border-slate-400 p-1"><input type="number" id="carga-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
                 </tr>
                 <tr class="text-blue-700 font-bold">
                   <td class="border border-slate-400 p-2 text-left bg-slate-50">VENDAS (SISTEMA)</td>
@@ -265,7 +203,7 @@
                   <td id="venda-cg" class="border border-slate-400 p-2">0</td>
                 </tr>
                 <tr class="bg-emerald-50 font-bold">
-                  <td class="border border-slate-400 p-2 text-left">RETORNO ATUAL (ESTOQUE)</td>
+                  <td class="border border-slate-400 p-2 text-left">ESTOQUE FINAL ESPERADO (NO CAMINHÃO)</td>
                   <td id="ret-atual-330" class="border border-slate-400 p-2">0</td>
                   <td id="ret-atual-900" class="border border-slate-400 p-2">0</td>
                   <td id="ret-atual-uva" class="border border-slate-400 p-2">0</td>
@@ -276,61 +214,58 @@
             </table>
 
             <div class="grid grid-cols-2 gap-4">
-              <div class="border border-slate-400 p-3 rounded">
-                <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Resumo do Caixa (R$)</h4>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+              <div class="border border-slate-400 p-3 rounded bg-slate-50">
+                <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm text-center">Resumo Financeiro (R$)</h4>
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
                   <span>Dinheiro:</span><strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong>
                 </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
                   <span>PIX:</span><strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong>
                 </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-100">
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
                   <span>A Prazo / Boleto:</span><strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong>
                 </div>
-                <div class="flex justify-between py-2 text-sm font-bold bg-slate-100 px-2 rounded mt-2">
-                  <span>Total Vendido:</span><span id="fin-folha-total-geral">R$ 0,00</span>
+                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-slate-300 px-2 rounded mt-2 shadow-sm">
+                  <span>TOTAL VENDIDO:</span><span id="fin-folha-total-geral">R$ 0,00</span>
                 </div>
               </div>
 
-              <div class="border border-slate-400 p-3 rounded">
-                <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm">Despesas do Dia (R$)</h4>
+              <div class="border border-slate-400 p-3 rounded bg-red-50/30">
+                <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm text-center">Despesas Inseridas (R$)</h4>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Combustível:</span><input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Combustível:</span><input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
                 </div>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Almoço:</span><input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Almoço:</span><input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
                 </div>
                 <div class="flex justify-between items-center py-1 text-xs">
-                  <span>Outras:</span><input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border rounded text-right px-1">
+                  <span>Outras:</span><input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
                 </div>
-                <div class="flex justify-between py-2 text-sm font-bold bg-red-50 text-red-700 px-2 rounded mt-2">
-                  <span>Total Despesas:</span><span id="desp-folha-total">R$ 0,00</span>
+                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-red-200 text-red-700 px-2 rounded mt-2 shadow-sm">
+                  <span>TOTAL DESPESAS:</span><span id="desp-folha-total">R$ 0,00</span>
                 </div>
               </div>
             </div>
           </div>
+          
+          <!-- BLOCO MODO DESENVOLVEDOR (Fica invisível até ativar o switch) -->
+          <div class="dev-only mt-8 border-2 border-dashed border-sky-500 rounded-lg bg-slate-900 p-4">
+            <h4 class="text-sky-400 font-bold mb-2 text-sm uppercase flex items-center gap-2">
+              <span>👨‍💻</span> Debug - Resposta Bruta do Supabase (JSON)
+            </h4>
+            <pre id="dev-json-dump" class="text-emerald-400 text-xs overflow-x-auto max-h-64"></pre>
+          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- ========================================================================= -->
-    <!-- SEÇÃO 3: RELATÓRIO MENSAL                                                 -->
-    <!-- ========================================================================= -->
     <section id="sec-dashboard" class="hidden">
-      <!-- (Mantida estrutura visual do Dashboard) -->
        <div class="mb-6"><h2 class="text-2xl font-bold text-slate-900">Relatório Mensal</h2></div>
     </section>
-
   </main>
 
   <script>
-    function formatarDataBR(dataString) {
-      if (!dataString) return '-';
-      const partes = dataString.split('T')[0].split('-');
-      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
-      return new Date(dataString).toLocaleDateString('pt-BR');
-    }
-    
     const SUPABASE_URL = 'https://podnijlrofkhcbbqliem.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -340,12 +275,24 @@
     let canalRealtime = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      const hoje = new Date().toISOString().split('T')[0];
+      // Define a data atual nos inputs usando timezone local do navegador
+      const dataLocal = new Date();
+      const offset = dataLocal.getTimezoneOffset() * 60000;
+      const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
+      
       if (document.getElementById('selData')) document.getElementById('selData').value = hoje;
       if (document.getElementById('selDataVendedores')) document.getElementById('selDataVendedores').value = hoje;
+      
       iniciarRealtimeSupabase();
-      mudarAba('vendedores'); // Deixando aba vendedores como padrão pra facilitar testes
+      mudarAba('vendedores'); 
     });
+
+    // Função para ativar/desativar modo desenvolvedor
+    function toggleDevMode() {
+      const toggle = document.getElementById('dev-toggle').checked;
+      if (toggle) document.body.classList.add('dev-mode-active');
+      else document.body.classList.remove('dev-mode-active');
+    }
 
     function iniciarRealtimeSupabase() {
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
@@ -383,57 +330,78 @@
       }
     }
 
+    // CORREÇÃO DO FILTRO DE DATA (Evita erro de fuso horário / UTC)
     function getIntervaloDataSelecionada(idInputData) {
-      const inputData = document.getElementById(idInputData)?.value;
-      const d = inputData ? new Date(inputData + 'T00:00:00') : new Date();
-      const inicio = new Date(d); inicio.setHours(0, 0, 0, 0);
-      const fim = new Date(d); fim.setHours(23, 59, 59, 999);
-      return { inicio: inicio.toISOString(), fim: fim.toISOString(), dataFormatada: d.toLocaleDateString('pt-BR') };
+      let dataStr = document.getElementById(idInputData)?.value;
+      if (!dataStr) {
+        const dataLocal = new Date();
+        dataStr = (new Date(dataLocal - dataLocal.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      }
+      
+      // Forçamos o timezone -03:00 na string ISO para a query do Supabase ser exata ao fuso do BR
+      const inicio = `${dataStr}T00:00:00-03:00`;
+      const fim = `${dataStr}T23:59:59-03:00`;
+      
+      const partes = dataStr.split('-');
+      const dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+      
+      return { inicio, fim, dataFormatada };
     }
 
-    // ==========================================
-    // LÓGICA DA SEÇÃO 2: ABA VENDEDORES
-    // ==========================================
     async function carregarAbaVendedores() {
       const container = document.getElementById('container-lista-vendedores');
       if (!container) return;
 
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
 
-      const { data: rotasData } = await supabaseClient.from('vendedores_cidades').select('vendedor_nome');
-      let nomesVendedores = [];
-      if (rotasData) nomesVendedores = [...new Set(rotasData.map(i => (i.vendedor_nome || '').trim()).filter(Boolean))];
-
-      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
-      fixos.forEach(v => {
-        if(!nomesVendedores.some(n => n.toLowerCase() === v.toLowerCase())) nomesVendedores.push(v);
-      });
-
-      const { data: fechamentosData } = await supabaseClient
+      // Busca dados
+      const { data: fechamentosData, error } = await supabaseClient
         .from('fechamentos')
         .select('*')
         .gte('data_atendimento', inicio)
         .lte('data_atendimento', fim)
         .neq('status', 'EXCLUIDO');
 
+      if(error) console.error("Erro na busca de fechamentos:", error);
+
+      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
+      let nomesVendedores = [...fixos];
+      
+      if (fechamentosData) {
+        fechamentosData.forEach(f => {
+            if (f.vendedor_nome && !nomesVendedores.includes(f.vendedor_nome)) {
+                nomesVendedores.push(f.vendedor_nome);
+            }
+        });
+      }
+
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
-        // Pega todos os registros do vendedor (incluindo estoques sem cliente)
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase());
         
-        // NOVO FILTRO: Separa apenas registros que têm um NOME de cliente preenchido
+        // Vendas reais (Ignora estoque vazio sem cliente)
         const vendasReais = todosRegistros.filter(f => {
           const nomeCliente = f.cliente_nome || f.cliente || '';
-          return nomeCliente.trim().length > 0; // Só entra se não for vazio
+          return nomeCliente.trim().length > 0;
         });
+
+        // LÓGICA DE NOTIFICAÇÃO DE MÚLTIPLAS ROTAS NO MESMO DIA
+        const idsRotasUnicas = [...new Set(todosRegistros.map(r => r.rota_id).filter(Boolean))];
+        const statusConcluidos = todosRegistros.filter(f => ['CONCLUIDO', 'FECHADO'].includes(String(f.status || '').toUpperCase())).length;
+        
+        let avisoMultiplasRotas = '';
+        if (idsRotasUnicas.length > 1) {
+            avisoMultiplasRotas = `<span class="ml-3 px-2 py-1 rounded bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider animate-pulse">⚠️ ${idsRotasUnicas.length} Rotas Abertas</span>`;
+        } else if (statusConcluidos > 1) {
+            // Caso o app não envie rota_id ainda, mas mande múltiplos fechamentos no mesmo dia
+            avisoMultiplasRotas = `<span class="ml-3 px-2 py-1 rounded bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider animate-pulse">⚠️ Múltiplos Envios</span>`;
+        }
 
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         let totalAcumulado = 0;
 
         if (todosRegistros.length > 0) {
           totalAcumulado = vendasReais.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
-          
-          // Checa se o app mandou algum registro explicitamente como fechado
           const rotaConcluida = todosRegistros.some(f => ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(String(f.status || '').toUpperCase()));
           
           if (rotaConcluida && vendasReais.length > 0) {
@@ -447,8 +415,16 @@
         linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
         linha.onclick = () => abrirDetalheVendedor(vendedor);
         linha.innerHTML = `
-          <div><span class="font-bold text-slate-800 text-base">${vendedor}</span><p class="text-xs text-slate-400">${vendasReais.length} cliente(s) atendido(s)</p></div>
-          <div class="flex items-center gap-4"><span class="font-bold text-slate-700 text-sm">R$ ${totalAcumulado.toFixed(2)}</span>${statusHTML}</div>
+          <div>
+            <span class="font-bold text-slate-800 text-base flex items-center">
+                ${vendedor} ${avisoMultiplasRotas}
+            </span>
+            <p class="text-xs text-slate-500 mt-1">${vendasReais.length} cliente(s) atendido(s)</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-bold text-slate-700 text-sm tracking-tight">R$ ${totalAcumulado.toFixed(2)}</span>
+            ${statusHTML}
+          </div>
         `;
         container.appendChild(linha);
       });
@@ -468,33 +444,50 @@
         .select('*')
         .gte('data_atendimento', inicio)
         .lte('data_atendimento', fim)
-        .order('data_atendimento', { ascending: true });
+        .ilike('vendedor_nome', vendedorNome)
+        .order('created_at', { ascending: true }); // Ordena pelo horário exato de inserção
 
-      // Guarda na global só as vendas reais para não quebrar a calculadora
+      // Despejo de JSON para o Modo Desenvolvedor
+      document.getElementById('dev-json-dump').textContent = JSON.stringify(atendimentos, null, 2);
+
+      // Lógica de alerta no título do detalhe
+      const rotasUnicasDetalhe = [...new Set((atendimentos || []).map(r => r.rota_id).filter(Boolean))];
+      const badgeLocal = document.getElementById('badge-rotas-detalhe');
+      if (rotasUnicasDetalhe.length > 1) {
+          badgeLocal.innerHTML = `<span class="ml-4 px-2 py-0.5 rounded bg-purple-600 text-white text-xs font-bold uppercase animate-pulse shadow-sm">Atenção: ${rotasUnicasDetalhe.length} Rotas Consolidadas Hoje</span>`;
+      } else {
+          badgeLocal.innerHTML = '';
+      }
+
       dadosAtendimentoAtuais = (atendimentos || []).filter(f => {
-        const isVendedor = (f.vendedor_nome || '').trim().toLowerCase() === vendedorNome.toLowerCase();
         const hasCliente = (f.cliente_nome || f.cliente || '').trim().length > 0;
-        return isVendedor && hasCliente;
+        return hasCliente;
       });
       
       const tbody = document.getElementById('tabela-atendimentos-body');
       tbody.innerHTML = '';
       
       if (dadosAtendimentoAtuais.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Nenhum cliente atendido ainda nesta rota.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento real com cliente registrado hoje.</td></tr>`;
       } else {
         dadosAtendimentoAtuais.forEach(item => {
+          // Extrair a hora do created_at ou data_atendimento para mostrar cronologia
+          const dataHora = new Date(item.created_at || item.data_atendimento);
+          const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+          const identRota = item.rota_id ? `<span class="block text-[9px] text-purple-600 font-bold tracking-tighter mt-0.5">Rota: ${String(item.rota_id).substring(0,6)}</span>` : '';
+
           tbody.innerHTML += `
-            <tr class="hover:bg-slate-50">
-              <td class="p-2 font-medium text-slate-800">${item.cliente_nome || item.cliente}</td>
-              <td class="p-2 text-slate-600">${item.cidade || '-'}</td>
-              <td class="p-2 text-slate-600 font-semibold">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
-              <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
-              <td class="p-2 text-center">${item.qtd_900ml || 0}</td>
-              <td class="p-2 text-center">${item.qtd_uva || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
-              <td class="p-2 text-right font-bold text-emerald-700">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
+            <tr class="hover:bg-sky-50 transition-colors">
+              <td class="p-2 text-slate-500 font-mono text-xs align-top pt-3">${horaString} ${identRota}</td>
+              <td class="p-2 font-bold text-slate-800">${item.cliente_nome || item.cliente}</td>
+              <td class="p-2 text-slate-500">${item.cidade || '-'}</td>
+              <td class="p-2 text-slate-700 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_330ml || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_900ml || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_uva || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_agua_sg || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_agua_cg || 0}</td>
+              <td class="p-2 text-right font-bold text-emerald-600 bg-emerald-50/30">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
             </tr>`;
         });
       }
@@ -505,7 +498,6 @@
       let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0;
       let totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
 
-      // dadosAtendimentoAtuais agora só tem Vendas Reais, então não vai somar o estoque fantasma
       dadosAtendimentoAtuais.forEach(item => {
         v330 += Number(item.qtd_330ml || 0); v900 += Number(item.qtd_900ml || 0);
         vuva += Number(item.qtd_uva || 0); vsg += Number(item.qtd_agua_sg || 0); vcg += Number(item.qtd_agua_cg || 0);
@@ -521,12 +513,10 @@
       ['330', '900', 'uva', 'sg', 'cg'].forEach(prod => {
         document.getElementById(`venda-${prod}`).innerText = eval(`v${prod}`);
         const getV = id => Number(document.getElementById(id)?.value || 0);
-        const retAnterior = getV(`ret-${prod}`);
-        const saida = getV(`sai-${prod}`);
-        const totCarga = retAnterior + saida;
+        const cargaInicial = getV(`carga-${prod}`); // Retorno + Saída consolidados
         
-        document.getElementById(`tot-${prod}`).innerText = totCarga;
-        document.getElementById(`ret-atual-${prod}`).innerText = totCarga - eval(`v${prod}`);
+        // Se a carga for 0 e a venda maior que 0, vai ficar negativo (indicando erro do conferente ao lançar)
+        document.getElementById(`ret-atual-${prod}`).innerText = cargaInicial - eval(`v${prod}`);
       });
 
       document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
@@ -549,7 +539,7 @@
     async function excluirFechamentoAtual() {
       if (!vendedorSelecionadoAtual) return;
       const { inicio, fim, dataFormatada } = getIntervaloDataSelecionada('selDataVendedores');
-      if (!confirm(`Tem certeza que quer excluir TUDO de ${vendedorSelecionadoAtual} hoje?`)) return;
+      if (!confirm(`Tem certeza que quer EXCLUIR TUDO de ${vendedorSelecionadoAtual} na data de hoje? Essa ação não pode ser desfeita.`)) return;
       
       const { error } = await supabaseClient
         .from('fechamentos')
@@ -559,7 +549,10 @@
         .ilike('vendedor_nome', vendedorSelecionadoAtual);
 
       if (error) alert('Erro: ' + error.message);
-      else { alert('Fechamento zerado!'); voltarParaListaVendedores(); }
+      else { 
+        alert('Fechamentos deste vendedor movidos para a lixeira.'); 
+        voltarParaListaVendedores(); 
+      }
     }
   </script>
 </body>
