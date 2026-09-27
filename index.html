@@ -262,8 +262,23 @@
     <!-- ========================================================================= -->
     <!-- SEÇÃO 3: DASHBOARD / RELATÓRIO MENSAL                                     -->
     <!-- ========================================================================= -->
-    <section id="sec-dashboard" class="hidden">
-       <div class="mb-6"><h2 class="text-2xl font-bold text-slate-900">Relatório Mensal</h2></div>
+    <section id="sec-dashboard" class="hidden p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Relatório Mensal</h2>
+          <p class="text-slate-500 text-sm">Visão geral de dias com atendimentos registrados no mês.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Mês de Referência</label>
+          <input type="month" id="selMesDashboard" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" onchange="carregarRelatorioMensal()">
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden p-6">
+        <div id="calendario-mensal" class="grid grid-cols-7 gap-4 text-center">
+            <!-- Preenchido via JS -->
+        </div>
+      </div>
     </section>
   </main>
 
@@ -331,6 +346,8 @@
         document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
         document.getElementById('visao-lista-vendedores').classList.remove('hidden');
         carregarAbaVendedores();
+      } else if (aba === 'dashboard') {
+        carregarRelatorioMensal(); // Adicione esta linha!
       }
     }
 
@@ -600,6 +617,84 @@
         voltarParaListaVendedores(); 
       }
     }
+    async function carregarRelatorioMensal() {
+      const grid = document.getElementById('calendario-mensal');
+      if (!grid) return;
+      
+      let mesAno = document.getElementById('selMesDashboard').value;
+      if (!mesAno) {
+        const dataLocal = new Date();
+        mesAno = `${dataLocal.getFullYear()}-${String(dataLocal.getMonth() + 1).padStart(2, '0')}`;
+        document.getElementById('selMesDashboard').value = mesAno;
+      }
+      
+      const [ano, mes] = mesAno.split('-');
+      const ultimoDia = new Date(ano, mes, 0).getDate();
+      
+      // Ajuste de fuso -03:00 para pegar do dia 01 até o último dia do mês
+      const inicioMes = `${ano}-${mes}-01T00:00:00-03:00`;
+      const fimMes = `${ano}-${mes}-${ultimoDia}T23:59:59-03:00`;
+      
+      grid.innerHTML = '<div class="col-span-7 text-slate-500 py-10 font-bold">Buscando dados do mês no Supabase...</div>';
+      
+      const { data, error } = await supabaseClient
+        .from('fechamentos')
+        .select('created_at, cliente, cliente_nome')
+        .gte('created_at', inicioMes)
+        .lte('created_at', fimMes)
+        .neq('status', 'EXCLUIDO');
+        
+      if (error) {
+        grid.innerHTML = `<div class="col-span-7 text-red-500 py-10">Erro ao carregar relatório: ${error.message}</div>`;
+        return;
+      }
+      
+      // Agrupar contagem de clientes atendidos por dia
+      const fechamentosPorDia = {};
+      (data || []).forEach(r => {
+        const temCliente = (r.cliente_nome || r.cliente || '').trim().length > 0;
+        if (temCliente) {
+            const dataFechamento = new Date(r.created_at);
+            const dia = dataFechamento.getDate();
+            fechamentosPorDia[dia] = (fechamentosPorDia[dia] || 0) + 1;
+        }
+      });
+      
+      // Cabeçalho dos dias da semana
+      const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      let htmlCalendario = diasSemana.map(d => `<div class="font-bold text-slate-400 text-xs uppercase pb-2 border-b border-slate-100">${d}</div>`).join('');
+      
+      const primeiroDiaSemana = new Date(ano, mes - 1, 1).getDay();
+      
+      // Espaços vazios no grid antes do dia 1 cair no dia da semana correto
+      for (let i = 0; i < primeiroDiaSemana; i++) {
+        htmlCalendario += `<div></div>`;
+      }
+      
+      // Montagem dos dias do mês
+      for (let dia = 1; dia <= ultimoDia; dia++) {
+        const qtd = fechamentosPorDia[dia] || 0;
+        let bgClass = "bg-slate-50 border border-slate-100 text-slate-300";
+        let icone = "";
+        let texto = "Sem registros";
+        
+        if (qtd > 0) {
+          bgClass = "bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold shadow-sm hover:scale-105 transition-transform cursor-default";
+          icone = "🟢";
+          texto = `${qtd} Vendas`;
+        }
+        
+        htmlCalendario += `
+          <div class="rounded-lg p-3 flex flex-col items-center justify-center min-h-[80px] ${bgClass}">
+            <span class="text-xl block">${dia}</span>
+            <span class="text-[10px] mt-1 font-semibold">${icone} ${texto}</span>
+          </div>
+        `;
+      }
+      
+      grid.innerHTML = htmlCalendario;
+    }
+    
   </script>
 </body>
 </html>
