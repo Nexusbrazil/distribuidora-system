@@ -270,78 +270,126 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 3: LANÇAMENTOS (BRINDES E EXTRAS)                                   -->
+    <!-- SEÇÃO 3: LANÇAMENTOS (BRINDES E VAREJO)                                   -->
     <!-- ========================================================================= -->
-    <section id="sec-lancamentos" class="hidden p-6">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">Lançamentos Extras e Brindes</h2>
-        <p class="text-slate-500 text-sm">Registre a saída de brindes ou outras movimentações que não são vendas normais.</p>
-      </div>
+    <section id="sec-lancamentos" class="hidden p-6 space-y-8">
+      
+      <!-- Lançamentos de Brindes (Existente) -->
+      <div>
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">Lançamentos Extras e Brindes</h2>
+          <p class="text-slate-500 text-sm">Registre a saída de brindes ou outras movimentações que não são vendas normais.</p>
+        </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl">
-        <form id="form-lancamento" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl">
+          <form id="form-lancamento" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Vendedor</label>
+                <select id="lanc-vendedor" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+                  <option value="Luan">Luan</option>
+                  <option value="Charles">Charles</option>
+                  <option value="Guilherme">Guilherme</option>
+                  <option value="Gustavo">Gustavo</option>
+                  <option value="Felipe">Felipe</option>
+                  <option value="Verneck">Verneck</option>
+                  <option value="Alessandro">Alessandro</option>
+                  <option value="Aroldo">Aroldo</option>
+                  <option value="Elton">Elton</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Data</label>
+                <input type="date" id="lanc-data" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <div class="col-span-2">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Produto / Descrição do Brinde</label>
+                <input type="text" id="lanc-produto" placeholder="Ex: Fardo 330ml - Brinde Cliente X" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Quantidade</label>
+                <input type="number" id="lanc-qtd" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center">
+              </div>
+            </div>
+
             <div>
-              <label class="block text-sm font-semibold text-slate-600 mb-1">Vendedor</label>
-              <select id="lanc-vendedor" class="w-full border border-slate-300 rounded-lg px-3 py-2">
-                <option value="Luan">Luan</option>
-                <option value="Charles">Charles</option>
-                <option value="Guilherme">Guilherme</option>
-                <option value="Gustavo">Gustavo</option>
-                <option value="Felipe">Felipe</option>
-                <option value="Verneck">Verneck</option>
-                <option value="Alessandro">Alessandro</option>
-                <option value="Aroldo">Aroldo</option>
-                <option value="Elton">Elton</option>
-              </select>
+               <label class="block text-sm font-semibold text-slate-600 mb-1">Observações do Lançamento</label>
+               <textarea id="lanc-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-slate-600 mb-1">Data</label>
-              <input type="date" id="lanc-data" class="w-full border border-slate-300 rounded-lg px-3 py-2">
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-3 gap-4">
-            <div class="col-span-2">
-              <label class="block text-sm font-semibold text-slate-600 mb-1">Produto / Descrição do Brinde</label>
-              <input type="text" id="lanc-produto" placeholder="Ex: Fardo 330ml - Brinde Cliente X" class="w-full border border-slate-300 rounded-lg px-3 py-2">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-slate-600 mb-1">Quantidade</label>
-              <input type="number" id="lanc-qtd" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center">
-            </div>
-          </div>
 
-          <div>
-             <label class="block text-sm font-semibold text-slate-600 mb-1">Observações do Lançamento</label>
-             <textarea id="lanc-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
+            <button type="button" onclick="salvarLancamentoMock()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition">
+              Registrar Lançamento
+            </button>
+          </form>
+
+          <!-- Tabela visual para mostrar os lançamentos do dia -->
+          <div class="mt-8 border-t border-slate-200 pt-6">
+            <h3 class="font-bold text-slate-700 mb-3">Lançamentos Recentes Registrados</h3>
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-100 border-b border-slate-200">
+                <tr>
+                  <th class="p-2">Data</th>
+                  <th class="p-2">Vendedor</th>
+                  <th class="p-2">Descrição / Brinde</th>
+                  <th class="p-2 text-center">Qtd</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-lancamentos-body" class="divide-y divide-slate-100">
+                 <tr>
+                   <td colspan="4" class="text-center p-4 text-slate-400 italic">Nenhum lançamento registrado nesta sessão ainda.</td>
+                 </tr>
+              </tbody>
+            </table>
           </div>
-
-          <button type="button" onclick="salvarLancamentoMock()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition">
-            Registrar Lançamento
-          </button>
-        </form>
-
-        <!-- Tabela visual para mostrar os lançamentos do dia (funcionalidade pode ser integrada depois no DB) -->
-        <div class="mt-8 border-t border-slate-200 pt-6">
-          <h3 class="font-bold text-slate-700 mb-3">Lançamentos Recentes Registrados</h3>
-          <table class="w-full text-sm text-left">
-            <thead class="bg-slate-100 border-b border-slate-200">
-              <tr>
-                <th class="p-2">Data</th>
-                <th class="p-2">Vendedor</th>
-                <th class="p-2">Descrição / Brinde</th>
-                <th class="p-2 text-center">Qtd</th>
-              </tr>
-            </thead>
-            <tbody id="tabela-lancamentos-body" class="divide-y divide-slate-100">
-               <tr>
-                 <td colspan="4" class="text-center p-4 text-slate-400 italic">Nenhum lançamento registrado nesta sessão ainda. (Requer conexão com tabela de Lançamentos)</td>
-               </tr>
-            </tbody>
-          </table>
         </div>
       </div>
+
+      <!-- NOVO: Vendas no Varejo (Interno) -->
+      <div>
+        <div class="mb-4 mt-8 border-t border-slate-300 pt-8">
+          <h2 class="text-2xl font-bold text-slate-900">Vendas no Varejo (Interno)</h2>
+          <p class="text-slate-500 text-sm">Registre as vendas diretas realizadas na base, que não passam pelos vendedores externos.</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-emerald-500">
+          <form id="form-varejo" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Data da Venda</label>
+                <input type="date" id="var-data" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Forma de Pagamento</label>
+                <select id="var-pgto" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+                  <option value="PIX">PIX</option>
+                  <option value="DINHEIRO">Dinheiro</option>
+                  <option value="CARTAO">Cartão</option>
+                  <option value="PRAZO">A Prazo / Boleto</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <div class="col-span-2">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Descrição dos Produtos / Nome do Cliente</label>
+                <input type="text" id="var-descricao" placeholder="Ex: 2 Fardos 330ml - Cliente Balcão" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Valor Total (R$)</label>
+                <input type="number" step="0.01" id="var-valor" placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-right">
+              </div>
+            </div>
+
+            <button type="button" onclick="salvarVendaVarejo()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg transition flex items-center justify-center gap-2 mt-4">
+              <span>💰</span> Lançar Venda Varejo
+            </button>
+          </form>
+        </div>
+      </div>
+
     </section>
 
     <!-- ========================================================================= -->
@@ -501,6 +549,7 @@
       if (document.getElementById('selData')) document.getElementById('selData').value = hoje;
       if (document.getElementById('selDataVendedores')) document.getElementById('selDataVendedores').value = hoje;
       if (document.getElementById('lanc-data')) document.getElementById('lanc-data').value = hoje;
+      if (document.getElementById('var-data')) document.getElementById('var-data').value = hoje;
       
       iniciarRealtimeSupabase();
       mudarAba('vendedores'); 
@@ -725,7 +774,6 @@
       voltarParaListaVendedores(); 
     }
 
-    // Função local para mock de lançamentos na interface - conecte ao DB depois!
     function salvarLancamentoMock() {
        const vend = document.getElementById('lanc-vendedor').value;
        const data = document.getElementById('lanc-data').value;
@@ -747,6 +795,40 @@
        document.getElementById('lanc-produto').value = '';
        document.getElementById('lanc-obs').value = '';
        alert('Lançamento registrado visualmente na sessão (Para salvar defitinivo, requer criação da tabela no Supabase)');
+    }
+
+    // NOVA FUNÇÃO: Salvar Vendas de Varejo no Supabase
+    async function salvarVendaVarejo() {
+      const dataVenda = document.getElementById('var-data').value;
+      const formaPgto = document.getElementById('var-pgto').value;
+      const descricao = document.getElementById('var-descricao').value;
+      const valor = document.getElementById('var-valor').value;
+
+      if(!descricao || !valor) {
+        return alert('Por favor, preencha a descrição dos produtos/cliente e o valor total!');
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('interno')
+          .insert([{
+            data_venda: dataVenda,
+            descricao: descricao,
+            valor: parseFloat(valor),
+            forma_pagamento: formaPgto
+          }]);
+
+        if (error) throw error;
+        
+        alert('Venda de varejo lançada com sucesso no sistema!');
+        
+        // Limpar os campos após salvar
+        document.getElementById('var-descricao').value = '';
+        document.getElementById('var-valor').value = '';
+      } catch (err) {
+        console.error("Erro ao salvar no supabase:", err);
+        alert('Erro ao salvar venda de varejo: ' + err.message);
+      }
     }
 
     async function carregarRelatorioMensal() {
@@ -781,7 +863,7 @@
       let t330=0, t900=0, tuva=0, tagua=0, tgelo=0;
       let tr330=0, tr900=0, truva=0;
       let tTotalQtd=0, tRecebido=0, tVale=0, tComb=0, tAlm=0, tDiv=0;
-      let qtdBrindesFicticios = 0; // Se tivermos puxando do DB, integrariamos aqui
+      let qtdBrindesFicticios = 0; 
 
       for (let dia = 1; dia <= ultimoDia; dia++) {
         const registrosDia = diasDados[dia] || [];
@@ -816,7 +898,7 @@
             <td class="border border-black p-1 bg-amber-50">${druva || '-'}</td>
             <td class="border border-black p-1 font-bold">${totalQtdDia || '-'}</td>
             <td class="border border-black p-1">R$ ${dValor.toFixed(2)}</td>
-            <td class="border border-black p-1 bg-indigo-50">-</td> <!-- Espaço Brindes na Tabela Mensal -->
+            <td class="border border-black p-1 bg-indigo-50">-</td>
             <td class="border border-black p-1 bg-red-50">${dComb ? 'R$ '+dComb.toFixed(2) : '-'}</td>
             <td class="border border-black p-1 bg-red-50">${dAlm ? 'R$ '+dAlm.toFixed(2) : '-'}</td>
             <td class="border border-black p-1 bg-red-50">${dDiv ? 'R$ '+dDiv.toFixed(2) : '-'}</td>
@@ -845,7 +927,7 @@
       document.getElementById('res-troca-uva').innerText = truva;
       document.getElementById('res-troca-total').innerText = tr330 + tr900 + truva;
 
-      // VENDAS LÍQUIDAS (Vendas Totais Brutas - Trocas)
+      // VENDAS LÍQUIDAS
       document.getElementById('res-liq-330').innerText = t330 - tr330;
       document.getElementById('res-liq-900').innerText = t900 - tr900;
       document.getElementById('res-liq-uva').innerText = tuva - truva;
