@@ -15,7 +15,7 @@
     .dev-only { display: none; }
     body.dev-mode-active .dev-only { display: block !important; }
 
-    /* ESTILO DE IMPRESSÃO A4 PAISAGEM (EXATO) */
+    /* ESTILO DE IMPRESSÃO A4 PAISAGEM */
     @media print {
       body * { visibility: hidden; }
       aside, .no-print, nav, #dev-toggle { display: none !important; }
@@ -65,10 +65,10 @@
       </div>
 
       <nav class="space-y-1">
-        <button onclick="mudarAba('fechamento')" id="nav-fechamento" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
+        <button onclick="mudarAba('fechamento')" id="nav-fechamento" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
           <span>📋</span> Fechamento Diário
         </button>
-        <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+        <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
         </button>
         <button onclick="mudarAba('interno')" id="nav-interno" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
@@ -91,8 +91,9 @@
           ⚙️ Modo Desenvolvedor
         </label>
       </div>
-      <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500">
-        Sistema Sunap v2.4 · Online
+      <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
+        <span>Sistema Sunap v2.4</span>
+        <span class="flex items-center gap-1 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ao Vivo</span>
       </div>
     </div>
   </aside>
@@ -103,7 +104,7 @@
     <!-- ========================================================================= -->
     <!-- SEÇÃO 1: FECHAMENTO DIÁRIO                                                -->
     <!-- ========================================================================= -->
-    <section id="sec-fechamento">
+    <section id="sec-fechamento" class="hidden">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-slate-900">Fechamento de Rota</h2>
         <p class="text-slate-500 text-sm">Selecione a rota do dia para realizar a conferência manual.</p>
@@ -121,29 +122,34 @@
             <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Rota</label>
             <input type="date" id="selData" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
           </div>
-          <button onclick="abrirFechamento()" class="bg-sky-600 hover:bg-sky-700 text-white px-5 py-2 rounded-lg font-semibold text-sm transition shadow-sm">
-            Abrir / Carregar Fechamento
+          <button onclick="abrirFechamento()" class="bg-sky-600 hover:bg-sky-700 text-white px-5 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center gap-2">
+            <span>🔍</span> Abrir / Carregar Fechamento
           </button>
         </div>
       </div>
       
       <div id="painel-principal" class="hidden space-y-6">
-         <!-- Espaço reservado para módulos de fechamento direto -->
+         <!-- Espaço reservado para carregamento de relatórios manuais -->
       </div>
     </section>
 
     <!-- ========================================================================= -->
     <!-- SEÇÃO 2: ABA VENDEDORES                                                   -->
     <!-- ========================================================================= -->
-    <section id="aba-vendedores" class="hidden p-6">
+    <section id="aba-vendedores" class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
           <h1 class="text-2xl font-bold text-slate-800">Gerenciar Vendedores</h1>
           <p class="text-slate-500 text-sm">Lista de vendedores ativos e acompanhamento de rotas em tempo real.</p>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
-          <input type="date" id="selDataVendedores" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" onchange="carregarAbaVendedores()">
+        <div class="flex items-center gap-3">
+          <button onclick="carregarAbaVendedores()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
+            🔄 Atualizar Lista
+          </button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
+            <input type="date" id="selDataVendedores" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" onchange="carregarAbaVendedores()">
+          </div>
         </div>
       </div>
 
@@ -318,7 +324,7 @@
         </div>
       </div>
 
-      <!-- SUB-ABA 1: LANÇAMENTOS DE VAREJO (interno_registros) -->
+      <!-- SUB-ABA 1: LANÇAMENTOS DE VAREJO -->
       <div id="sub-interno-vendas" class="space-y-6">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-emerald-500">
           <h3 id="titulo-form-varejo" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
@@ -405,7 +411,7 @@
         </div>
       </div>
 
-      <!-- SUB-ABA 2: PRODUTOS DO MÓDULO INTERNO (interno_produtos) -->
+      <!-- SUB-ABA 2: PRODUTOS DO MÓDULO INTERNO -->
       <div id="sub-interno-produtos" class="hidden space-y-6">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-sky-500">
           <h3 id="titulo-form-produto" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
@@ -557,7 +563,7 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 5: RELATÓRIO MENSAL (FOLHA DE FECHAMENTO P/ ACERTO)                  -->
+    <!-- SEÇÃO 5: RELATÓRIO MENSAL                                                 -->
     <!-- ========================================================================= -->
     <section id="sec-dashboard" class="hidden p-6">
       <div class="no-print flex flex-wrap justify-between items-center mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
@@ -636,10 +642,9 @@
           </table>
         </div>
 
-        <!-- Quadros Inferiores de Resumo COMPLETOS -->
+        <!-- Quadros Inferiores de Resumo -->
         <div class="grid grid-cols-6 gap-2 mt-3 pt-2 border-t border-black">
           
-          <!-- Vendas Totais Brutas -->
           <div class="border border-black text-[10px]">
             <div class="bg-slate-200 font-bold p-1 border-b border-black text-center">VENDAS TOTAIS (Brutas)</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-bruta-330">0</strong></div>
@@ -648,7 +653,6 @@
             <div class="flex justify-between p-1 font-bold bg-slate-100"><span>TOTAL</span><strong id="res-bruta-total">0</strong></div>
           </div>
 
-          <!-- Trocas -->
           <div class="border border-black text-[10px]">
             <div class="bg-orange-200 font-bold p-1 border-b border-black text-center">TROCAS NO MÊS</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-troca-330">0</strong></div>
@@ -657,16 +661,14 @@
             <div class="flex justify-between p-1 font-bold bg-orange-100"><span>TOTAL</span><strong id="res-troca-total">0</strong></div>
           </div>
 
-          <!-- Vendas Líquidas -->
           <div class="border border-black text-[10px]">
-            <div class="bg-emerald-200 font-bold p-1 border-b border-black text-center text-[9px] uppercase">Vendas Líquidas (Bruta-Troca)</div>
+            <div class="bg-emerald-200 font-bold p-1 border-b border-black text-center text-[9px] uppercase">Vendas Líquidas</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-liq-330" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>900ML</span><strong id="res-liq-900" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>UVA</span><strong id="res-liq-uva" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 font-bold bg-emerald-100"><span>TOTAL</span><strong id="res-liq-total">0</strong></div>
           </div>
 
-          <!-- Brindes -->
           <div class="border border-black text-[10px]">
             <div class="bg-indigo-200 font-bold p-1 border-b border-black text-center">BRINDES / EXTRAS</div>
             <div class="p-2 text-center text-slate-500 italic mt-2">
@@ -675,7 +677,6 @@
             </div>
           </div>
 
-          <!-- Despesas -->
           <div class="border border-black text-[10px]">
             <div class="bg-red-200 font-bold p-1 border-b border-black text-center">DESPESAS DO MÊS</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>COMB.</span><strong id="res-desp-combustivel">R$ 0,00</strong></div>
@@ -684,7 +685,6 @@
             <div class="flex justify-between p-1 border-b border-slate-300 text-red-700"><span>VALE</span><strong id="res-desp-vale">R$ 0,00</strong></div>
           </div>
 
-          <!-- Acerto Final -->
           <div class="border border-black text-[10px] bg-slate-50 flex flex-col justify-between">
             <div class="bg-amber-400 font-bold p-1 border-b border-black text-center text-[10px]">ACERTO FINANCEIRO</div>
             <div class="p-1 space-y-1">
@@ -711,7 +711,7 @@
     let vendedorSelecionadoAtual = null;
     let canalRealtime = null;
     let listaProdutosCache = [];
-    const MINIMO_CLIENTES_VALIDOS = 5;
+    let abaAtiva = 'vendedores';
 
     document.addEventListener('DOMContentLoaded', () => {
       const dataLocal = new Date();
@@ -723,7 +723,20 @@
       if (document.getElementById('lanc-data')) document.getElementById('lanc-data').value = hoje;
       if (document.getElementById('var-data')) document.getElementById('var-data').value = hoje;
       
+      carregarListaVendedoresSelect();
       iniciarRealtimeSupabase();
+      
+      // Polling de redundância a cada 4 segundos para garantir atualização ao vivo sem F5
+      setInterval(() => {
+        if (abaAtiva === 'vendedores') {
+          if (vendedorSelecionadoAtual) {
+            abrirDetalheVendedor(vendedorSelecionadoAtual, true);
+          } else {
+            carregarAbaVendedores(true);
+          }
+        }
+      }, 4000);
+
       mudarAba('vendedores'); 
     });
 
@@ -731,6 +744,16 @@
       const toggle = document.getElementById('dev-toggle').checked;
       if (toggle) document.body.classList.add('dev-mode-active');
       else document.body.classList.remove('dev-mode-active');
+    }
+
+    function carregarListaVendedoresSelect() {
+      const sel = document.getElementById('selVendedor');
+      if (!sel) return;
+      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
+      sel.innerHTML = '<option value="">-- Selecione o Vendedor --</option>';
+      fixos.forEach(v => {
+        sel.innerHTML += `<option value="${v}">${v}</option>`;
+      });
     }
 
     function iniciarRealtimeSupabase() {
@@ -751,6 +774,7 @@
     }
 
     function mudarAba(aba) {
+      abaAtiva = aba;
       ['sec-fechamento', 'aba-vendedores', 'sec-interno', 'sec-lancamentos', 'sec-dashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
@@ -810,14 +834,28 @@
         else cabecalhos.push(r);
       });
       return {
-        cabecalhos, atendimentos,
+        cabecalhos, 
+        atendimentos,
         totalClientes: atendimentos.length,
-        totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0),
-        ehTesteIgnorado: (atendimentos.length < MINIMO_CLIENTES_VALIDOS && cabecalhos.length === 0)
+        totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0)
       };
     }
 
-    async function carregarAbaVendedores() {
+    function abrirFechamento() {
+      const vendedor = document.getElementById('selVendedor').value;
+      const data = document.getElementById('selData').value;
+      if (!vendedor) {
+        alert('Por favor, selecione um vendedor!');
+        return;
+      }
+      if (data) {
+        document.getElementById('selDataVendedores').value = data;
+      }
+      mudarAba('vendedores');
+      abrirDetalheVendedor(vendedor);
+    }
+
+    async function carregarAbaVendedores(silencioso = false) {
       const container = document.getElementById('container-lista-vendedores');
       if (!container) return;
 
@@ -836,19 +874,27 @@
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase());
-        const { atendimentos, cabecalhos, totalClientes, totalValor, ehTesteIgnorado } = processarRegistosVendedor(todosRegistros);
+        const { atendimentos, cabecalhos, totalClientes, totalValor } = processarRegistosVendedor(todosRegistros);
         
         let avisoMultiplasRotas = '';
         const idsRotasUnicas = [...new Set(todosRegistros.map(r => r.rota_id).filter(Boolean))];
-        if (idsRotasUnicas.length > 1) avisoMultiplasRotas = `<span class="ml-2 px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider animate-pulse">⚠️ ${idsRotasUnicas.length} Rotas</span>`;
+        if (idsRotasUnicas.length > 1) {
+          avisoMultiplasRotas = `<span class="ml-2 px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider animate-pulse">⚠️ ${idsRotasUnicas.length} Rotas</span>`;
+        }
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
-          if (ehTesteIgnorado) {
-            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">🟡 Envio Curto / Teste (${totalClientes})</span>`;
+          // Checa se houve um encerramento explícito de rota
+          const rotaFechadaExplicitamente = todosRegistros.some(f => 
+            ['ROTA_FECHADA', 'FECHADO_ESCRITORIO', 'CONCLUIDO_ESCRITORIO'].includes(String(f.status || '').toUpperCase()) ||
+            (f.tipo === 'FECHAMENTO_ROTA' && String(f.status || '').toUpperCase() === 'FECHADO')
+          );
+
+          if (rotaFechadaExplicitamente) {
+            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
           } else {
-            const rotaConcluida = todosRegistros.some(f => ['CONCLUIDO', 'FECHADO', 'BLOQUEADO'].includes(String(f.status || '').toUpperCase())) || cabecalhos.length > 0;
-            statusHTML = rotaConcluida ? `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>` : `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
+            // Rota em andamento (🟢 Em Rota em verde) mesmo para vendas de teste ou poucas vendas
+            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
           }
         }
 
@@ -856,13 +902,13 @@
         linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
         linha.onclick = () => abrirDetalheVendedor(vendedor);
         linha.innerHTML = `
-          <div><span class="font-bold text-slate-800 text-base flex items-center">${vendedor} ${avisoMultiplasRotas}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} cliente(s)</p></div>
+          <div><span class="font-bold text-slate-800 text-base flex items-center">${vendedor} ${avisoMultiplasRotas}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} cliente(s) atendido(s)</p></div>
           <div class="flex items-center gap-4"><span class="font-bold text-slate-700 text-sm tracking-tight">R$ ${totalValor.toFixed(2)}</span>${statusHTML}</div>`;
         container.appendChild(linha);
       });
     }
 
-    async function abrirDetalheVendedor(vendedorNome) {
+    async function abrirDetalheVendedor(vendedorNome, silencioso = false) {
       vendedorSelecionadoAtual = vendedorNome;
       document.getElementById('visao-lista-vendedores').classList.add('hidden');
       document.getElementById('visao-detalhe-vendedor').classList.remove('hidden');
@@ -881,13 +927,14 @@
 
       const badgeLocal = document.getElementById('badge-rotas-detalhe');
       badgeLocal.innerHTML = '';
-      if (processado.ehTesteIgnorado) badgeLocal.innerHTML += `<span class="px-2 py-0.5 rounded bg-amber-500 text-white text-xs font-bold uppercase shadow-sm">Teste (${processado.totalClientes})</span> `;
       
       if (cabecalhos.length > 0) {
         const ult = cabecalhos[cabecalhos.length - 1];
         ['330', '900', 'uva', 'sg', 'cg'].forEach(t => {
             const val = ult[`carga_${t}`];
-            if (val !== undefined) document.getElementById(`carga-${t}`).value = val || 0;
+            if (val !== undefined && document.getElementById(`carga-${t}`)) {
+              document.getElementById(`carga-${t}`).value = val || 0;
+            }
         });
       }
 
@@ -895,7 +942,7 @@
       tbody.innerHTML = '';
       
       if (dadosAtendimentoAtuais.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento registrado.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento registrado nesta data.</td></tr>`;
       } else {
         dadosAtendimentoAtuais.forEach(item => {
           const dataHora = new Date(item.created_at || item.data_atendimento);
@@ -903,7 +950,7 @@
           const obs = item.observacao || item.observacoes || item.obs || '-';
 
           tbody.innerHTML += `
-            <tr class="hover:bg-sky-50 transition-colors">
+            <tr class="hover:bg-sky-50 transition-colors border-b border-slate-100">
               <td class="p-2 text-slate-500 font-mono text-xs">${horaString}</td>
               <td class="p-2 font-bold text-slate-800">${item.cliente_nome || item.cliente || 'Sem nome'}</td>
               <td class="p-2 text-slate-600 text-[10px] italic max-w-[150px] truncate" title="${obs}">${obs}</td>
@@ -935,17 +982,27 @@
 
       const getV = id => Number(document.getElementById(id)?.value || 0);
 
-      document.getElementById('venda-330').innerText = v330; document.getElementById('venda-900').innerText = v900; document.getElementById('venda-uva').innerText = vuva;
-      document.getElementById('venda-sg').innerText = vsg; document.getElementById('venda-cg').innerText = vcg;
+      if (document.getElementById('venda-330')) document.getElementById('venda-330').innerText = v330; 
+      if (document.getElementById('venda-900')) document.getElementById('venda-900').innerText = v900; 
+      if (document.getElementById('venda-uva')) document.getElementById('venda-uva').innerText = vuva;
+      if (document.getElementById('venda-sg')) document.getElementById('venda-sg').innerText = vsg; 
+      if (document.getElementById('venda-cg')) document.getElementById('venda-cg').innerText = vcg;
 
-      document.getElementById('ret-atual-330').innerText = getV('carga-330') - v330; document.getElementById('ret-atual-900').innerText = getV('carga-900') - v900; document.getElementById('ret-atual-uva').innerText = getV('carga-uva') - vuva;
-      document.getElementById('ret-atual-sg').innerText = getV('carga-sg') - vsg; document.getElementById('ret-atual-cg').innerText = getV('carga-cg') - vcg;
+      if (document.getElementById('ret-atual-330')) document.getElementById('ret-atual-330').innerText = getV('carga-330') - v330; 
+      if (document.getElementById('ret-atual-900')) document.getElementById('ret-atual-900').innerText = getV('carga-900') - v900; 
+      if (document.getElementById('ret-atual-uva')) document.getElementById('ret-atual-uva').innerText = getV('carga-uva') - vuva;
+      if (document.getElementById('ret-atual-sg')) document.getElementById('ret-atual-sg').innerText = getV('carga-sg') - vsg; 
+      if (document.getElementById('ret-atual-cg')) document.getElementById('ret-atual-cg').innerText = getV('carga-cg') - vcg;
 
-      document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`; document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
-      document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`; document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+      if (document.getElementById('fin-folha-dinheiro')) document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`; 
+      if (document.getElementById('fin-folha-pix')) document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+      if (document.getElementById('fin-folha-prazo')) document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`; 
+      if (document.getElementById('fin-folha-total-geral')) document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
 
       const getDesp = id => Number(document.getElementById(`desp-folha-${id}`)?.value || 0);
-      document.getElementById('desp-folha-total').innerText = `R$ ${(getDesp('combustivel') + getDesp('almoco') + getDesp('outras')).toFixed(2)}`;
+      if (document.getElementById('desp-folha-total')) {
+        document.getElementById('desp-folha-total').innerText = `R$ ${(getDesp('combustivel') + getDesp('almoco') + getDesp('outras')).toFixed(2)}`;
+      }
     }
 
     function voltarParaListaVendedores() {
@@ -1153,7 +1210,6 @@
         } else {
           await supabaseClient.from('interno_registros').insert([payload]);
           
-          // Baixar do estoque caso esteja vinculado a um produto
           if (produtoId) {
             const { data: prod } = await supabaseClient.from('interno_produtos').select('estoque').eq('id', produtoId).single();
             if (prod) {
@@ -1225,7 +1281,7 @@
     }
 
     /* ========================================================================= */
-    /* RELATÓRIO MENSAL COM FILTRO DE SEGUNDA A SEXTA (DIAS ÚTEIS)               */
+    /* RELATÓRIO MENSAL COM FILTRO DE DIAS ÚTEIS (SEGUNDA A SEXTA)               */
     /* ========================================================================= */
     async function carregarRelatorioMensal() {
       const vendedor = document.getElementById('selVendedorDashboard').value;
@@ -1263,14 +1319,11 @@
       let qtdBrindesFicticios = 0; 
 
       for (let dia = 1; dia <= ultimoDia; dia++) {
-        // Checar dia da semana: 0 = Domingo, 1 = Segunda, ..., 5 = Sexta, 6 = Sábado
         const dataObj = new Date(parseInt(ano), parseInt(mes) - 1, dia);
         const diaSemana = dataObj.getDay();
 
-        // Filtro Segunda a Sexta: Ignora Domingo (0) e Sábado (6) a menos que explicitamente alterado
         if (filtroDias === 'seg-sex') {
           if (diaSemana === 0 || diaSemana === 6) {
-            // Se for Sábado e houver lançamentos, mantém os dados para par de rota
             if (diaSemana === 6 && (!diasDados[dia] || diasDados[dia].length === 0)) {
               continue;
             }
@@ -1356,6 +1409,7 @@
 
       const totalDespesas = tComb + tAlm + tDiv + tVale;
       const saldoPatrao = tRecebido - totalDespesas;
+
       document.getElementById('res-fin-recebido').innerText = `R$ ${tRecebido.toFixed(2)}`;
       document.getElementById('res-fin-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
       document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${saldoPatrao.toFixed(2)}`;
