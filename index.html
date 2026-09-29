@@ -65,11 +65,11 @@
       </div>
 
       <nav class="space-y-1">
-        <button onclick="mudarAba('fechamento')" id="nav-fechamento" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
-          <span>📋</span> Fechamento Diário
-        </button>
         <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
+        </button>
+        <button onclick="mudarAba('compra-venda')" id="nav-compra-venda" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
+          <span>🏷️</span> Compra e Venda
         </button>
         <button onclick="mudarAba('interno')" id="nav-interno" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>🏪</span> Módulo Interno / Varejo
@@ -92,7 +92,7 @@
         </label>
       </div>
       <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
-        <span>Sistema Sunap v2.4</span>
+        <span>Sistema Sunap v2.5</span>
         <span class="flex items-center gap-1 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ao Vivo</span>
       </div>
     </div>
@@ -102,39 +102,7 @@
   <main class="flex-1 ml-64 p-8">
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 1: FECHAMENTO DIÁRIO                                                -->
-    <!-- ========================================================================= -->
-    <section id="sec-fechamento" class="hidden">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">Fechamento de Rota</h2>
-        <p class="text-slate-500 text-sm">Selecione a rota do dia para realizar a conferência manual.</p>
-      </div>
-
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
-        <div class="flex flex-wrap gap-4 items-end">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor</label>
-            <select id="selVendedor" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[220px] text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-              <option value="">Carregando vendedores...</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Rota</label>
-            <input type="date" id="selData" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-          </div>
-          <button onclick="abrirFechamento()" class="bg-sky-600 hover:bg-sky-700 text-white px-5 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center gap-2">
-            <span>🔍</span> Abrir / Carregar Fechamento
-          </button>
-        </div>
-      </div>
-      
-      <div id="painel-principal" class="hidden space-y-6">
-         <!-- Espaço reservado para carregamento de relatórios manuais -->
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- SEÇÃO 2: ABA VENDEDORES                                                   -->
+    <!-- SEÇÃO 1: ABA VENDEDORES                                                   -->
     <!-- ========================================================================= -->
     <section id="aba-vendedores" class="p-6">
       <div class="flex justify-between items-center mb-6">
@@ -306,7 +274,128 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 3: MÓDULO INTERNO / VAREJO (EDITÁVEL & SUPABASE)                    -->
+    <!-- SEÇÃO 2: TABELA DE COMPRA E VENDA (NOVA ABA)                              -->
+    <!-- ========================================================================= -->
+    <section id="sec-compra-venda" class="hidden p-6 space-y-8">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Tabela de Compra & Venda por Vendedor</h2>
+          <p class="text-slate-500 text-sm">Acompanhamento detalhado de custos, preços de venda, margem de lucro e comissões.</p>
+        </div>
+        <div class="flex gap-2 bg-slate-200 p-1 rounded-lg">
+          <button onclick="filtrarVendedorCompraVenda('todos')" id="btn-cv-todos" class="px-3 py-1.5 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm">Todos</button>
+          <button onclick="filtrarVendedorCompraVenda('paulo')" id="btn-cv-paulo" class="px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900">Paulo</button>
+          <button onclick="filtrarVendedorCompraVenda('alessandro')" id="btn-cv-alessandro" class="px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900">Alessandro</button>
+          <button onclick="filtrarVendedorCompraVenda('luan')" id="btn-cv-luan" class="px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900">Luan</button>
+        </div>
+      </div>
+
+      <!-- TABELA VENDEDOR 1: PAULO -->
+      <div id="card-cv-paulo" class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden">
+        <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👤</span>
+            <div>
+              <h3 class="text-lg font-bold tracking-wide">VENDEDOR: PAULO</h3>
+              <p class="text-xs text-slate-300">Tabela Individual de Custos e Margens</p>
+            </div>
+          </div>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs px-3 py-1 rounded-full font-semibold">Tabela Ativa</span>
+        </div>
+        <div class="overflow-x-auto p-4">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b-2 border-slate-300 text-slate-700 uppercase font-bold text-center">
+                <th class="p-2.5 text-left">PRODUTO</th>
+                <th class="p-2.5">CAIXA COM</th>
+                <th class="p-2.5">VALOR C/ DESC (CX)</th>
+                <th class="p-2.5">CUSTO GARRAFA</th>
+                <th class="p-2.5">VALOR DE VENDA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO GARRAFA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO CAIXA</th>
+                <th class="p-2.5 bg-blue-50 text-blue-800">% LUCRO</th>
+                <th class="p-2.5">COMISSÃO / OBS</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cv-paulo" class="divide-y divide-slate-200">
+              <!-- Preenchido dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABELA VENDEDOR 2: ALESSANDRO -->
+      <div id="card-cv-alessandro" class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden">
+        <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👤</span>
+            <div>
+              <h3 class="text-lg font-bold tracking-wide">VENDEDOR: ALESSANDRO</h3>
+              <p class="text-xs text-slate-300">Tabela Individual de Custos e Margens</p>
+            </div>
+          </div>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs px-3 py-1 rounded-full font-semibold">Tabela Ativa</span>
+        </div>
+        <div class="overflow-x-auto p-4">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b-2 border-slate-300 text-slate-700 uppercase font-bold text-center">
+                <th class="p-2.5 text-left">PRODUTO</th>
+                <th class="p-2.5">CAIXA COM</th>
+                <th class="p-2.5">VALOR C/ DESC (CX)</th>
+                <th class="p-2.5">CUSTO GARRAFA</th>
+                <th class="p-2.5">VALOR DE VENDA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO GARRAFA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO CAIXA</th>
+                <th class="p-2.5 bg-blue-50 text-blue-800">% LUCRO</th>
+                <th class="p-2.5">COMISSÃO / OBS</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cv-alessandro" class="divide-y divide-slate-200">
+              <!-- Preenchido dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABELA VENDEDOR 3: LUAN -->
+      <div id="card-cv-luan" class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden">
+        <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center border-b border-slate-700">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👤</span>
+            <div>
+              <h3 class="text-lg font-bold tracking-wide">VENDEDOR: LUAN</h3>
+              <p class="text-xs text-slate-300">Tabela Individual de Custos e Margens</p>
+            </div>
+          </div>
+          <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs px-3 py-1 rounded-full font-semibold">Tabela Ativa</span>
+        </div>
+        <div class="overflow-x-auto p-4">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b-2 border-slate-300 text-slate-700 uppercase font-bold text-center">
+                <th class="p-2.5 text-left">PRODUTO</th>
+                <th class="p-2.5">CAIXA COM</th>
+                <th class="p-2.5">VALOR C/ DESC (CX)</th>
+                <th class="p-2.5">CUSTO GARRAFA</th>
+                <th class="p-2.5">VALOR DE VENDA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO GARRAFA</th>
+                <th class="p-2.5 bg-emerald-50 text-emerald-800">LUCRO CAIXA</th>
+                <th class="p-2.5 bg-blue-50 text-blue-800">% LUCRO</th>
+                <th class="p-2.5">COMISSÃO / OBS</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cv-luan" class="divide-y divide-slate-200">
+              <!-- Preenchido dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO 3: MÓDULO INTERNO / VAREJO                                          -->
     <!-- ========================================================================= -->
     <section id="sec-interno" class="hidden p-6 space-y-8">
       <div class="flex justify-between items-center border-b border-slate-200 pb-4">
@@ -713,20 +802,47 @@
     let listaProdutosCache = [];
     let abaAtiva = 'vendedores';
 
+    // DADOS INICIAIS DA TABELA COMPRA E VENDA PARA OS 3 VENDEDORES
+    const dadosCompraVenda = {
+      paulo: [
+        { produto: 'Suco De Laranja 300ml', caixaCom: 24, valorDesc: 60.00, valorVenda: 3.50, comissao: '-' },
+        { produto: 'Suco De Laranja 900ml', caixaCom: 6, valorDesc: 33.00, valorVenda: 7.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 300ml', caixaCom: 24, valorDesc: 72.00, valorVenda: 4.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 900ml', caixaCom: 6, valorDesc: 45.00, valorVenda: 10.00, comissao: '-' },
+        { produto: 'Água Sem Gás 500ml', caixaCom: 12, valorDesc: 12.00, valorVenda: 2.00, comissao: '-' },
+        { produto: 'Água Com Gás 500ml', caixaCom: 12, valorDesc: 15.00, valorVenda: 2.50, comissao: '-' }
+      ],
+      alessandro: [
+        { produto: 'Suco De Laranja 300ml', caixaCom: 24, valorDesc: 57.60, valorVenda: 3.50, comissao: '-' },
+        { produto: 'Suco De Laranja 900ml', caixaCom: 6, valorDesc: 31.20, valorVenda: 7.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 300ml', caixaCom: 24, valorDesc: 69.60, valorVenda: 4.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 900ml', caixaCom: 6, valorDesc: 43.20, valorVenda: 10.00, comissao: '-' },
+        { produto: 'Água Sem Gás 500ml', caixaCom: 12, valorDesc: 10.80, valorVenda: 2.00, comissao: '-' },
+        { produto: 'Água Com Gás 500ml', caixaCom: 12, valorDesc: 13.20, valorVenda: 2.50, comissao: '-' }
+      ],
+      luan: [
+        { produto: 'Suco De Laranja 300ml', caixaCom: 24, valorDesc: 62.40, valorVenda: 3.50, comissao: '-' },
+        { produto: 'Suco De Laranja 900ml', caixaCom: 6, valorDesc: 34.20, valorVenda: 7.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 300ml', caixaCom: 24, valorDesc: 74.40, valorVenda: 4.50, comissao: '-' },
+        { produto: 'Suco De Uva Integral 900ml', caixaCom: 6, valorDesc: 46.80, valorVenda: 10.00, comissao: '-' },
+        { produto: 'Água Sem Gás 500ml', caixaCom: 12, valorDesc: 11.40, valorVenda: 2.00, comissao: '-' },
+        { produto: 'Água Com Gás 500ml', caixaCom: 12, valorDesc: 14.40, valorVenda: 2.50, comissao: '-' }
+      ]
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       const dataLocal = new Date();
       const offset = dataLocal.getTimezoneOffset() * 60000;
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       
-      if (document.getElementById('selData')) document.getElementById('selData').value = hoje;
       if (document.getElementById('selDataVendedores')) document.getElementById('selDataVendedores').value = hoje;
       if (document.getElementById('lanc-data')) document.getElementById('lanc-data').value = hoje;
       if (document.getElementById('var-data')) document.getElementById('var-data').value = hoje;
       
-      carregarListaVendedoresSelect();
       iniciarRealtimeSupabase();
+      renderizarTabelasCompraVenda();
       
-      // Polling de redundância a cada 4 segundos para garantir atualização ao vivo sem F5
+      // Polling de redundância a cada 4 segundos
       setInterval(() => {
         if (abaAtiva === 'vendedores') {
           if (vendedorSelecionadoAtual) {
@@ -744,16 +860,6 @@
       const toggle = document.getElementById('dev-toggle').checked;
       if (toggle) document.body.classList.add('dev-mode-active');
       else document.body.classList.remove('dev-mode-active');
-    }
-
-    function carregarListaVendedoresSelect() {
-      const sel = document.getElementById('selVendedor');
-      if (!sel) return;
-      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton'];
-      sel.innerHTML = '<option value="">-- Selecione o Vendedor --</option>';
-      fixos.forEach(v => {
-        sel.innerHTML += `<option value="${v}">${v}</option>`;
-      });
     }
 
     function iniciarRealtimeSupabase() {
@@ -775,11 +881,11 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['sec-fechamento', 'aba-vendedores', 'sec-interno', 'sec-lancamentos', 'sec-dashboard'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-lancamentos', 'sec-dashboard'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
-      ['nav-fechamento', 'nav-vendedores', 'nav-interno', 'nav-lancamentos', 'nav-dashboard'].forEach(id => {
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-lancamentos', 'nav-dashboard'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) {
           btn.classList.remove('bg-sky-600', 'text-white');
@@ -787,13 +893,16 @@
         }
       });
       const mapaAbas = { 
-        'fechamento': 'sec-fechamento', 
-        'vendedores': 'aba-vendedores', 
+        'vendedores': 'aba-vendedores',
+        'compra-venda': 'sec-compra-venda',
         'interno': 'sec-interno', 
         'lancamentos': 'sec-lancamentos', 
         'dashboard': 'sec-dashboard' 
       };
-      document.getElementById(mapaAbas[aba]).classList.remove('hidden');
+      
+      const secEl = document.getElementById(mapaAbas[aba]);
+      if (secEl) secEl.classList.remove('hidden');
+
       const activeBtn = document.getElementById(`nav-${aba}`);
       if (activeBtn) {
         activeBtn.classList.remove('text-slate-300');
@@ -805,6 +914,8 @@
         document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
         document.getElementById('visao-lista-vendedores').classList.remove('hidden');
         carregarAbaVendedores();
+      } else if (aba === 'compra-venda') {
+        renderizarTabelasCompraVenda();
       } else if (aba === 'interno') {
         carregarProdutosInternos();
         carregarVendasVarejo();
@@ -813,6 +924,97 @@
       }
     }
 
+    /* ========================================================================= */
+    /* LÓGICA E RENDERIZAÇÃO DA ABA COMPRA E VENDA                               */
+    /* ========================================================================= */
+    function renderizarTabelasCompraVenda() {
+      ['paulo', 'alessandro', 'luan'].forEach(vendedorKey => {
+        const tbody = document.getElementById(`tbody-cv-${vendedorKey}`);
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        dadosCompraVenda[vendedorKey].forEach((item, idx) => {
+          const cxCom = item.caixaCom || 1;
+          const valorDesc = item.valorDesc || 0;
+          const valorVenda = item.valorVenda || 0;
+
+          const custoGarrafa = valorDesc / cxCom;
+          const lucroGarrafa = valorVenda - custoGarrafa;
+          const lucroCaixa = lucroGarrafa * cxCom;
+          const percLucro = custoGarrafa > 0 ? ((lucroGarrafa / custoGarrafa) * 100) : 0;
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-200 text-center">
+              <td class="p-2 text-left font-bold text-slate-800">${item.produto}</td>
+              <td class="p-2">
+                <input type="number" id="cv-${vendedorKey}-cx-${idx}" value="${cxCom}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-16 text-center border border-slate-300 rounded px-1 py-1 font-semibold">
+              </td>
+              <td class="p-2">
+                <input type="number" step="0.01" id="cv-${vendedorKey}-desc-${idx}" value="${valorDesc.toFixed(2)}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-24 text-right border border-slate-300 rounded px-1 py-1 font-semibold">
+              </td>
+              <td id="cv-${vendedorKey}-cg-${idx}" class="p-2 font-semibold text-slate-700">R$ ${custoGarrafa.toFixed(2)}</td>
+              <td class="p-2">
+                <input type="number" step="0.01" id="cv-${vendedorKey}-venda-${idx}" value="${valorVenda.toFixed(2)}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-24 text-right border border-slate-300 rounded px-1 py-1 font-bold text-emerald-700">
+              </td>
+              <td id="cv-${vendedorKey}-lg-${idx}" class="p-2 font-bold text-emerald-700 bg-emerald-50/50">R$ ${lucroGarrafa.toFixed(2)}</td>
+              <td id="cv-${vendedorKey}-lc-${idx}" class="p-2 font-bold text-emerald-800 bg-emerald-50/50">R$ ${lucroCaixa.toFixed(2)}</td>
+              <td id="cv-${vendedorKey}-perc-${idx}" class="p-2 font-bold text-blue-700 bg-blue-50/50">${percLucro.toFixed(1)}%</td>
+              <td class="p-2">
+                <input type="text" value="${item.comissao || '-'}" class="w-20 text-center border border-slate-300 rounded px-1 py-1 text-xs">
+              </td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    function calcularLinhaCompraVenda(vendedorKey, idx) {
+      const cxCom = parseFloat(document.getElementById(`cv-${vendedorKey}-cx-${idx}`)?.value || 1);
+      const valorDesc = parseFloat(document.getElementById(`cv-${vendedorKey}-desc-${idx}`)?.value || 0);
+      const valorVenda = parseFloat(document.getElementById(`cv-${vendedorKey}-venda-${idx}`)?.value || 0);
+
+      const custoGarrafa = valorDesc / (cxCom || 1);
+      const lucroGarrafa = valorVenda - custoGarrafa;
+      const lucroCaixa = lucroGarrafa * cxCom;
+      const percLucro = custoGarrafa > 0 ? ((lucroGarrafa / custoGarrafa) * 100) : 0;
+
+      if (document.getElementById(`cv-${vendedorKey}-cg-${idx}`)) {
+        document.getElementById(`cv-${vendedorKey}-cg-${idx}`).innerText = `R$ ${custoGarrafa.toFixed(2)}`;
+      }
+      if (document.getElementById(`cv-${vendedorKey}-lg-${idx}`)) {
+        document.getElementById(`cv-${vendedorKey}-lg-${idx}`).innerText = `R$ ${lucroGarrafa.toFixed(2)}`;
+      }
+      if (document.getElementById(`cv-${vendedorKey}-lc-${idx}`)) {
+        document.getElementById(`cv-${vendedorKey}-lc-${idx}`).innerText = `R$ ${lucroCaixa.toFixed(2)}`;
+      }
+      if (document.getElementById(`cv-${vendedorKey}-perc-${idx}`)) {
+        document.getElementById(`cv-${vendedorKey}-perc-${idx}`).innerText = `${percLucro.toFixed(1)}%`;
+      }
+    }
+
+    function filtrarVendedorCompraVenda(filtro) {
+      ['paulo', 'alessandro', 'luan'].forEach(v => {
+        const card = document.getElementById(`card-cv-${v}`);
+        const btn = document.getElementById(`btn-cv-${v}`);
+        if (filtro === 'todos' || filtro === v) {
+          card.classList.remove('hidden');
+          if (btn) btn.className = "px-3 py-1.5 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm";
+        } else {
+          card.classList.add('hidden');
+          if (btn) btn.className = "px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900";
+        }
+      });
+      const btnTodos = document.getElementById('btn-cv-todos');
+      if (filtro === 'todos') {
+        btnTodos.className = "px-3 py-1.5 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm";
+      } else {
+        btnTodos.className = "px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    /* ========================================================================= */
+    /* LÓGICA DE VENDEDORES & FECHAMENTOS DE ROTA                                */
+    /* ========================================================================= */
     function getIntervaloDataSelecionada(idInputData) {
       let dataStr = document.getElementById(idInputData)?.value;
       if (!dataStr) {
@@ -839,20 +1041,6 @@
         totalClientes: atendimentos.length,
         totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0)
       };
-    }
-
-    function abrirFechamento() {
-      const vendedor = document.getElementById('selVendedor').value;
-      const data = document.getElementById('selData').value;
-      if (!vendedor) {
-        alert('Por favor, selecione um vendedor!');
-        return;
-      }
-      if (data) {
-        document.getElementById('selDataVendedores').value = data;
-      }
-      mudarAba('vendedores');
-      abrirDetalheVendedor(vendedor);
     }
 
     async function carregarAbaVendedores(silencioso = false) {
@@ -884,7 +1072,6 @@
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
-          // Checa se houve um encerramento explícito de rota
           const rotaFechadaExplicitamente = todosRegistros.some(f => 
             ['ROTA_FECHADA', 'FECHADO_ESCRITORIO', 'CONCLUIDO_ESCRITORIO'].includes(String(f.status || '').toUpperCase()) ||
             (f.tipo === 'FECHAMENTO_ROTA' && String(f.status || '').toUpperCase() === 'FECHADO')
@@ -893,7 +1080,6 @@
           if (rotaFechadaExplicitamente) {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
           } else {
-            // Rota em andamento (🟢 Em Rota em verde) mesmo para vendas de teste ou poucas vendas
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
           }
         }
@@ -1044,15 +1230,16 @@
 
         listaProdutosCache = data || [];
         
-        // Atualizar Select de Produtos do Varejo
         const selProd = document.getElementById('var-produto-id');
-        selProd.innerHTML = '<option value="">-- Selecione o Produto --</option>';
-        listaProdutosCache.forEach(p => {
-          selProd.innerHTML += `<option value="${p.id}" data-preco="${p.preco || 0}">${p.nome} (${p.tamanho || 'Un'}) - R$ ${Number(p.preco || 0).toFixed(2)} [Estoque: ${p.estoque || 0}]</option>`;
-        });
+        if (selProd) {
+          selProd.innerHTML = '<option value="">-- Selecione o Produto --</option>';
+          listaProdutosCache.forEach(p => {
+            selProd.innerHTML += `<option value="${p.id}" data-preco="${p.preco || 0}">${p.nome} (${p.tamanho || 'Un'}) - R$ ${Number(p.preco || 0).toFixed(2)} [Estoque: ${p.estoque || 0}]</option>`;
+          });
+        }
 
-        // Preencher Tabela de Produtos
         const tbody = document.getElementById('tabela-produtos-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
         if (listaProdutosCache.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-slate-400">Nenhum produto cadastrado no banco.</td></tr>';
@@ -1150,6 +1337,7 @@
         if (error) throw error;
 
         const tbody = document.getElementById('tabela-varejo-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
@@ -1316,7 +1504,6 @@
       let t330=0, t900=0, tuva=0, tagua=0, tgelo=0;
       let tr330=0, tr900=0, truva=0;
       let tTotalQtd=0, tRecebido=0, tVale=0, tComb=0, tAlm=0, tDiv=0;
-      let qtdBrindesFicticios = 0; 
 
       for (let dia = 1; dia <= ultimoDia; dia++) {
         const dataObj = new Date(parseInt(ano), parseInt(mes) - 1, dia);
@@ -1371,48 +1558,50 @@
           </tr>`;
       }
 
-      document.getElementById('rodape-tabela-mensal').innerHTML = `
-        <td class="border border-black p-1">TOTAL</td>
-        <td class="border border-black p-1">${t330}</td><td class="border border-black p-1">${t900}</td><td class="border border-black p-1">${tuva}</td><td class="border border-black p-1">${tagua}</td>
-        <td class="border border-black p-1">${tr330}</td><td class="border border-black p-1">${tr900}</td><td class="border border-black p-1">${truva}</td>
-        <td class="border border-black p-1">${tTotalQtd}</td>
-        <td class="border border-black p-1">R$ ${tRecebido.toFixed(2)}</td><td class="border border-black p-1">-</td>
-        <td class="border border-black p-1">R$ ${tComb.toFixed(2)}</td><td class="border border-black p-1">R$ ${tAlm.toFixed(2)}</td><td class="border border-black p-1">R$ ${tDiv.toFixed(2)}</td>
-        <td class="border border-black p-1 text-red-600">R$ ${tVale.toFixed(2)}</td>`;
-
-      // VENDAS TOTAIS BRUTAS
-      document.getElementById('res-bruta-330').innerText = t330;
-      document.getElementById('res-bruta-900').innerText = t900;
-      document.getElementById('res-bruta-uva').innerText = tuva;
-      document.getElementById('res-bruta-total').innerText = t330 + t900 + tuva;
-
-      // TROCAS
-      document.getElementById('res-troca-330').innerText = tr330;
-      document.getElementById('res-troca-900').innerText = tr900;
-      document.getElementById('res-troca-uva').innerText = truva;
-      document.getElementById('res-troca-total').innerText = tr330 + tr900 + truva;
-
-      // VENDAS LÍQUIDAS
-      document.getElementById('res-liq-330').innerText = t330 - tr330;
-      document.getElementById('res-liq-900').innerText = t900 - tr900;
-      document.getElementById('res-liq-uva').innerText = tuva - truva;
-      document.getElementById('res-liq-total').innerText = (t330 - tr330) + (t900 - tr900) + (tuva - truva);
-
-      // BRINDES
-      document.getElementById('res-brindes-total').innerText = qtdBrindesFicticios;
-
-      // DESPESAS E ACERTO FINAL
-      document.getElementById('res-desp-combustivel').innerText = `R$ ${tComb.toFixed(2)}`;
-      document.getElementById('res-desp-almoco').innerText = `R$ ${tAlm.toFixed(2)}`;
-      document.getElementById('res-desp-diversas').innerText = `R$ ${tDiv.toFixed(2)}`;
-      document.getElementById('res-desp-vale').innerText = `R$ ${tVale.toFixed(2)}`;
-
       const totalDespesas = tComb + tAlm + tDiv + tVale;
       const saldoPatrao = tRecebido - totalDespesas;
 
-      document.getElementById('res-fin-recebido').innerText = `R$ ${tRecebido.toFixed(2)}`;
-      document.getElementById('res-fin-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
-      document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${saldoPatrao.toFixed(2)}`;
+      document.getElementById('rodape-tabela-mensal').innerHTML = `
+        <td class="border border-black p-1">TOTAL</td>
+        <td class="border border-black p-1">${t330}</td>
+        <td class="border border-black p-1">${t900}</td>
+        <td class="border border-black p-1">${tuva}</td>
+        <td class="border border-black p-1">${tagua}</td>
+        <td class="border border-black p-1 bg-amber-100">${tr330}</td>
+        <td class="border border-black p-1 bg-amber-100">${tr900}</td>
+        <td class="border border-black p-1 bg-amber-100">${truva}</td>
+        <td class="border border-black p-1 font-bold">${tTotalQtd}</td>
+        <td class="border border-black p-1">R$ ${tRecebido.toFixed(2)}</td>
+        <td class="border border-black p-1 bg-indigo-100">-</td>
+        <td class="border border-black p-1 bg-red-100">R$ ${tComb.toFixed(2)}</td>
+        <td class="border border-black p-1 bg-red-100">R$ ${tAlm.toFixed(2)}</td>
+        <td class="border border-black p-1 bg-red-100">R$ ${tDiv.toFixed(2)}</td>
+        <td class="border border-black p-1 text-red-700 font-bold">R$ ${tVale.toFixed(2)}</td>
+      `;
+
+      if (document.getElementById('res-bruta-330')) document.getElementById('res-bruta-330').innerText = t330;
+      if (document.getElementById('res-bruta-900')) document.getElementById('res-bruta-900').innerText = t900;
+      if (document.getElementById('res-bruta-uva')) document.getElementById('res-bruta-uva').innerText = tuva;
+      if (document.getElementById('res-bruta-total')) document.getElementById('res-bruta-total').innerText = t330 + t900 + tuva;
+
+      if (document.getElementById('res-troca-330')) document.getElementById('res-troca-330').innerText = tr330;
+      if (document.getElementById('res-troca-900')) document.getElementById('res-troca-900').innerText = tr900;
+      if (document.getElementById('res-troca-uva')) document.getElementById('res-troca-uva').innerText = truva;
+      if (document.getElementById('res-troca-total')) document.getElementById('res-troca-total').innerText = tr330 + tr900 + truva;
+
+      if (document.getElementById('res-liq-330')) document.getElementById('res-liq-330').innerText = t330 - tr330;
+      if (document.getElementById('res-liq-900')) document.getElementById('res-liq-900').innerText = t900 - tr900;
+      if (document.getElementById('res-liq-uva')) document.getElementById('res-liq-uva').innerText = tuva - truva;
+      if (document.getElementById('res-liq-total')) document.getElementById('res-liq-total').innerText = (t330 - tr330) + (t900 - tr900) + (tuva - truva);
+
+      if (document.getElementById('res-desp-combustivel')) document.getElementById('res-desp-combustivel').innerText = `R$ ${tComb.toFixed(2)}`;
+      if (document.getElementById('res-desp-almoco')) document.getElementById('res-desp-almoco').innerText = `R$ ${tAlm.toFixed(2)}`;
+      if (document.getElementById('res-desp-diversas')) document.getElementById('res-desp-diversas').innerText = `R$ ${tDiv.toFixed(2)}`;
+      if (document.getElementById('res-desp-vale')) document.getElementById('res-desp-vale').innerText = `R$ ${tVale.toFixed(2)}`;
+
+      if (document.getElementById('res-fin-recebido')) document.getElementById('res-fin-recebido').innerText = `R$ ${tRecebido.toFixed(2)}`;
+      if (document.getElementById('res-fin-despesas')) document.getElementById('res-fin-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+      if (document.getElementById('res-fin-saldo-patrao')) document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${saldoPatrao.toFixed(2)}`;
     }
   </script>
 </body>
