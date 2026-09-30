@@ -69,6 +69,10 @@
         <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
         </button>
+        <!-- NOVA ABA: ROTAS E CLIENTES -->
+        <button onclick="mudarAba('rotas')" id="nav-rotas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
+          <span>📍</span> Rotas e Clientes
+        </button>
         <button onclick="mudarAba('compra-venda'); trocarVendedorCV();" id="nav-compra-venda" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
           <span>🏷️</span> Compra e Venda
         </button>
@@ -96,7 +100,7 @@
         </label>
       </div>
       <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
-        <span>Sistema Sunap v2.7</span>
+        <span>Sistema Sunap v2.8</span>
         <span class="flex items-center gap-1 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ao Vivo</span>
       </div>
     </div>
@@ -104,6 +108,99 @@
 
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 ml-64 p-8">
+
+    <!-- ========================================================================= -->
+    <!-- NOVA SEÇÃO: ROTAS E CLIENTES                                              -->
+    <!-- ========================================================================= -->
+    <section id="sec-rotas" class="hidden p-6 space-y-6">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Gerenciamento de Rotas e Clientes</h2>
+          <p class="text-slate-500 text-sm">Adicione, edite e remova clientes das rotas. As alterações atualizam os vendedores na hora.</p>
+        </div>
+        <button onclick="carregarClientes()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
+          🔄 Atualizar Lista
+        </button>
+      </div>
+
+      <!-- FORMULÁRIO DE CLIENTE -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-indigo-500">
+        <h3 id="titulo-form-cliente" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+          <span>📍</span> Cadastrar Novo Cliente
+        </h3>
+        <form id="form-cliente" onsubmit="salvarCliente(event)" class="space-y-4">
+          <input type="hidden" id="cli-edit-id" value="">
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Cliente / Estabelecimento</label>
+              <input type="text" id="cli-nome" required placeholder="Ex: Padaria do Zé" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor / Rota Responsável</label>
+              <select id="cli-vendedor" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                <option value="">Selecione o Vendedor...</option>
+                <option value="Sérgio">Sérgio</option>
+                <option value="Alex">Alex</option>
+                <option value="Wernek">Wernek</option>
+                <option value="Luan">Luan</option>
+                <option value="Charles">Charles</option>
+                <option value="Guilherme">Guilherme</option>
+                <option value="Gustavo">Gustavo</option>
+                <option value="Felipe">Felipe</option>
+                <option value="Alessandro">Alessandro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Endereço / Referência</label>
+              <input type="text" id="cli-endereco" placeholder="Ex: Rua São Paulo, 123 - Centro" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Ordem na Rota (Opcional)</label>
+              <input type="number" id="cli-ordem" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center">
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow">
+              💾 Salvar Cliente
+            </button>
+            <button type="button" onclick="limparFormCliente()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TABELA DE CLIENTES -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center text-sm">
+          <span>Tabela de Clientes e Rotas Ativas</span>
+          <div class="flex gap-2">
+            <input type="text" id="filtro-cliente" placeholder="Buscar cliente..." onkeyup="filtrarClientes()" class="text-slate-900 text-xs px-2 py-1 rounded border-none">
+          </div>
+        </div>
+        <div class="overflow-x-auto max-h-[600px]">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-xs sticky top-0">
+              <tr>
+                <th class="p-3">Vendedor</th>
+                <th class="p-3">Ordem</th>
+                <th class="p-3">Cliente</th>
+                <th class="p-3">Endereço</th>
+                <th class="p-3 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-clientes-body" class="divide-y divide-slate-100 font-medium">
+              <tr><td colspan="5" class="text-center p-4 text-slate-400">Carregando clientes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
     <!-- ========================================================================= -->
     <!-- SEÇÃO 1: ABA VENDEDORES                                                   -->
@@ -268,7 +365,7 @@
           
           <div class="dev-only mt-8 border-2 border-dashed border-sky-500 rounded-lg bg-slate-900 p-4">
             <h4 class="text-sky-400 font-bold mb-2 text-sm uppercase flex items-center gap-2">
-              <span>👨‍‍💻</span> Debug - Resposta Bruta
+              <span>👨‍💻</span> Debug - Resposta Bruta
             </h4>
             <pre id="dev-json-dump" class="text-emerald-400 text-xs overflow-x-auto max-h-64"></pre>
           </div>
@@ -280,7 +377,7 @@
     <!-- ========================================================================= -->
     <!-- SEÇÃO 2: TABELA DE COMPRA E VENDA (ALEX, WERNEK E SÉRGIO)                 -->
     <!-- ========================================================================= -->
-    <section id="sec-compra-venda" class="p-6 space-y-6">
+    <section id="sec-compra-venda" class="hidden p-6 space-y-6">
       <!-- Cabeçalho e Seleção de Vendedor -->
       <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
         <div>
@@ -933,9 +1030,126 @@
     let vendedorSelecionadoAtual = null;
     let canalRealtime = null;
     let listaProdutosCache = [];
+    let listaClientesCache = []; // Adicionado Cache de Clientes
     let abaAtiva = 'vendedores';
     let lancamentosMemoria = [];
     let caixaMovimentacoesMemoria = [];
+
+    /* ========================================================================= */
+    /* NOVA LÓGICA: ROTAS E CLIENTES (CRUD NO SUPABASE)                          */
+    /* ========================================================================= */
+    async function carregarClientes() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('clientes')
+          .select('*')
+          .order('vendedor_responsavel', { ascending: true })
+          .order('ordem', { ascending: true });
+
+        if (error) throw error;
+        listaClientesCache = data || [];
+        renderizarTabelaClientes(listaClientesCache);
+      } catch (err) {
+        console.error("Erro ao carregar clientes:", err.message);
+      }
+    }
+
+    function renderizarTabelaClientes(dados) {
+      const tbody = document.getElementById("tabela-clientes-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      if (dados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-400">Nenhum cliente encontrado.</td></tr>`;
+        return;
+      }
+
+      dados.forEach(cli => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100">
+            <td class="p-3 font-bold text-indigo-700">${cli.vendedor_responsavel || 'N/A'}</td>
+            <td class="p-3 text-center"><span class="bg-slate-200 px-2 py-1 rounded text-xs font-bold">${cli.ordem || 1}</span></td>
+            <td class="p-3 font-bold text-slate-800">${cli.nome}</td>
+            <td class="p-3 text-slate-600 text-xs">${cli.endereco || '-'}</td>
+            <td class="p-3 text-center flex justify-center gap-2">
+              <button onclick="editarCliente('${cli.id}')" class="bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200 text-xs font-bold">Editar</button>
+              <button onclick="deletarCliente('${cli.id}')" class="bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 text-xs font-bold">Excluir</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function filtrarClientes() {
+      const termo = document.getElementById("filtro-cliente").value.toLowerCase();
+      const filtrados = listaClientesCache.filter(c => 
+        (c.nome && c.nome.toLowerCase().includes(termo)) || 
+        (c.vendedor_responsavel && c.vendedor_responsavel.toLowerCase().includes(termo))
+      );
+      renderizarTabelaClientes(filtrados);
+    }
+
+    async function salvarCliente(event) {
+      event.preventDefault();
+      const id = document.getElementById("cli-edit-id").value;
+      const nome = document.getElementById("cli-nome").value.toUpperCase();
+      const vendedor = document.getElementById("cli-vendedor").value;
+      const endereco = document.getElementById("cli-endereco").value;
+      const ordem = parseInt(document.getElementById("cli-ordem").value || 1);
+
+      const payload = {
+        nome: nome,
+        vendedor_responsavel: vendedor,
+        endereco: endereco,
+        ordem: ordem
+      };
+
+      try {
+        if (id) {
+          const { error } = await supabaseClient.from('clientes').update(payload).eq('id', id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from('clientes').insert([payload]);
+          if (error) throw error;
+        }
+        limparFormCliente();
+        await carregarClientes();
+        alert("Cliente salvo com sucesso!");
+      } catch (err) {
+        alert("Erro ao salvar cliente: " + err.message);
+      }
+    }
+
+    function editarCliente(id) {
+      const cli = listaClientesCache.find(c => c.id === id);
+      if (!cli) return;
+
+      document.getElementById("cli-edit-id").value = cli.id;
+      document.getElementById("cli-nome").value = cli.nome;
+      document.getElementById("cli-vendedor").value = cli.vendedor_responsavel;
+      document.getElementById("cli-endereco").value = cli.endereco || '';
+      document.getElementById("cli-ordem").value = cli.ordem || 1;
+
+      document.getElementById("titulo-form-cliente").innerHTML = `<span>✏️</span> Editando Cliente: ${cli.nome}`;
+      window.scrollTo(0, 0);
+    }
+
+    async function deletarCliente(id) {
+      if (!confirm("Tem certeza que deseja excluir este cliente da rota?")) return;
+      try {
+        const { error } = await supabaseClient.from('clientes').delete().eq('id', id);
+        if (error) throw error;
+        await carregarClientes();
+      } catch (err) {
+        alert("Erro ao deletar cliente: " + err.message);
+      }
+    }
+
+    function limparFormCliente() {
+      document.getElementById("cli-edit-id").value = "";
+      document.getElementById("form-cliente").reset();
+      document.getElementById("titulo-form-cliente").innerHTML = `<span>📍</span> Cadastrar Novo Cliente`;
+    }
 
     /* ========================================================================= */
     /* LÓGICA DA ABA COMPRA E VENDA CONECTADA AO SUPABASE                        */
@@ -1236,6 +1450,9 @@
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
       canalRealtime = supabaseClient
         .channel('mudancas-ao-vivo')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => {
+            if (abaAtiva === 'rotas') carregarClientes();
+        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => {
             carregarAbaVendedores();
             if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual);
@@ -1255,11 +1472,11 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard'].forEach(id => {
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) {
           btn.classList.remove('bg-sky-600', 'text-white');
@@ -1272,7 +1489,8 @@
         'interno': 'sec-interno', 
         'caixa': 'sec-caixa',
         'lancamentos': 'sec-lancamentos', 
-        'dashboard': 'sec-dashboard' 
+        'dashboard': 'sec-dashboard',
+        'rotas': 'sec-rotas'
       };
       
       const secEl = document.getElementById(mapaAbas[aba]);
@@ -1298,6 +1516,8 @@
         carregarCaixaDiario();
       } else if (aba === 'dashboard') {
         carregarRelatorioMensal();
+      } else if (aba === 'rotas') {
+        carregarClientes();
       }
     }
 
