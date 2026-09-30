@@ -268,7 +268,7 @@
           
           <div class="dev-only mt-8 border-2 border-dashed border-sky-500 rounded-lg bg-slate-900 p-4">
             <h4 class="text-sky-400 font-bold mb-2 text-sm uppercase flex items-center gap-2">
-              <span>👨‍💻</span> Debug - Resposta Bruta
+              <span>👨‍‍💻</span> Debug - Resposta Bruta
             </h4>
             <pre id="dev-json-dump" class="text-emerald-400 text-xs overflow-x-auto max-h-64"></pre>
           </div>
@@ -278,152 +278,150 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO 2: TABELA DE COMPRA E VENDA (SÉRGO, ALEX E WERNEK)                  -->
+    <!-- SEÇÃO 2: TABELA DE COMPRA E VENDA (ALEX, WERNEK E SÉRGIO)                 -->
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: COMPRA E VENDA (ALEX, WERNEK, SÉRGIO) -->
-<section id="sec-compra-venda" class="p-6 space-y-6">
-  <!-- Cabeçalho e Seleção de Vendedor -->
-  <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
-    <div>
-      <h2 class="text-2xl font-bold text-slate-900">Compra e Venda (Acerto)</h2>
-      <p class="text-slate-500 text-sm">Controle de saídas de carga e baixas de pagamentos.</p>
-    </div>
-    
-    <div class="flex items-center gap-3">
-      <label class="text-xs font-bold text-slate-600 uppercase">Vendedor:</label>
-      <select id="cv-sel-vendedor" onchange="trocarVendedorCV()" class="border-2 border-sky-500 rounded-lg px-4 py-2 text-sm font-bold bg-sky-50 text-sky-900 shadow-sm">
-        <option value="Alex">Alex</option>
-        <option value="Wernek">Wernek</option>
-        <option value="Sérgio">Sérgio</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Resumo da Tabela de Preços do Vendedor Selecionado -->
-  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-amber-900">
-    <span class="font-bold uppercase text-amber-800 flex items-center gap-1">🏷️ Preços Tabela (<span id="lbl-cv-vendedor-nome">Alex</span>):</span>
-    <span>330ml: <strong id="lbl-p-330" class="text-slate-900">R$ 4,20</strong></span>
-    <span>900ml: <strong id="lbl-p-900" class="text-slate-900">R$ 8,70</strong></span>
-    <span>Uva: <strong id="lbl-p-uva" class="text-slate-900">R$ 4,20</strong></span>
-    <span>Água: <strong id="lbl-p-agua" class="text-slate-900">R$ 11,00</strong></span>
-    <span>Água c/Gás: <strong id="lbl-p-aguagas" class="text-slate-900">R$ 13,00</strong></span>
-  </div>
-
-  <!-- Formulários de Lançamento (Saída + Pagamento) -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    
-    <!-- Formulário 1: Saída de Mercadoria -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500 space-y-4">
-      <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
-        <span>🚚</span> Lançar Saída de Mercadoria (+ Saldo)
-      </h3>
-      
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
-        <input type="date" id="cv-saida-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
-      </div>
-
-      <div class="grid grid-cols-5 gap-2 text-center text-xs">
+    <section id="sec-compra-venda" class="p-6 space-y-6">
+      <!-- Cabeçalho e Seleção de Vendedor -->
+      <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
         <div>
-          <span class="block font-bold text-slate-700 mb-1">330ml</span>
-          <input type="number" id="cv-q-330" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+          <h2 class="text-2xl font-bold text-slate-900">Compra e Venda (Acerto)</h2>
+          <p class="text-slate-500 text-sm">Controle de saídas de carga e baixas de pagamentos salvos no Supabase.</p>
         </div>
-        <div>
-          <span class="block font-bold text-slate-700 mb-1">900ml</span>
-          <input type="number" id="cv-q-900" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
-        </div>
-        <div>
-          <span class="block font-bold text-slate-700 mb-1">Uva</span>
-          <input type="number" id="cv-q-uva" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
-        </div>
-        <div>
-          <span class="block font-bold text-slate-700 mb-1">Água</span>
-          <input type="number" id="cv-q-agua" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
-        </div>
-        <div>
-          <span class="block font-bold text-slate-700 mb-1">c/Gás</span>
-          <input type="number" id="cv-q-aguagas" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+        
+        <div class="flex items-center gap-3">
+          <label class="text-xs font-bold text-slate-600 uppercase">Vendedor:</label>
+          <select id="cv-sel-vendedor" onchange="trocarVendedorCV()" class="border-2 border-sky-500 rounded-lg px-4 py-2 text-sm font-bold bg-sky-50 text-sky-900 shadow-sm">
+            <option value="Alex">Alex</option>
+            <option value="Wernek">Wernek</option>
+            <option value="Sérgio">Sérgio</option>
+          </select>
         </div>
       </div>
 
-      <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-        <span class="text-xs font-bold text-slate-600">Total desta Saída:</span>
-        <strong id="cv-lbl-previa-saida" class="text-base text-amber-700">R$ 0,00</strong>
+      <!-- Resumo da Tabela de Preços do Vendedor Selecionado -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-amber-900">
+        <span class="font-bold uppercase text-amber-800 flex items-center gap-1">🏷️ Preços Tabela (<span id="lbl-cv-vendedor-nome">Alex</span>):</span>
+        <span>330ml: <strong id="lbl-p-330" class="text-slate-900">R$ 4,20</strong></span>
+        <span>900ml: <strong id="lbl-p-900" class="text-slate-900">R$ 8,70</strong></span>
+        <span>Uva: <strong id="lbl-p-uva" class="text-slate-900">R$ 4,20</strong></span>
+        <span>Água: <strong id="lbl-p-agua" class="text-slate-900">R$ 11,00</strong></span>
+        <span>Água c/Gás: <strong id="lbl-p-aguagas" class="text-slate-900">R$ 13,00</strong></span>
       </div>
 
-      <button onclick="salvarSaidaCV()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
-        ➕ Confirmar Saída
-      </button>
-    </div>
+      <!-- Formulários de Lançamento (Saída + Pagamento) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Formulário 1: Saída de Mercadoria -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500 space-y-4">
+          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
+            <span>🚚</span> Lançar Saída de Mercadoria (+ Saldo)
+          </h3>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+            <input type="date" id="cv-saida-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
+          </div>
 
-    <!-- Formulário 2: Pagamento / Baixa -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-emerald-500 space-y-4">
-      <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
-        <span>💵</span> Lançar Pagamento / Baixa (- Saldo)
-      </h3>
+          <div class="grid grid-cols-5 gap-2 text-center text-xs">
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">330ml</span>
+              <input type="number" id="cv-q-330" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">900ml</span>
+              <input type="number" id="cv-q-900" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">Uva</span>
+              <input type="number" id="cv-q-uva" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">Água</span>
+              <input type="number" id="cv-q-agua" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">c/Gás</span>
+              <input type="number" id="cv-q-aguagas" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+          </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
-          <input type="date" id="cv-pag-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
+          <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <span class="text-xs font-bold text-slate-600">Total desta Saída:</span>
+            <strong id="cv-lbl-previa-saida" class="text-base text-amber-700">R$ 0,00</strong>
+          </div>
+
+          <button onclick="salvarSaidaCV()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+            ➕ Confirmar Saída
+          </button>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Pago (R$)</label>
-          <input type="number" step="0.01" id="cv-pag-valor" placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700">
+
+        <!-- Formulário 2: Pagamento / Baixa -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-emerald-500 space-y-4">
+          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
+            <span>💵</span> Lançar Pagamento / Baixa (- Saldo)
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+              <input type="date" id="cv-pag-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Pago (R$)</label>
+              <input type="number" step="0.01" id="cv-pag-valor" placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição do Pagamento</label>
+            <input type="text" id="cv-pag-desc" placeholder="Ex: DINHEIRO, PIX, CASA VALERIO, AFMM, PILOTO..." class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold uppercase">
+          </div>
+
+          <p class="text-[11px] text-slate-400 italic">
+            * Lançamentos em <strong>DINHEIRO</strong> entram automaticamente no Caixa Diário.
+          </p>
+
+          <button onclick="salvarPagamentoCV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+            🟢 Confirmar Pagamento
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Tabela de Extrato Planilha -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-900 text-white font-bold flex justify-between items-center text-sm">
+          <span>Extrato de Conta Corrente · <span id="cv-titulo-tabela-vendedor">Alex</span></span>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 font-normal">Saldo Devedor: </span>
+            <strong id="cv-saldo-devedor-topo" class="text-base text-amber-400">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-center border-collapse">
+            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase font-bold">
+              <tr>
+                <th class="p-2 border-r border-slate-200">Data</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">330ml</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">900ml</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">Uva</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">Água</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">c/Gás</th>
+                <th class="p-2 border-r border-slate-200 text-amber-800">Total Saída</th>
+                <th class="p-2 border-r border-slate-200">Pagamento / Descrição</th>
+                <th class="p-2 border-r border-slate-200 text-emerald-800">Valor Pago</th>
+                <th class="p-2 border-r border-slate-200 bg-slate-200 text-slate-900">Saldo Devedor</th>
+                <th class="p-2">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="cv-tabela-corpo" class="divide-y divide-slate-200 font-medium">
+              <!-- Linhas renderizadas via JS -->
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição do Pagamento</label>
-        <input type="text" id="cv-pag-desc" placeholder="Ex: DINHEIRO, PIX, CASA VALERIO, AFMM, PILOTO..." class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold uppercase">
-      </div>
-
-      <p class="text-[11px] text-slate-400 italic">
-        * Lançamentos em <strong>DINHEIRO</strong> entram automaticamente no Caixa Diário.
-      </p>
-
-      <button onclick="salvarPagamentoCV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
-        🟢 Confirmar Pagamento
-      </button>
-    </div>
-
-  </div>
-
-  <!-- Tabela de Extrato Planilha -->
-  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-    <div class="p-4 bg-slate-900 text-white font-bold flex justify-between items-center text-sm">
-      <span>Extrato de Conta Corrente · <span id="cv-titulo-tabela-vendedor">Alex</span></span>
-      <div class="text-right">
-        <span class="text-xs text-slate-400 font-normal">Saldo Devedor: </span>
-        <strong id="cv-saldo-devedor-topo" class="text-base text-amber-400">R$ 0,00</strong>
-      </div>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-xs text-center border-collapse">
-        <thead class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase font-bold">
-          <tr>
-            <th class="p-2 border-r border-slate-200">Data</th>
-            <th class="p-2 border-r border-slate-200 bg-amber-50/50">330ml</th>
-            <th class="p-2 border-r border-slate-200 bg-amber-50/50">900ml</th>
-            <th class="p-2 border-r border-slate-200 bg-amber-50/50">Uva</th>
-            <th class="p-2 border-r border-slate-200 bg-amber-50/50">Água</th>
-            <th class="p-2 border-r border-slate-200 bg-amber-50/50">c/Gás</th>
-            <th class="p-2 border-r border-slate-200 text-amber-800">Total Saída</th>
-            <th class="p-2 border-r border-slate-200">Pagamento / Descrição</th>
-            <th class="p-2 border-r border-slate-200 text-emerald-800">Valor Pago</th>
-            <th class="p-2 border-r border-slate-200 bg-slate-200 text-slate-900">Saldo Devedor</th>
-            <th class="p-2">Ação</th>
-          </tr>
-        </thead>
-        <tbody id="cv-tabela-corpo" class="divide-y divide-slate-200 font-medium">
-          <!-- Linhas renderizadas via JS -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-     
+    </section>
 
     <!-- ========================================================================= -->
     <!-- SEÇÃO 3: MÓDULO INTERNO / VAREJO                                          -->
@@ -925,7 +923,7 @@
     </section>
   </main>
 
-  <!-- SCRIPT JS COMPLETO E SEM CORTES -->
+  <!-- SCRIPT JS COMPLETO INTEGRADO AO SUPABASE -->
   <script>
     const SUPABASE_URL = 'https://podnijlrofkhcbbqliem.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
@@ -939,225 +937,265 @@
     let lancamentosMemoria = [];
     let caixaMovimentacoesMemoria = [];
 
-    /* ESTADO EXCLUSIVO DA ABA COMPRA E VENDA PARA SÉRGIO, ALEX E WERNEK */
     /* ========================================================================= */
-/* LÓGICA SIMPLIFICADA DA ABA COMPRA E VENDA                                 */
-/* ========================================================================= */
+    /* LÓGICA DA ABA COMPRA E VENDA CONECTADA AO SUPABASE                        */
+    /* ========================================================================= */
 
-// 1. Tabela de Preços de Cada Vendedor[cite: 1, 2, 3]
-const TABELA_PRECOS_CV = {
-  "Alex":   { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },[cite: 1]
-  "Wernek": { p330: 4.20, p900: 9.00, puva: 4.20, pagua: 11.00, paguagas: 12.50 },[cite: 2]
-  "Sérgio": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 } [cite: 3]
-};
+    // 1. Tabela de Preços por Vendedor
+    const TABELA_PRECOS_CV = {
+      "Alex":   { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },
+      "Wernek": { p330: 4.20, p900: 9.00, puva: 4.20, pagua: 11.00, paguagas: 12.50 },
+      "Sérgio": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 }
+    };
 
-// 2. Histórico em Memória por Vendedor
-const HISTORICO_CV = {
-  "Alex": {
-    saldoAnterior: 2039.00, // Saldo inicial configurável[cite: 4]
-    lancamentos: [
-      { tipo: 'SAIDA', data: '2026-09-01', q330: 480, q900: 175, quva: 15, qagua: 6, qaguagas: 10, totalSaida: 3797.50, descPagamento: '', valorPago: 0 },[cite: 4]
-      { tipo: 'PAGAMENTO', data: '2026-09-02', q330: 0, q900: 0, quva: 0, qagua: 0, qaguagas: 0, totalSaida: 0, descPagamento: 'DINHEIRO', valorPago: 2000.00 },[cite: 4]
-      { tipo: 'PAGAMENTO', data: '2026-09-02', q330: 0, q900: 0, quva: 0, qagua: 0, qaguagas: 0, totalSaida: 0, descPagamento: 'PILOTO', valorPago: 218.00 },[cite: 4]
-      { tipo: 'PAGAMENTO', data: '2026-09-02', q330: 0, q900: 0, quva: 0, qagua: 0, qaguagas: 0, totalSaida: 0, descPagamento: 'PIX', valorPago: 1618.50 },[cite: 4]
-      { tipo: 'SAIDA', data: '2026-09-02', q330: 320, q900: 450, quva: 0, qagua: 0, qaguagas: 0, totalSaida: 5259.00, descPagamento: '', valorPago: 0 }[cite: 4]
-    ]
-  },
-  "Wernek": { saldoAnterior: 0.00, lancamentos: [] },
-  "Sérgio": { saldoAnterior: 0.00, lancamentos: [] }
-};
+    // 2. Saldos Anteriores / Iniciais por Vendedor
+    const SALDOS_INICIAIS_CV = {
+      "Alex": 2039.00,
+      "Wernek": 0.00,
+      "Sérgio": 0.00
+    };
 
-let vendedorCVAtual = "Alex";
+    let vendedorCVAtual = "Alex";
+    let HISTORICO_CV_DADOS = [];
 
-// Formatação Auxiliar
-function fmtR$(val) {
-  return "R$ " + Number(val || 0).toFixed(2).replace('.', ',');
-}
-
-function fmtData(str) {
-  if (!str) return "";
-  const p = str.split('-');
-  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : str;
-}
-
-// Troca de Vendedor
-function trocarVendedorCV() {
-  vendedorCVAtual = document.getElementById("cv-sel-vendedor").value;
-  
-  // Atualiza Nomes na Tela
-  document.getElementById("lbl-cv-vendedor-nome").innerText = vendedorCVAtual;
-  document.getElementById("cv-titulo-tabela-vendedor").innerText = vendedorCVAtual;
-
-  // Atualiza Rótulos de Preço
-  const p = TABELA_PRECOS_CV[vendedorCVAtual];
-  document.getElementById("lbl-p-330").innerText = fmtR$(p.p330);
-  document.getElementById("lbl-p-900").innerText = fmtR$(p.p900);
-  document.getElementById("lbl-p-uva").innerText = fmtR$(p.puva);
-  document.getElementById("lbl-p-agua").innerText = fmtR$(p.pagua);
-  document.getElementById("lbl-p-aguagas").innerText = fmtR$(p.paguagas);
-
-  calcularPreviaSaidaCV();
-  renderizarTabelaCV();
-}
-
-// Cálculo em tempo real antes de salvar a saída
-function calcularPreviaSaidaCV() {
-  const p = TABELA_PRECOS_CV[vendedorCVAtual];
-  const q330 = parseInt(document.getElementById("cv-q-330")?.value || 0);
-  const q900 = parseInt(document.getElementById("cv-q-900")?.value || 0);
-  const quva = parseInt(document.getElementById("cv-q-uva")?.value || 0);
-  const qagua = parseInt(document.getElementById("cv-q-agua")?.value || 0);
-  const qaguagas = parseInt(document.getElementById("cv-q-aguagas")?.value || 0);
-
-  const total = (q330 * p.p330) + (q900 * p.p900) + (quva * p.puva) + (qagua * p.pagua) + (qaguagas * p.paguagas);
-  
-  if (document.getElementById("cv-lbl-previa-saida")) {
-    document.getElementById("cv-lbl-previa-saida").innerText = fmtR$(total);
-  }
-  return total;
-}
-
-// Lançar Saída
-function salvarSaidaCV() {
-  const data = document.getElementById("cv-saida-data").value || new Date().toISOString().split('T')[0];
-  const q330 = parseInt(document.getElementById("cv-q-330").value || 0);
-  const q900 = parseInt(document.getElementById("cv-q-900").value || 0);
-  const quva = parseInt(document.getElementById("cv-q-uva").value || 0);
-  const qagua = parseInt(document.getElementById("cv-q-agua").value || 0);
-  const qaguagas = parseInt(document.getElementById("cv-q-aguagas").value || 0);
-
-  const totalSaida = calcularPreviaSaidaCV();
-
-  if (totalSaida <= 0) {
-    alert("Informe ao menos uma quantidade para realizar a saída.");
-    return;
-  }
-
-  HISTORICO_CV[vendedorCVAtual].lancamentos.push({
-    tipo: 'SAIDA',
-    data: data,
-    q330, q900, quva, qagua, qaguagas,
-    totalSaida: totalSaida,
-    descPagamento: '',
-    valorPago: 0
-  });
-
-  // Limpa formulário
-  ['330', '900', 'uva', 'agua', 'aguagas'].forEach(id => {
-    document.getElementById(`cv-q-${id}`).value = 0;
-  });
-  calcularPreviaSaidaCV();
-  renderizarTabelaCV();
-}
-
-// Lançar Pagamento
-function salvarPagamentoCV() {
-  const data = document.getElementById("cv-pag-data").value || new Date().toISOString().split('T')[0];
-  const valor = parseFloat(document.getElementById("cv-pag-valor").value || 0);
-  const desc = (document.getElementById("cv-pag-desc").value || '').trim().toUpperCase();
-
-  if (valor <= 0 || !desc) {
-    alert("Informe a descrição e o valor do pagamento.");
-    return;
-  }
-
-  HISTORICO_CV[vendedorCVAtual].lancamentos.push({
-    tipo: 'PAGAMENTO',
-    data: data,
-    q330: 0, q900: 0, quva: 0, qagua: 0, qaguagas: 0,
-    totalSaida: 0,
-    descPagamento: desc,
-    valorPago: valor
-  });
-
-  // Integração com Caixa Diário se for DINHEIRO
-  if (desc.includes('DINHEIRO') && typeof caixaMovimentacoesMemoria !== 'undefined') {
-    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    caixaMovimentacoesMemoria.push({
-      data: data,
-      hora: hora,
-      tipo: 'ENTRADA',
-      formaPgto: 'DINHEIRO',
-      valor: valor,
-      descricao: `Recebimento C&V - ${vendedorCVAtual} (${desc})`
-    });
-    alert(`Pagamento em DINHEIRO de ${fmtR$(valor)} lançado no Caixa Diário!`);
-  }
-
-  document.getElementById("cv-pag-valor").value = '';
-  document.getElementById("cv-pag-desc").value = '';
-  renderizarTabelaCV();
-}
-
-// Deletar Linha
-function excluirLinhaCV(index) {
-  if (confirm("Deseja remover esta linha do extrato?")) {
-    HISTORICO_CV[vendedorCVAtual].lancamentos.splice(index, 1);
-    renderizarTabelaCV();
-  }
-}
-
-// Renderização da Tabela
-function renderizarTabelaCV() {
-  const dados = HISTORICO_CV[vendedorCVAtual];
-  const tbody = document.getElementById("cv-tabela-corpo");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-  let saldoAcumulado = Number(dados.saldoAnterior || 0);
-
-  // 1. Linha do Saldo Anterior
-  tbody.innerHTML += `
-    <tr class="bg-slate-50 font-bold border-b border-slate-200 text-slate-600">
-      <td class="p-2 border-r border-slate-200">---</td>
-      <td colspan="5" class="p-2 border-r border-slate-200 text-left px-4">Saldo Anterior</td>
-      <td class="p-2 border-r border-slate-200">-</td>
-      <td class="p-2 border-r border-slate-200">-</td>
-      <td class="p-2 border-r border-slate-200">-</td>
-      <td class="p-2 border-r border-slate-200 bg-amber-100 text-amber-900 font-black">${fmtR$(saldoAcumulado)}</td>
-      <td class="p-2">-</td>
-    </tr>
-  `;
-
-  // 2. Linhas de Lançamento
-  dados.lancamentos.forEach((item, idx) => {
-    if (item.tipo === 'SAIDA') {
-      saldoAcumulado += Number(item.totalSaida || 0);
-    } else if (item.tipo === 'PAGAMENTO') {
-      saldoAcumulado -= Number(item.valorPago || 0);
+    // Formatações Auxiliares
+    function fmtR$(val) {
+      return "R$ " + Number(val || 0).toFixed(2).replace('.', ',');
     }
 
-    tbody.innerHTML += `
-      <tr class="hover:bg-amber-50/40 transition border-b border-slate-200">
-        <td class="p-2 border-r border-slate-200 font-mono text-slate-600">${fmtData(item.data)}</td>
-        <td class="p-2 border-r border-slate-200 font-bold ${item.q330 ? 'text-slate-800' : 'text-slate-300'}">${item.q330 || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold ${item.q900 ? 'text-slate-800' : 'text-slate-300'}">${item.q900 || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold ${item.quva ? 'text-slate-800' : 'text-slate-300'}">${item.quva || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold ${item.qagua ? 'text-slate-800' : 'text-slate-300'}">${item.qagua || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold ${item.qaguagas ? 'text-slate-800' : 'text-slate-300'}">${item.qaguagas || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold text-amber-700">${item.totalSaida > 0 ? fmtR$(item.totalSaida) : ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold text-slate-800 uppercase">${item.descPagamento || ''}</td>
-        <td class="p-2 border-r border-slate-200 font-bold text-emerald-600">${item.valorPago > 0 ? fmtR$(item.valorPago) : ''}</td>
-        <td class="p-2 border-r border-slate-200 font-black text-slate-900 bg-amber-50">${fmtR$(saldoAcumulado)}</td>
-        <td class="p-2">
-          <button onclick="excluirLinhaCV(${idx})" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-0.5 rounded hover:bg-red-50">🗑️</button>
-        </td>
-      </tr>
-    `;
-  });
+    function fmtData(str) {
+      if (!str) return "";
+      const p = str.split('-');
+      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : str;
+    }
 
-  // Atualiza o topo com o saldo final
-  document.getElementById("cv-saldo-devedor-topo").innerText = fmtR$(saldoAcumulado);
-}
+    // Carregar lançamentos do Supabase
+    async function carregarLancamentosCV() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('compra_venda_lancamentos')
+          .select('*')
+          .eq('vendedor_nome', vendedorCVAtual)
+          .order('data', { ascending: true })
+          .order('created_at', { ascending: true });
 
-// Inicializar a aba ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
-  const hoje = new Date().toISOString().split('T')[0];
-  if (document.getElementById("cv-saida-data")) document.getElementById("cv-saida-data").value = hoje;
-  if (document.getElementById("cv-pag-data")) document.getElementById("cv-pag-data").value = hoje;
-  trocarVendedorCV();
-});
+        if (error) throw error;
 
+        HISTORICO_CV_DADOS = data || [];
+        renderizarTabelaCV();
+      } catch (err) {
+        console.error("Erro ao carregar lançamentos de Compra e Venda do Supabase:", err);
+      }
+    }
+
+    // Alternar Vendedor
+    async function trocarVendedorCV() {
+      const sel = document.getElementById("cv-sel-vendedor");
+      if (sel) vendedorCVAtual = sel.value;
+      
+      if (document.getElementById("lbl-cv-vendedor-nome")) document.getElementById("lbl-cv-vendedor-nome").innerText = vendedorCVAtual;
+      if (document.getElementById("cv-titulo-tabela-vendedor")) document.getElementById("cv-titulo-tabela-vendedor").innerText = vendedorCVAtual;
+
+      const p = TABELA_PRECOS_CV[vendedorCVAtual];
+      if (p) {
+        if (document.getElementById("lbl-p-330")) document.getElementById("lbl-p-330").innerText = fmtR$(p.p330);
+        if (document.getElementById("lbl-p-900")) document.getElementById("lbl-p-900").innerText = fmtR$(p.p900);
+        if (document.getElementById("lbl-p-uva")) document.getElementById("lbl-p-uva").innerText = fmtR$(p.puva);
+        if (document.getElementById("lbl-p-agua")) document.getElementById("lbl-p-agua").innerText = fmtR$(p.pagua);
+        if (document.getElementById("lbl-p-aguagas")) document.getElementById("lbl-p-aguagas").innerText = fmtR$(p.paguagas);
+      }
+
+      calcularPreviaSaidaCV();
+      await carregarLancamentosCV();
+    }
+
+    // Prévia de cálculo antes de salvar
+    function calcularPreviaSaidaCV() {
+      const p = TABELA_PRECOS_CV[vendedorCVAtual];
+      if (!p) return 0;
+
+      const q330 = parseInt(document.getElementById("cv-q-330")?.value || 0);
+      const q900 = parseInt(document.getElementById("cv-q-900")?.value || 0);
+      const quva = parseInt(document.getElementById("cv-q-uva")?.value || 0);
+      const qagua = parseInt(document.getElementById("cv-q-agua")?.value || 0);
+      const qaguagas = parseInt(document.getElementById("cv-q-aguagas")?.value || 0);
+
+      const total = (q330 * p.p330) + (q900 * p.p900) + (quva * p.puva) + (qagua * p.pagua) + (qaguagas * p.paguagas);
+      
+      if (document.getElementById("cv-lbl-previa-saida")) {
+        document.getElementById("cv-lbl-previa-saida").innerText = fmtR$(total);
+      }
+      return total;
+    }
+
+    // Salvar Saída no Supabase
+    async function salvarSaidaCV() {
+      const dataInput = document.getElementById("cv-saida-data")?.value || new Date().toISOString().split('T')[0];
+      const q330 = parseInt(document.getElementById("cv-q-330")?.value || 0);
+      const q900 = parseInt(document.getElementById("cv-q-900")?.value || 0);
+      const quva = parseInt(document.getElementById("cv-q-uva")?.value || 0);
+      const qagua = parseInt(document.getElementById("cv-q-agua")?.value || 0);
+      const qaguagas = parseInt(document.getElementById("cv-q-aguagas")?.value || 0);
+
+      const totalSaida = calcularPreviaSaidaCV();
+
+      if (totalSaida <= 0) {
+        alert("Informe ao menos uma quantidade para realizar a saída.");
+        return;
+      }
+
+      const payload = {
+        vendedor_nome: vendedorCVAtual,
+        tipo: 'SAIDA',
+        data: dataInput,
+        qtd_330: q330,
+        qtd_900: q900,
+        qtd_uva: quva,
+        qtd_agua: qagua,
+        qtd_aguagas: qaguagas,
+        total_saida: totalSaida
+      };
+
+      try {
+        const { error } = await supabaseClient.from('compra_venda_lancamentos').insert([payload]);
+        if (error) throw error;
+
+        ['330', '900', 'uva', 'agua', 'aguagas'].forEach(id => {
+          const el = document.getElementById(`cv-q-${id}`);
+          if (el) el.value = 0;
+        });
+        calcularPreviaSaidaCV();
+        await carregarLancamentosCV();
+      } catch (err) {
+        alert("Erro ao salvar saída no Supabase: " + err.message);
+      }
+    }
+
+    // Salvar Pagamento no Supabase
+    async function salvarPagamentoCV() {
+      const dataInput = document.getElementById("cv-pag-data")?.value || new Date().toISOString().split('T')[0];
+      const valorInput = parseFloat(document.getElementById("cv-pag-valor")?.value || 0);
+      const descInput = (document.getElementById("cv-pag-desc")?.value || '').trim().toUpperCase();
+
+      if (valorInput <= 0 || !descInput) {
+        alert("Informe a descrição e o valor do pagamento.");
+        return;
+      }
+
+      const payload = {
+        vendedor_nome: vendedorCVAtual,
+        tipo: 'PAGAMENTO',
+        data: dataInput,
+        desc_pagamento: descInput,
+        valor_pago: valorInput
+      };
+
+      try {
+        const { error } = await supabaseClient.from('compra_venda_lancamentos').insert([payload]);
+        if (error) throw error;
+
+        // Integração com Caixa Diário se for DINHEIRO
+        if (descInput.includes('DINHEIRO') && typeof caixaMovimentacoesMemoria !== 'undefined') {
+          const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          caixaMovimentacoesMemoria.push({
+            data: dataInput,
+            hora: hora,
+            tipo: 'ENTRADA',
+            formaPgto: 'DINHEIRO',
+            valor: valorInput,
+            descricao: `Recebimento C&V - ${vendedorCVAtual} (${descInput})`
+          });
+          alert(`Pagamento em DINHEIRO de ${fmtR$(valorInput)} registrado no Supabase e lançado no Caixa Diário!`);
+        }
+
+        const valEl = document.getElementById("cv-pag-valor");
+        const descEl = document.getElementById("cv-pag-desc");
+        if (valEl) valEl.value = '';
+        if (descEl) descEl.value = '';
+
+        await carregarLancamentosCV();
+      } catch (err) {
+        alert("Erro ao salvar pagamento no Supabase: " + err.message);
+      }
+    }
+
+    // Excluir Linha do Supabase
+    async function excluirLinhaCV(id) {
+      if (confirm("Deseja remover esta linha do extrato no Supabase?")) {
+        try {
+          const { error } = await supabaseClient.from('compra_venda_lancamentos').delete().eq('id', id);
+          if (error) throw error;
+          await carregarLancamentosCV();
+        } catch (err) {
+          alert("Erro ao excluir do Supabase: " + err.message);
+        }
+      }
+    }
+
+    // Renderizar Tabela com Saldo Devedor Acumulado
+    function renderizarTabelaCV() {
+      const tbody = document.getElementById("cv-tabela-corpo");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+      let saldoAcumulado = Number(SALDOS_INICIAIS_CV[vendedorCVAtual] || 0);
+
+      // Linha de Saldo Anterior
+      tbody.innerHTML += `
+        <tr class="bg-slate-50 font-bold border-b border-slate-200 text-slate-600">
+          <td class="p-2 border-r border-slate-200">---</td>
+          <td colspan="5" class="p-2 border-r border-slate-200 text-left px-4">Saldo Anterior</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200 bg-amber-100 text-amber-900 font-black">${fmtR$(saldoAcumulado)}</td>
+          <td class="p-2">-</td>
+        </tr>
+      `;
+
+      HISTORICO_CV_DADOS.forEach((item) => {
+        const isSaida = item.tipo === 'SAIDA';
+        const totalSaida = Number(item.total_saida || 0);
+        const valorPago = Number(item.valor_pago || 0);
+        const q330 = item.qtd_330 || 0;
+        const q900 = item.qtd_900 || 0;
+        const quva = item.qtd_uva || 0;
+        const qagua = item.qtd_agua || 0;
+        const qaguagas = item.qtd_aguagas || 0;
+        const desc = item.desc_pagamento || '';
+
+        if (isSaida) {
+          saldoAcumulado += totalSaida;
+        } else {
+          saldoAcumulado -= valorPago;
+        }
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-amber-50/40 transition border-b border-slate-200">
+            <td class="p-2 border-r border-slate-200 font-mono text-slate-600">${fmtData(item.data)}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${q330 ? 'text-slate-800' : 'text-slate-300'}">${q330 || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${q900 ? 'text-slate-800' : 'text-slate-300'}">${q900 || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${quva ? 'text-slate-800' : 'text-slate-300'}">${quva || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${qagua ? 'text-slate-800' : 'text-slate-300'}">${qagua || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${qaguagas ? 'text-slate-800' : 'text-slate-300'}">${qaguagas || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-amber-700">${totalSaida > 0 ? fmtR$(totalSaida) : ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-slate-800 uppercase">${desc}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-emerald-600">${valorPago > 0 ? fmtR$(valorPago) : ''}</td>
+            <td class="p-2 border-r border-slate-200 font-black text-slate-900 bg-amber-50">${fmtR$(saldoAcumulado)}</td>
+            <td class="p-2">
+              <button onclick="excluirLinhaCV('${item.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-0.5 rounded hover:bg-red-50">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      const topoSaldo = document.getElementById("cv-saldo-devedor-topo");
+      if (topoSaldo) topoSaldo.innerText = fmtR$(saldoAcumulado);
+    }
+
+    /* ========================================================================= */
+    /* INICIALIZAÇÃO DA PÁGINA E SINCRO DE REALTIME                             */
+    /* ========================================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       const dataLocal = new Date();
       const offset = dataLocal.getTimezoneOffset() * 60000;
@@ -1170,8 +1208,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (document.getElementById('selDataCaixa')) document.getElementById('selDataCaixa').value = hoje;
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
       
+      if (document.getElementById("cv-saida-data")) document.getElementById("cv-saida-data").value = hoje;
+      if (document.getElementById("cv-pag-data")) document.getElementById("cv-pag-data").value = hoje;
+
       iniciarRealtimeSupabase();
-      renderizarTabelasCompraVenda();
       
       setInterval(() => {
         if (abaAtiva === 'vendedores') {
@@ -1195,7 +1235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function iniciarRealtimeSupabase() {
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
       canalRealtime = supabaseClient
-        .channel('mudancas-fechamento-ao-vivo')
+        .channel('mudancas-ao-vivo')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => {
             carregarAbaVendedores();
             if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual);
@@ -1206,6 +1246,9 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => {
             carregarProdutosInternos();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => {
+            if (abaAtiva === 'compra-venda') carregarLancamentosCV();
         })
         .subscribe();
     }
@@ -1247,7 +1290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('visao-lista-vendedores').classList.remove('hidden');
         carregarAbaVendedores();
       } else if (aba === 'compra-venda') {
-        renderizarTabelasCompraVenda();
+        trocarVendedorCV();
       } else if (aba === 'interno') {
         carregarProdutosInternos();
         carregarVendasVarejo();
@@ -1255,449 +1298,6 @@ document.addEventListener("DOMContentLoaded", () => {
         carregarCaixaDiario();
       } else if (aba === 'dashboard') {
         carregarRelatorioMensal();
-      }
-    }
-
-    /* ========================================================================= */
-    /* ABA COMPRA E VENDA (SÉRGIO, ALEX E WERNEK) - PREÇOS, RETIRADAS & PAGAMENTOS */
-    /* ========================================================================= */
-    function renderizarTabelasCompraVenda() {
-      const container = document.getElementById('container-tabelas-compra-venda');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const hoje = new Date().toISOString().split('T')[0];
-
-      Object.keys(dadosCompraVenda).forEach(vendedorKey => {
-        const vDados = dadosCompraVenda[vendedorKey];
-        
-        // CÁLCULO DO SALDO DEVEDOR DO VENDEDOR
-        let totalRetiradas = 0;
-        let totalPagamentos = 0;
-
-        (vDados.extrato || []).forEach(item => {
-          if (item.tipo === 'RETIRADA') totalRetiradas += Number(item.valor || 0);
-          else if (item.tipo === 'PAGAMENTO') totalPagamentos += Number(item.valor || 0);
-        });
-
-        const saldoDevedor = totalRetiradas - totalPagamentos;
-
-        let htmlCard = `
-          <div id="card-cv-${vendedorKey}" class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden space-y-6">
-            
-            <!-- CABEÇALHO COM NOME E CARD DO SALDO DEVEDOR -->
-            <div class="bg-slate-800 text-white px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-slate-700">
-              <div class="flex items-center gap-3">
-                <span class="text-3xl">👤</span>
-                <div>
-                  <h3 class="font-bold text-2xl text-white tracking-wide">${vDados.nome.toUpperCase()}</h3>
-                  <p class="text-xs text-slate-300">Modalidade Compra & Venda · Tabela e Extrato de Conta Corrente</p>
-                </div>
-              </div>
-
-              <!-- CARD SALDO DEVEDOR -->
-              <div class="bg-slate-900 border-2 ${saldoDevedor > 0 ? 'border-amber-500' : 'border-emerald-500'} px-5 py-2.5 rounded-xl text-right shadow-inner">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Saldo Devedor Atual</p>
-                <p class="text-2xl font-black ${saldoDevedor > 0 ? 'text-amber-400' : 'text-emerald-400'}">
-                  R$ ${saldoDevedor.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            <!-- 1. TABELA DE PRODUTOS E MARGENS -->
-            <div class="overflow-x-auto px-6">
-              <div class="flex justify-between items-center mb-2">
-                <h4 class="font-bold text-xs uppercase text-slate-600 flex items-center gap-1.5">
-                  <span>🏷️</span> Tabela de Preços e Margens de Venda
-                </h4>
-                <button onclick="adicionarProdutoCompraVenda('${vendedorKey}')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1 rounded-lg transition">
-                  ➕ Adicionar Produto
-                </button>
-              </div>
-              <table class="w-full text-xs text-left border-collapse border border-slate-200">
-                <thead>
-                  <tr class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase font-bold text-center">
-                    <th class="p-2 text-left">PRODUTO</th>
-                    <th class="p-2">CX COM</th>
-                    <th class="p-2">VALOR DESC (CX)</th>
-                    <th class="p-2">CUSTO GARR.</th>
-                    <th class="p-2">PREÇO VENDA</th>
-                    <th class="p-2 bg-emerald-50 text-emerald-800">LUCRO GARR.</th>
-                    <th class="p-2 bg-emerald-50 text-emerald-800">LUCRO CX</th>
-                    <th class="p-2 bg-blue-50 text-blue-800">% LUCRO</th>
-                    <th class="p-2">OBS</th>
-                    <th class="p-2">AÇÃO</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-cv-${vendedorKey}" class="divide-y divide-slate-200">
-        `;
-
-        vDados.produtos.forEach((item, idx) => {
-          const cxCom = Number(item.caixaCom || 1);
-          const valorDesc = Number(item.valorDesc || 0);
-          const valorVenda = Number(item.valorVenda || 0);
-
-          const custoGarrafa = valorDesc / (cxCom || 1);
-          const lucroGarrafa = valorVenda - custoGarrafa;
-          const lucroCaixa = lucroGarrafa * cxCom;
-          const percLucro = custoGarrafa > 0 ? ((lucroGarrafa / custoGarrafa) * 100) : 0;
-
-          htmlCard += `
-            <tr class="hover:bg-slate-50 transition border-b border-slate-200 text-center">
-              <td class="p-2 text-left font-bold text-slate-800">
-                <input type="text" value="${item.produto}" onchange="dadosCompraVenda['${vendedorKey}'].produtos[${idx}].produto = this.value" class="w-full border border-slate-300 rounded px-1.5 py-0.5 text-xs">
-              </td>
-              <td class="p-2">
-                <input type="number" id="cv-${vendedorKey}-cx-${idx}" value="${cxCom}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-14 text-center border border-slate-300 rounded px-1 py-0.5 font-semibold">
-              </td>
-              <td class="p-2">
-                <input type="number" step="0.01" id="cv-${vendedorKey}-desc-${idx}" value="${valorDesc.toFixed(2)}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-20 text-right border border-slate-300 rounded px-1 py-0.5 font-semibold">
-              </td>
-              <td id="cv-${vendedorKey}-cg-${idx}" class="p-2 font-semibold text-slate-700">R$ ${custoGarrafa.toFixed(2)}</td>
-              <td class="p-2">
-                <input type="number" step="0.01" id="cv-${vendedorKey}-venda-${idx}" value="${valorVenda.toFixed(2)}" oninput="calcularLinhaCompraVenda('${vendedorKey}', ${idx})" class="w-20 text-right border border-slate-300 rounded px-1 py-0.5 font-bold text-emerald-700">
-              </td>
-              <td id="cv-${vendedorKey}-lg-${idx}" class="p-2 font-bold text-emerald-700 bg-emerald-50/50">R$ ${lucroGarrafa.toFixed(2)}</td>
-              <td id="cv-${vendedorKey}-lc-${idx}" class="p-2 font-bold text-emerald-800 bg-emerald-50/50">R$ ${lucroCaixa.toFixed(2)}</td>
-              <td id="cv-${vendedorKey}-perc-${idx}" class="p-2 font-bold text-blue-700 bg-blue-50/50">${percLucro.toFixed(1)}%</td>
-              <td class="p-2">
-                <input type="text" value="${item.comissao || '-'}" onchange="dadosCompraVenda['${vendedorKey}'].produtos[${idx}].comissao = this.value" class="w-16 text-center border border-slate-300 rounded px-1 py-0.5 text-xs">
-              </td>
-              <td class="p-2">
-                <button onclick="removerProdutoCompraVenda('${vendedorKey}', ${idx})" class="text-red-600 hover:text-red-800 font-bold px-1.5 py-0.5 bg-red-50 rounded">🗑️</button>
-              </td>
-            </tr>
-          `;
-        });
-
-        htmlCard += `
-                </tbody>
-              </table>
-            </div>
-
-            <!-- 2. FORMULÁRIOS DE LANÇAMENTO (RETIRADA E PAGAMENTO) -->
-            <div class="grid grid-cols-2 gap-6 px-6">
-              
-              <!-- BLOC 1: LANÇAR RETIRADA (SAÍDA DE PRODUTOS) -->
-              <div class="border border-red-200 rounded-xl bg-red-50/30 p-4 space-y-3">
-                <h4 class="font-bold text-xs uppercase text-red-800 border-b border-red-200 pb-2 flex items-center justify-between">
-                  <span class="flex items-center gap-1.5"><span>🚚</span> Nova Retirada / Saída (+ Saldo Devedor)</span>
-                </h4>
-                
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Data Retirada</label>
-                    <input type="date" id="ret-data-${vendedorKey}" value="${hoje}" class="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold">
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-5 gap-2 text-center text-[10px] font-bold text-slate-700">
-                  <div>
-                    <span>330ML</span>
-                    <input type="number" id="ret-qtd-330-${vendedorKey}" value="0" min="0" oninput="calcularTotalSaidaForm('${vendedorKey}')" class="w-full border border-slate-300 rounded px-1 py-1 text-xs text-center font-bold">
-                  </div>
-                  <div>
-                    <span>900ML</span>
-                    <input type="number" id="ret-qtd-900-${vendedorKey}" value="0" min="0" oninput="calcularTotalSaidaForm('${vendedorKey}')" class="w-full border border-slate-300 rounded px-1 py-1 text-xs text-center font-bold">
-                  </div>
-                  <div>
-                    <span>UVA</span>
-                    <input type="number" id="ret-qtd-uva-${vendedorKey}" value="0" min="0" oninput="calcularTotalSaidaForm('${vendedorKey}')" class="w-full border border-slate-300 rounded px-1 py-1 text-xs text-center font-bold">
-                  </div>
-                  <div>
-                    <span>ÁGUA S/G</span>
-                    <input type="number" id="ret-qtd-sg-${vendedorKey}" value="0" min="0" oninput="calcularTotalSaidaForm('${vendedorKey}')" class="w-full border border-slate-300 rounded px-1 py-1 text-xs text-center font-bold">
-                  </div>
-                  <div>
-                    <span>ÁGUA C/G</span>
-                    <input type="number" id="ret-qtd-cg-${vendedorKey}" value="0" min="0" oninput="calcularTotalSaidaForm('${vendedorKey}')" class="w-full border border-slate-300 rounded px-1 py-1 text-xs text-center font-bold">
-                  </div>
-                </div>
-
-                <div class="flex justify-between items-center bg-white border border-red-200 p-2 rounded-lg">
-                  <span class="text-xs font-bold text-slate-700">TOTAL DA SAÍDA:</span>
-                  <span id="txt-total-saida-${vendedorKey}" class="text-base font-black text-red-600">R$ 0,00</span>
-                </div>
-
-                <button onclick="salvarRetiradaSaida('${vendedorKey}')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow">
-                  🔴 Confirmar Lançamento de Saída
-                </button>
-              </div>
-
-              <!-- BLOCO 2: LANÇAR PAGAMENTO (- SALDO DEVEDOR) -->
-              <div class="border border-emerald-200 rounded-xl bg-emerald-50/30 p-4 space-y-3">
-                <h4 class="font-bold text-xs uppercase text-emerald-800 border-b border-emerald-200 pb-2 flex items-center justify-between">
-                  <span class="flex items-center gap-1.5"><span>💵</span> Novo Pagamento / Abatimento (- Saldo Devedor)</span>
-                </h4>
-
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Data Pagamento</label>
-                    <input type="date" id="pag-data-${vendedorKey}" value="${hoje}" class="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold">
-                  </div>
-                  <div>
-                    <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Valor Pagamento (R$)</label>
-                    <input type="number" step="0.01" id="pag-valor-${vendedorKey}" placeholder="0.00" class="w-full border border-slate-300 rounded px-2 py-1 text-xs font-bold text-emerald-700">
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Descrição do Pagamento</label>
-                  <input type="text" id="pag-desc-${vendedorKey}" placeholder="Ex: DINHEIRO, PIX, AFMM, CASA VALERIO..." class="w-full border border-slate-300 rounded px-2 py-1 text-xs uppercase font-semibold">
-                  <p class="text-[10px] text-slate-500 mt-1 italic">* Pagamentos em DINHEIRO são lançados automaticamente no Caixa Diário.</p>
-                </div>
-
-                <button onclick="salvarPagamentoAbatimento('${vendedorKey}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow">
-                  🟢 Confirmar Lançamento de Pagamento
-                </button>
-              </div>
-
-            </div>
-
-            <!-- 3. EXTRATO E CONTA CORRENTE DO VENDEDOR -->
-            <div class="px-6 pb-6">
-              <h4 class="font-bold text-xs uppercase text-slate-700 mb-2 flex items-center gap-1.5">
-                <span>📋</span> Extrato de Retiradas e Pagamentos (${vDados.nome})
-              </h4>
-              <div class="overflow-x-auto border border-slate-200 rounded-lg bg-white">
-                <table class="w-full text-xs text-left border-collapse">
-                  <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-200">
-                    <tr>
-                      <th class="p-2.5">Data</th>
-                      <th class="p-2.5">Tipo Movimentação</th>
-                      <th class="p-2.5">Detalhes / Produtos / Descrição</th>
-                      <th class="p-2.5 text-right text-red-600">Saída (+)</th>
-                      <th class="p-2.5 text-right text-emerald-600">Pagamento (-)</th>
-                      <th class="p-2.5 text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbody-extrato-${vendedorKey}" class="divide-y divide-slate-100">
-                    ${renderizarLinhasExtrato(vendedorKey)}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-        `;
-
-        container.innerHTML += htmlCard;
-      });
-    }
-
-    function calcularTotalSaidaForm(vendedorKey) {
-      const getVal = id => parseFloat(document.getElementById(id)?.value || 0);
-      const q330 = getVal(`ret-qtd-330-${vendedorKey}`);
-      const q900 = getVal(`ret-qtd-900-${vendedorKey}`);
-      const quva = getVal(`ret-qtd-uva-${vendedorKey}`);
-      const qsg = getVal(`ret-qtd-sg-${vendedorKey}`);
-      const qcg = getVal(`ret-qtd-cg-${vendedorKey}`);
-
-      const produtos = dadosCompraVenda[vendedorKey].produtos;
-      const p330 = Number(produtos[0]?.valorVenda || 0);
-      const p900 = Number(produtos[1]?.valorVenda || 0);
-      const puva = Number(produtos[2]?.valorVenda || 0);
-      const psg = Number(produtos[3]?.valorVenda || 0);
-      const pcg = Number(produtos[4]?.valorVenda || 0);
-
-      const total = (q330 * p330) + (q900 * p900) + (quva * puva) + (qsg * psg) + (qcg * pcg);
-      
-      const txtEl = document.getElementById(`txt-total-saida-${vendedorKey}`);
-      if (txtEl) txtEl.innerText = `R$ ${total.toFixed(2)}`;
-
-      return total;
-    }
-
-    function salvarRetiradaSaida(vendedorKey) {
-      const dataInput = document.getElementById(`ret-data-${vendedorKey}`)?.value || new Date().toISOString().split('T')[0];
-      const getVal = id => parseInt(document.getElementById(id)?.value || 0);
-
-      const q330 = getVal(`ret-qtd-330-${vendedorKey}`);
-      const q900 = getVal(`ret-qtd-900-${vendedorKey}`);
-      const quva = getVal(`ret-qtd-uva-${vendedorKey}`);
-      const qsg = getVal(`ret-qtd-sg-${vendedorKey}`);
-      const qcg = getVal(`ret-qtd-cg-${vendedorKey}`);
-
-      const totalValor = calcularTotalSaidaForm(vendedorKey);
-
-      if (totalValor <= 0) {
-        alert('Informe ao menos uma quantidade de produto para a saída!');
-        return;
-      }
-
-      const resumoProds = [];
-      if (q330 > 0) resumoProds.push(`${q330}x 330ml`);
-      if (q900 > 0) resumoProds.push(`${q900}x 900ml`);
-      if (quva > 0) resumoProds.push(`${quva}x Uva`);
-      if (qsg > 0) resumoProds.push(`${qsg}x Água S/G`);
-      if (qcg > 0) resumoProds.push(`${qcg}x Água C/G`);
-
-      dadosCompraVenda[vendedorKey].extrato.unshift({
-        id: Date.now().toString(),
-        data: dataInput,
-        tipo: 'RETIRADA',
-        detalhes: `Retirada: ${resumoProds.join(', ')}`,
-        valor: totalValor,
-        q330, q900, quva, qsg, qcg
-      });
-
-      // Reseta formulário
-      ['330', '900', 'uva', 'sg', 'cg'].forEach(p => {
-        const input = document.getElementById(`ret-qtd-${p}-${vendedorKey}`);
-        if (input) input.value = 0;
-      });
-      calcularTotalSaidaForm(vendedorKey);
-
-      renderizarTabelasCompraVenda();
-    }
-
-    function salvarPagamentoAbatimento(vendedorKey) {
-      const dataInput = document.getElementById(`pag-data-${vendedorKey}`)?.value || new Date().toISOString().split('T')[0];
-      const valorInput = parseFloat(document.getElementById(`pag-valor-${vendedorKey}`)?.value || 0);
-      const descInput = (document.getElementById(`pag-desc-${vendedorKey}`)?.value || '').trim().toUpperCase();
-
-      if (valorInput <= 0 || !descInput) {
-        alert('Informe o valor e a descrição do pagamento (Ex: DINHEIRO, PIX, AFMM)!');
-        return;
-      }
-
-      dadosCompraVenda[vendedorKey].extrato.unshift({
-        id: Date.now().toString(),
-        data: dataInput,
-        tipo: 'PAGAMENTO',
-        detalhes: descInput,
-        valor: valorInput
-      });
-
-      // INTEGRAÇÃO AUTOMÁTICA COM O CAIXA DIÁRIO QUANDO O PAGAMENTO É EM DINHEIRO
-      if (descInput.includes('DINHEIRO')) {
-        const agora = new Date();
-        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        
-        caixaMovimentacoesMemoria.push({
-          data: dataInput,
-          hora: horaStr,
-          tipo: 'ENTRADA',
-          formaPgto: 'DINHEIRO',
-          valor: valorInput,
-          descricao: `Recebimento C&V - ${dadosCompraVenda[vendedorKey].nome} (${descInput})`
-        });
-
-        alert(`Pagamento registrado! R$ ${valorInput.toFixed(2)} em DINHEIRO lançado automaticamente no Caixa Diário.`);
-      }
-
-      document.getElementById(`pag-valor-${vendedorKey}`).value = '';
-      document.getElementById(`pag-desc-${vendedorKey}`).value = '';
-
-      renderizarTabelasCompraVenda();
-    }
-
-    function renderizarLinhasExtrato(vendedorKey) {
-      const extrato = dadosCompraVenda[vendedorKey].extrato || [];
-      if (extrato.length === 0) {
-        return `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Nenhuma movimentação registrada no extrato.</td></tr>`;
-      }
-
-      return extrato.map((item, idx) => {
-        const isRetirada = item.tipo === 'RETIRADA';
-        const badgeTipo = isRetirada 
-          ? '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 font-bold text-[10px]">🔴 SAÍDA / RETIRADA</span>'
-          : '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">🟢 PAGAMENTO</span>';
-
-        return `
-          <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="p-2.5 font-mono text-xs text-slate-600">${item.data}</td>
-            <td class="p-2.5">${badgeTipo}</td>
-            <td class="p-2.5 font-semibold text-slate-800 text-xs">${item.detalhes}</td>
-            <td class="p-2.5 text-right font-bold text-red-600">${isRetirada ? `R$ ${Number(item.valor).toFixed(2)}` : '-'}</td>
-            <td class="p-2.5 text-right font-bold text-emerald-600">${!isRetirada ? `R$ ${Number(item.valor).toFixed(2)}` : '-'}</td>
-            <td class="p-2.5 text-center">
-              <button onclick="removerItemExtrato('${vendedorKey}', ${idx})" class="text-red-600 font-bold hover:text-red-800 px-2 py-1 bg-red-50 rounded">🗑️</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function removerItemExtrato(vendedorKey, idx) {
-      if (confirm('Deseja excluir esta movimentação do extrato?')) {
-        dadosCompraVenda[vendedorKey].extrato.splice(idx, 1);
-        renderizarTabelasCompraVenda();
-      }
-    }
-
-    function calcularLinhaCompraVenda(vendedorKey, idx) {
-      const cxInput = document.getElementById(`cv-${vendedorKey}-cx-${idx}`);
-      const descInput = document.getElementById(`cv-${vendedorKey}-desc-${idx}`);
-      const vendaInput = document.getElementById(`cv-${vendedorKey}-venda-${idx}`);
-
-      if (!cxInput || !descInput || !vendaInput) return;
-
-      const cxCom = parseFloat(cxInput.value || 1);
-      const valorDesc = parseFloat(descInput.value || 0);
-      const valorVenda = parseFloat(vendaInput.value || 0);
-
-      dadosCompraVenda[vendedorKey].produtos[idx].caixaCom = cxCom;
-      dadosCompraVenda[vendedorKey].produtos[idx].valorDesc = valorDesc;
-      dadosCompraVenda[vendedorKey].produtos[idx].valorVenda = valorVenda;
-
-      const custoGarrafa = valorDesc / (cxCom || 1);
-      const lucroGarrafa = valorVenda - custoGarrafa;
-      const lucroCaixa = lucroGarrafa * cxCom;
-      const percLucro = custoGarrafa > 0 ? ((lucroGarrafa / custoGarrafa) * 100) : 0;
-
-      if (document.getElementById(`cv-${vendedorKey}-cg-${idx}`)) {
-        document.getElementById(`cv-${vendedorKey}-cg-${idx}`).innerText = `R$ ${custoGarrafa.toFixed(2)}`;
-      }
-      if (document.getElementById(`cv-${vendedorKey}-lg-${idx}`)) {
-        document.getElementById(`cv-${vendedorKey}-lg-${idx}`).innerText = `R$ ${lucroGarrafa.toFixed(2)}`;
-      }
-      if (document.getElementById(`cv-${vendedorKey}-lc-${idx}`)) {
-        document.getElementById(`cv-${vendedorKey}-lc-${idx}`).innerText = `R$ ${lucroCaixa.toFixed(2)}`;
-      }
-      if (document.getElementById(`cv-${vendedorKey}-perc-${idx}`)) {
-        document.getElementById(`cv-${vendedorKey}-perc-${idx}`).innerText = `${percLucro.toFixed(1)}%`;
-      }
-    }
-
-    function adicionarProdutoCompraVenda(vendedorKey) {
-      dadosCompraVenda[vendedorKey].produtos.push({
-        id: 'novo',
-        produto: 'Novo Produto',
-        caixaCom: 12,
-        valorDesc: 30.00,
-        valorVenda: 3.50,
-        comissao: '-'
-      });
-      renderizarTabelasCompraVenda();
-    }
-
-    function removerProdutoCompraVenda(vendedorKey, idx) {
-      if (confirm('Deseja remover este produto da tabela?')) {
-        dadosCompraVenda[vendedorKey].produtos.splice(idx, 1);
-        renderizarTabelasCompraVenda();
-      }
-    }
-
-    function filtrarVendedorCompraVenda(filtro) {
-      Object.keys(dadosCompraVenda).forEach(v => {
-        const card = document.getElementById(`card-cv-${v}`);
-        const btn = document.getElementById(`btn-cv-${v}`);
-        if (filtro === 'todos' || filtro === v) {
-          if (card) card.classList.remove('hidden');
-          if (btn) btn.className = "px-3 py-1.5 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm";
-        } else {
-          if (card) card.classList.add('hidden');
-          if (btn) btn.className = "px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900";
-        }
-      });
-      const btnTodos = document.getElementById('btn-cv-todos');
-      if (btnTodos) {
-        if (filtro === 'todos') {
-          btnTodos.className = "px-3 py-1.5 rounded-md font-bold text-xs bg-white text-slate-800 shadow-sm";
-        } else {
-          btnTodos.className = "px-3 py-1.5 rounded-md font-bold text-xs text-slate-600 hover:text-slate-900";
-        }
       }
     }
 
