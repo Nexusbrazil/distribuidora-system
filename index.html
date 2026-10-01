@@ -69,6 +69,9 @@
         <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
         </button>
+        <button onclick="mudarAba('notas')" id="nav-notas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
+          <span>🧾</span> Notas e Boletos
+        </button>
         <button onclick="mudarAba('rotas')" id="nav-rotas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
           <span>📍</span> Rotas e Clientes (API)
         </button>
@@ -257,6 +260,7 @@
           </div>
 
           <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos Registrados no Sistema</h3>
+          <div id="aviso-multiplos-envios" class="hidden mb-3 p-3 rounded border border-amber-300 bg-amber-50 text-xs text-amber-800"></div>
           <div class="overflow-x-auto mb-8 border border-slate-200 rounded">
             <table class="w-full text-xs text-left">
               <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
@@ -652,6 +656,44 @@
         </div>
       </div>
     </section>
+
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO: NOTAS E BOLETOS                                                    -->
+    <!-- ========================================================================= -->
+    <section id="sec-notas" class="hidden p-6">
+      <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Notas e Boletos</h1>
+          <p class="text-slate-500 text-sm">Clientes que os vendedores marcaram no app para emitir nota, boleto ou os dois.</p>
+        </div>
+        <div class="flex items-end gap-3">
+          <button onclick="carregarAbaNotas()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Mostrar</label>
+            <select id="filtroTipoDoc" onchange="carregarAbaNotas()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              <option value="TODOS">Todos</option>
+              <option value="NOTA">Precisa de Nota</option>
+              <option value="BOLETO">Precisa de Boleto</option>
+              <option value="AMBOS">Nota e Boleto (os dois)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
+            <input type="date" id="selDataNotas" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500" onchange="carregarAbaNotas()">
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="bg-slate-800 text-white font-semibold flex justify-between px-6 py-3 text-sm">
+          <span>Vendedor</span>
+          <span id="notas-resumo-geral">--</span>
+        </div>
+        <div id="container-notas-vendedores" class="divide-y divide-slate-100">
+          <div class="p-4 text-center text-slate-400">Carregando...</div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -670,6 +712,7 @@
     let abaAtiva = 'vendedores';
     let lancamentosMemoria = [];
     let caixaMovimentacoesBD = [];
+    let notasAbertas = new Set();
 
     // =========================================================================
     // ROTAS E CLIENTES LIGADOS DIRETO NO SUPABASE
@@ -997,7 +1040,7 @@
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       const mesAtual = hoje.substring(0, 7);
       
-      ['selDataVendedores','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
+      ['selDataVendedores','selDataNotas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
         if (document.getElementById(id)) document.getElementById(id).value = hoje;
       });
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
@@ -1013,7 +1056,7 @@
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
       canalRealtime = supabaseClient.channel('mudancas-ao-vivo')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes_rotas' }, () => { if (abaAtiva === 'rotas') carregarClientesAPI(); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => { carregarAbaVendedores(); if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => { carregarAbaVendedores(); if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); if (abaAtiva === 'notas') carregarAbaNotas(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => carregarVendasVarejo())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => carregarProdutosInternos())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if(abaAtiva==='compra-venda') carregarLancamentosCV(); })
@@ -1023,13 +1066,13 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -1040,6 +1083,7 @@
       else if (aba === 'caixa') carregarCaixaDiario();
       else if (aba === 'dashboard') carregarRelatorioMensal();
       else if (aba === 'rotas') carregarVendedoresAPI();
+      else if (aba === 'notas') carregarAbaNotas();
     }
 
     // =========================================================================
@@ -1050,10 +1094,48 @@
       return { inicio: `${dataStr}T00:00:00-03:00`, fim: `${dataStr}T23:59:59-03:00`, dataFormatada: dataStr.split('-').reverse().join('/') };
     }
 
+    // --- Unificação de envios repetidos ---
+    // Mesmo cliente + mesmo dia + mesmos produtos/trocas + mesmo valor final (ignora observação) = 1 envio só.
+    // Mesmo cliente com produtos/valor diferentes = continua separado e fica marcado como "múltiplos envios".
+    function normalizarTexto(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+    function dataHoraRegistro(r) { return new Date(r.created_at || r.data_atendimento); }
+    function horaDoRegistro(r) { const d = dataHoraRegistro(r); return isNaN(d.getTime()) ? '--:--' : d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}); }
+
+    function unificarEnvios(registros) {
+      const porCliente = {};
+      (registros || []).slice().sort((a, b) => dataHoraRegistro(a) - dataHoraRegistro(b)).forEach(r => {
+        const d = dataHoraRegistro(r);
+        const dia = isNaN(d.getTime()) ? 'sem-data' : d.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+        const nome = normalizarTexto(r.cliente_nome || r.cliente);
+        const chave = `${dia}|${nome || 'id:' + r.cliente_id}`;
+        (porCliente[chave] = porCliente[chave] || []).push(r);
+      });
+
+      const resultado = [];
+      let clientesMultiplos = 0, enviosIguais = 0;
+      Object.values(porCliente).forEach(lista => {
+        const grupos = {};
+        lista.forEach(r => {
+          const assinatura = [r.qtd_330ml, r.qtd_900ml, r.qtd_uva, r.qtd_agua_sg, r.qtd_agua_cg, r.troca_330ml, r.troca_900ml, r.troca_uva].map(v => Number(v || 0)).join('|') + '|' + Number(r.valor_total || 0).toFixed(2);
+          (grupos[assinatura] = grupos[assinatura] || []).push(r);
+        });
+        const listaGrupos = Object.values(grupos);
+        const multiplo = listaGrupos.length > 1;
+        if (multiplo) clientesMultiplos++;
+        listaGrupos.forEach(g => {
+          if (g.length > 1) enviosIguais += g.length - 1;
+          resultado.push({ ...g[g.length - 1], _envios: g.length, _multiplo: multiplo, _horas: g.map(horaDoRegistro) });
+        });
+      });
+      resultado.sort((a, b) => dataHoraRegistro(a) - dataHoraRegistro(b));
+      return { atendimentos: resultado, totalClientes: Object.keys(porCliente).length, clientesMultiplos, enviosIguais };
+    }
+
     function processarRegistosVendedor(registos) {
-      const cabecalhos = [], atendimentos = [];
-      (registos || []).forEach(r => { if ((r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null) atendimentos.push(r); else cabecalhos.push(r); });
-      return { cabecalhos, atendimentos, totalClientes: atendimentos.length, totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
+      const cabecalhos = [], brutos = [];
+      (registos || []).forEach(r => { if ((r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null) brutos.push(r); else cabecalhos.push(r); });
+      const u = unificarEnvios(brutos);
+      return { cabecalhos, atendimentos: u.atendimentos, totalClientes: u.totalClientes, clientesMultiplos: u.clientesMultiplos, enviosIguais: u.enviosIguais, totalValor: u.atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
     }
 
     async function carregarAbaVendedores() {
@@ -1067,7 +1149,8 @@
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome||'').toLowerCase() === vendedor.toLowerCase());
-        const { totalClientes, totalValor } = processarRegistosVendedor(todosRegistros);
+        const { totalClientes, totalValor, clientesMultiplos, enviosIguais } = processarRegistosVendedor(todosRegistros);
+        const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠️ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
@@ -1078,7 +1161,7 @@
           }
         }
         container.innerHTML += `<div onclick="abrirDetalheVendedor('${vendedor}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
-          <div><span class="font-bold text-slate-800">${vendedor}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} atendido(s)</p></div>
+          <div><span class="font-bold text-slate-800">${vendedor}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} atendido(s)${avisoEnvios}</p></div>
           <div class="flex items-center gap-4"><span class="font-bold text-slate-700">R$ ${totalValor.toFixed(2)}</span>${statusHTML}</div></div>`;
       });
     }
@@ -1093,8 +1176,17 @@
       document.getElementById('folha-data').innerText = dataFormatada;
 
       const { data } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorNome).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
-      const { atendimentos, cabecalhos } = processarRegistosVendedor(data);
+      const { atendimentos, cabecalhos, clientesMultiplos, enviosIguais } = processarRegistosVendedor(data);
       dadosAtendimentoAtuais = atendimentos;
+
+      const avisoEl = document.getElementById('aviso-multiplos-envios');
+      if (avisoEl) {
+        const partes = [];
+        if (clientesMultiplos > 0) partes.push(`⚠️ <strong>${clientesMultiplos} cliente(s) com múltiplos envios diferentes</strong> (produtos ou valor mudaram) — aparecem em linhas separadas e destacadas. Todas entram no total.`);
+        if (enviosIguais > 0) partes.push(`🔁 ${enviosIguais} reenvio(s) idêntico(s) (mesmos produtos e valor) foram unificados em um só.`);
+        avisoEl.innerHTML = partes.join('<br>');
+        avisoEl.classList.toggle('hidden', partes.length === 0);
+      }
 
       if (cabecalhos.length > 0) {
         const ult = cabecalhos[cabecalhos.length - 1];
@@ -1109,9 +1201,9 @@
           const dataHora = new Date(item.created_at || item.data_atendimento);
           const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
           tbody.innerHTML += `
-            <tr class="hover:bg-sky-50 border-b border-slate-100">
+            <tr class="hover:bg-sky-50 border-b border-slate-100 ${item._multiplo ? 'bg-amber-50' : ''}">
               <td class="p-2 text-slate-500 font-mono text-xs">${horaString}</td>
-              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}</td>
+              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}${item._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}${item._envios > 1 ? ` <span title="Enviado às: ${item._horas.join(', ')}" class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold">🔁 ${item._envios}x unificado</span>` : ''}</td>
               <td class="p-2 text-slate-600 text-[10px] truncate max-w-[100px]">${item.observacao || item.obs || '-'}</td>
               <td class="p-2 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
               <td class="p-2 text-center">${item.qtd_330ml || 0}</td><td class="p-2 text-center">${item.qtd_900ml || 0}</td><td class="p-2 text-center">${item.qtd_uva || 0}</td>
@@ -1148,6 +1240,104 @@
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
       await supabaseClient.from('fechamentos').update({ status: 'EXCLUIDO' }).gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorSelecionadoAtual);
       voltarParaListaVendedores(); 
+    }
+
+    // =========================================================================
+    // NOTAS E BOLETOS
+    // O app grava em fechamentos.solicitacao_documento: 'NOTA', 'BOLETO' ou 'NOTA E BOLETO' (vazio = nenhum)
+    // =========================================================================
+    function escaparHTML(t) { return String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    function tipoDocumento(item) {
+      const d = String(item.solicitacao_documento || '').toUpperCase();
+      const nota = d.includes('NOTA'), boleto = d.includes('BOLETO');
+      return nota && boleto ? 'AMBOS' : nota ? 'NOTA' : boleto ? 'BOLETO' : null;
+    }
+
+    function badgeDocumento(tipo) {
+      if (tipo === 'AMBOS') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">🧾💳 NOTA E BOLETO</span>';
+      if (tipo === 'NOTA') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700 border border-sky-200">🧾 NOTA</span>';
+      return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">💳 BOLETO</span>';
+    }
+
+    function toggleNotasVendedor(chave) {
+      const el = document.getElementById(`notas-det-${chave}`);
+      if (!el) return;
+      el.classList.toggle('hidden');
+      if (el.classList.contains('hidden')) notasAbertas.delete(chave); else notasAbertas.add(chave);
+    }
+
+    async function carregarAbaNotas() {
+      const container = document.getElementById('container-notas-vendedores');
+      if (!container) return;
+      const { inicio, fim } = getIntervaloDataSelecionada('selDataNotas');
+      const filtro = document.getElementById('filtroTipoDoc')?.value || 'TODOS';
+
+      const { data, error } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
+      if (error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao buscar: ${escaparHTML(error.message)}</div>`; return; }
+
+      const porVendedor = {};
+      (data || []).forEach(r => {
+        const nome = (r.vendedor_nome || '').trim();
+        if (!nome) return;
+        const k = nome.toLowerCase();
+        (porVendedor[k] = porVendedor[k] || { nome, regs: [] }).regs.push(r);
+      });
+
+      let totalGeral = 0, html = '';
+      Object.keys(porVendedor).sort().forEach(k => {
+        const v = porVendedor[k];
+        // unifica reenvios iguais ANTES de filtrar, para valer o documento marcado no último envio
+        const docs = processarRegistosVendedor(v.regs).atendimentos
+          .map(a => ({ ...a, _tipoDoc: tipoDocumento(a) }))
+          .filter(a => a._tipoDoc && (filtro === 'TODOS' || (filtro === 'NOTA' && (a._tipoDoc === 'NOTA' || a._tipoDoc === 'AMBOS')) || (filtro === 'BOLETO' && (a._tipoDoc === 'BOLETO' || a._tipoDoc === 'AMBOS')) || filtro === a._tipoDoc));
+        if (docs.length === 0) return;
+        totalGeral += docs.length;
+
+        const qNota = docs.filter(d => d._tipoDoc === 'NOTA').length;
+        const qBoleto = docs.filter(d => d._tipoDoc === 'BOLETO').length;
+        const qAmbos = docs.filter(d => d._tipoDoc === 'AMBOS').length;
+        const chave = encodeURIComponent(k).replace(/%/g, '_');
+        const aberto = notasAbertas.has(chave);
+
+        const linhas = docs.map(d => `
+          <tr class="border-b border-slate-100 ${d._multiplo ? 'bg-amber-50' : ''}">
+            <td class="p-2 font-mono text-xs text-slate-500">${horaDoRegistro(d)}</td>
+            <td class="p-2 font-bold">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}${d._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}</td>
+            <td class="p-2 text-xs text-slate-600">${escaparHTML(d.cidade || '-')}</td>
+            <td class="p-2">${badgeDocumento(d._tipoDoc)}</td>
+            <td class="p-2 text-[11px] uppercase font-semibold">${escaparHTML(d.forma_pagamento || 'N/A')}</td>
+            <td class="p-2 text-right font-bold text-emerald-600">R$ ${Number(d.valor_total || 0).toFixed(2)}</td>
+            <td class="p-2 text-[10px] text-slate-600">${escaparHTML(d.observacao || '-')}</td>
+          </tr>`).join('');
+
+        html += `
+          <div>
+            <div onclick="toggleNotasVendedor('${chave}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer">
+              <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${docs.length} cliente(s) precisam de documento</p></div>
+              <div class="flex items-center gap-2 text-xs font-bold">
+                ${qNota ? `<span class="px-2 py-1 rounded-full bg-sky-100 text-sky-700">🧾 ${qNota} nota(s)</span>` : ''}
+                ${qBoleto ? `<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700">💳 ${qBoleto} boleto(s)</span>` : ''}
+                ${qAmbos ? `<span class="px-2 py-1 rounded-full bg-purple-100 text-purple-700">🧾💳 ${qAmbos} os dois</span>` : ''}
+                <span class="text-slate-400">▼</span>
+              </div>
+            </div>
+            <div id="notas-det-${chave}" class="${aberto ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
+              <div class="overflow-x-auto border border-slate-200 rounded bg-white">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
+                    <tr><th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Cidade</th><th class="p-2">Documento</th><th class="p-2">Pgto</th><th class="p-2 text-right">Total (R$)</th><th class="p-2">Obs</th></tr>
+                  </thead>
+                  <tbody>${linhas}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>`;
+      });
+
+      container.innerHTML = html || '<div class="p-4 text-center text-slate-400">Nenhum cliente com nota ou boleto marcado nesta data.</div>';
+      const resumo = document.getElementById('notas-resumo-geral');
+      if (resumo) resumo.innerText = `${totalGeral} cliente(s) no total`;
     }
 
     // =========================================================================
@@ -1350,7 +1540,7 @@
         if (filtroDias === 'seg-sex' && (diaSemana === 0 || diaSemana === 6)) continue;
         const diaStr = String(dia).padStart(2,'0');
         
-        const regDia = (data||[]).filter(r => (r.created_at||r.data_atendimento)?.startsWith(`${mesAno}-${diaStr}`));
+        const regDia = processarRegistosVendedor((data||[]).filter(r => (r.created_at||r.data_atendimento)?.startsWith(`${mesAno}-${diaStr}`))).atendimentos;
         let d330=0, d900=0, duva=0, dagua=0, dBruto=0;
         regDia.forEach(r => { d330+=Number(r.qtd_330ml||0); d900+=Number(r.qtd_900ml||0); duva+=Number(r.qtd_uva||0); dagua+=Number(r.qtd_agua_sg||0)+Number(r.qtd_agua_cg||0); dBruto+=Number(r.valor_total||0); });
 
