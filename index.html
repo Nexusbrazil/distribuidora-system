@@ -69,8 +69,9 @@
         <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
         </button>
+        <!-- NOVA ABA: ROTAS E CLIENTES -->
         <button onclick="mudarAba('rotas')" id="nav-rotas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
-          <span>📍</span> Rotas e Clientes (API)
+          <span>📍</span> Rotas e Clientes
         </button>
         <button onclick="mudarAba('compra-venda'); trocarVendedorCV();" id="nav-compra-venda" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
           <span>🏷️</span> Compra e Venda
@@ -91,14 +92,15 @@
     </div>
 
     <div>
+      <!-- TOGGLE MODO DESENVOLVEDOR -->
       <div class="px-3 mb-4 py-3 bg-slate-800 rounded-lg border border-slate-700">
         <label class="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer">
           <input type="checkbox" id="dev-toggle" onchange="toggleDevMode()" class="w-4 h-4 rounded bg-slate-900 border-slate-600 text-sky-500 focus:ring-sky-500 focus:ring-offset-slate-800">
-          ⚙️ Modo Desenvolvedor
+          ⚙️️ Modo Desenvolvedor
         </label>
       </div>
       <div class="px-2 py-3 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
-        <span>Sistema Sunap v2.9</span>
+        <span>Sistema Sunap v2.8</span>
         <span class="flex items-center gap-1 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ao Vivo</span>
       </div>
     </div>
@@ -108,13 +110,13 @@
   <main class="flex-1 ml-64 p-8">
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: ROTAS E CLIENTES (CONECTADO AO SUPABASE)                          -->
+    <!-- NOVA SEÇÃO: ROTAS E CLIENTES (COM FILTROS PARA NÃO TRAVAR)                -->
     <!-- ========================================================================= -->
     <section id="sec-rotas" class="hidden p-6 space-y-6">
       <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
         <div>
           <h2 class="text-2xl font-bold text-slate-900">Gerenciamento de Rotas e Clientes</h2>
-          <p class="text-slate-500 text-sm">Sincronizado diretamente com a API do aplicativo no Render.</p>
+          <p class="text-slate-500 text-sm">Adicione, edite e remova clientes filtrando primeiro o Vendedor e o Dia.</p>
         </div>
         
         <!-- Filtros de Consulta -->
@@ -175,7 +177,7 @@
 
           <div class="flex gap-3">
             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition shadow flex items-center gap-2">
-              💾 Salvar na API
+              💾 Salvar na API / Supabase
             </button>
             <button type="button" onclick="limparFormCliente()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">
               Cancelar
@@ -210,7 +212,7 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: ABA VENDEDORES                                                     -->
+    <!-- SEÇÃO 1: ABA VENDEDORES                                                   -->
     <!-- ========================================================================= -->
     <section id="aba-vendedores" class="p-6">
       <div class="flex justify-between items-center mb-6">
@@ -224,11 +226,12 @@
           </button>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
-            <input type="date" id="selDataVendedores" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500" onchange="carregarAbaVendedores()">
+            <input type="date" id="selDataVendedores" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" onchange="carregarAbaVendedores()">
           </div>
         </div>
       </div>
 
+      <!-- LISTA DE VENDEDORES -->
       <div id="visao-lista-vendedores" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         <div class="bg-slate-800 text-white font-semibold flex justify-between px-6 py-3 text-sm">
           <span>Nome do Vendedor</span>
@@ -239,20 +242,28 @@
         </div>
       </div>
 
+      <!-- VISÃO DETALHADA / FOLHA DE FECHAMENTO -->
       <div id="visao-detalhe-vendedor" class="hidden">
         <div class="flex justify-between items-center mb-4">
           <div class="flex gap-4">
-            <button onclick="voltarParaListaVendedores()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">← Voltar</button>
-            <button onclick="excluirFechamentoAtual()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition">🗑️ Excluir Fechamento</button>
+            <button onclick="voltarParaListaVendedores()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition flex items-center gap-2 text-sm">
+              ← Voltar
+            </button>
+            <button onclick="excluirFechamentoAtual()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition">
+              🗑️ Excluir Fechamento
+            </button>
           </div>
         </div>
 
         <div class="max-w-5xl mx-auto bg-white p-6 shadow-md border border-slate-300 rounded-sm font-sans text-slate-800 relative">
+          
           <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-end">
             <div>
-              <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900 flex items-center gap-2">Vendedor</h2>
+              <h2 id="folha-vendedor-nome" class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                Vendedor
+              </h2>
               <div id="badge-rotas-detalhe" class="mt-1"></div>
-              <p class="text-sm text-slate-600 mt-1">Conferência de Vendas e Observações</p>
+              <p id="folha-vendedor-rota" class="text-sm text-slate-600 mt-1">Conferência de Vendas e Observações</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-slate-500">Data do Atendimento</p>
@@ -265,28 +276,42 @@
             <table class="w-full text-xs text-left">
               <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
                 <tr>
-                  <th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Obs</th><th class="p-2">Pgto</th>
-                  <th class="p-2 text-center">330ml</th><th class="p-2 text-center">900ml</th><th class="p-2 text-center">Uva</th>
-                  <th class="p-2 text-center">S/G</th><th class="p-2 text-center">C/G</th><th class="p-2 text-right">Total (R$)</th>
+                  <th class="p-2">Hora / Rota</th>
+                  <th class="p-2">Cliente</th>
+                  <th class="p-2">Obs / Anotações</th>
+                  <th class="p-2">Pgto</th>
+                  <th class="p-2 text-center">330ml</th>
+                  <th class="p-2 text-center">900ml</th>
+                  <th class="p-2 text-center">Uva</th>
+                  <th class="p-2 text-center">S/G</th>
+                  <th class="p-2 text-center">C/G</th>
+                  <th class="p-2 text-right">Total (R$)</th>
                 </tr>
               </thead>
-              <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-100"></tbody>
+              <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-100">
+                <!-- Injetado via JS -->
+              </tbody>
             </table>
           </div>
 
+          <!-- QUADRO DE FECHAMENTO FÍSICO -->
           <div class="mt-8 border-t-2 border-slate-800 pt-4">
             <h3 class="font-bold text-lg mb-3 text-center uppercase tracking-wide border-b pb-1">Fechamento Consolidado de Estoque</h3>
+            
             <table class="w-full border-collapse border border-slate-400 text-xs mb-6 text-center">
               <thead>
                 <tr class="bg-slate-200 font-bold border-b border-slate-400">
                   <th class="border border-slate-400 p-2 text-left">PRODUTOS</th>
-                  <th class="border border-slate-400 p-2">330ML</th><th class="border border-slate-400 p-2">900ML</th>
-                  <th class="border border-slate-400 p-2">UVA</th><th class="border border-slate-400 p-2">ÁGUA S/G</th><th class="border border-slate-400 p-2">ÁGUA C/G</th>
+                  <th class="border border-slate-400 p-2">330ML</th>
+                  <th class="border border-slate-400 p-2">900ML</th>
+                  <th class="border border-slate-400 p-2">UVA</th>
+                  <th class="border border-slate-400 p-2">ÁGUA S/G</th>
+                  <th class="border border-slate-400 p-2">ÁGUA C/G</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">Carga + Retorno</td>
+                  <td class="border border-slate-400 p-2 font-bold text-left bg-slate-50">RETORNO ANTERIOR + SAÍDA (CARGA)</td>
                   <td class="border border-slate-400 p-1"><input type="number" id="carga-330" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
                   <td class="border border-slate-400 p-1"><input type="number" id="carga-900" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
                   <td class="border border-slate-400 p-1"><input type="number" id="carga-uva" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
@@ -294,15 +319,19 @@
                   <td class="border border-slate-400 p-1"><input type="number" id="carga-cg" value="0" oninput="calcularFechamentoFisico()" class="w-full text-center bg-sky-50 font-bold border border-sky-200 rounded"></td>
                 </tr>
                 <tr class="text-blue-700 font-bold">
-                  <td class="border border-slate-400 p-2 text-left bg-slate-50">Vendas (Sistema)</td>
-                  <td id="venda-330" class="border border-slate-400 p-2">0</td><td id="venda-900" class="border border-slate-400 p-2">0</td>
-                  <td id="venda-uva" class="border border-slate-400 p-2">0</td><td id="venda-sg" class="border border-slate-400 p-2">0</td>
+                  <td class="border border-slate-400 p-2 text-left bg-slate-50">VENDAS (SISTEMA)</td>
+                  <td id="venda-330" class="border border-slate-400 p-2">0</td>
+                  <td id="venda-900" class="border border-slate-400 p-2">0</td>
+                  <td id="venda-uva" class="border border-slate-400 p-2">0</td>
+                  <td id="venda-sg" class="border border-slate-400 p-2">0</td>
                   <td id="venda-cg" class="border border-slate-400 p-2">0</td>
                 </tr>
                 <tr class="bg-emerald-50 font-bold">
-                  <td class="border border-slate-400 p-2 text-left">Estoque Final</td>
-                  <td id="ret-atual-330" class="border border-slate-400 p-2">0</td><td id="ret-atual-900" class="border border-slate-400 p-2">0</td>
-                  <td id="ret-atual-uva" class="border border-slate-400 p-2">0</td><td id="ret-atual-sg" class="border border-slate-400 p-2">0</td>
+                  <td class="border border-slate-400 p-2 text-left">ESTOQUE FINAL ESPERADO</td>
+                  <td id="ret-atual-330" class="border border-slate-400 p-2">0</td>
+                  <td id="ret-atual-900" class="border border-slate-400 p-2">0</td>
+                  <td id="ret-atual-uva" class="border border-slate-400 p-2">0</td>
+                  <td id="ret-atual-sg" class="border border-slate-400 p-2">0</td>
                   <td id="ret-atual-cg" class="border border-slate-400 p-2">0</td>
                 </tr>
               </tbody>
@@ -311,34 +340,60 @@
             <div class="grid grid-cols-2 gap-4">
               <div class="border border-slate-400 p-3 rounded bg-slate-50">
                 <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm text-center">Resumo Financeiro (R$)</h4>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>Dinheiro:</span><strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong></div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>PIX:</span><strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong></div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>A Prazo:</span><strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong></div>
-                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-slate-300 px-2 rounded mt-2 shadow-sm"><span>TOTAL VENDIDO:</span><span id="fin-folha-total-geral">R$ 0,00</span></div>
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
+                  <span>Dinheiro:</span><strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
+                  <span>PIX:</span><strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200">
+                  <span>A Prazo / Boleto:</span><strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-slate-300 px-2 rounded mt-2 shadow-sm">
+                  <span>TOTAL VENDIDO:</span><span id="fin-folha-total-geral">R$ 0,00</span>
+                </div>
               </div>
 
               <div class="border border-slate-400 p-3 rounded bg-red-50/30">
                 <h4 class="font-bold border-b border-slate-300 pb-1 mb-2 text-sm text-center">Despesas Inseridas (R$)</h4>
-                <div class="flex justify-between items-center py-1 text-xs"><span>Combustível:</span><input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1"></div>
-                <div class="flex justify-between items-center py-1 text-xs"><span>Almoço:</span><input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1"></div>
-                <div class="flex justify-between items-center py-1 text-xs"><span>Outras:</span><input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1"></div>
-                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-red-200 text-red-700 px-2 rounded mt-2 shadow-sm"><span>TOTAL DESPESAS:</span><span id="desp-folha-total">R$ 0,00</span></div>
+                <div class="flex justify-between items-center py-1 text-xs">
+                  <span>Combustível:</span><input type="number" id="desp-folha-combustivel" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
+                </div>
+                <div class="flex justify-between items-center py-1 text-xs">
+                  <span>Almoço:</span><input type="number" id="desp-folha-almoco" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
+                </div>
+                <div class="flex justify-between items-center py-1 text-xs">
+                  <span>Outras:</span><input type="number" id="desp-folha-outras" value="0" oninput="calcularFechamentoFisico()" class="w-24 border border-slate-300 rounded text-right px-1">
+                </div>
+                <div class="flex justify-between py-2 text-sm font-bold bg-white border border-red-200 text-red-700 px-2 rounded mt-2 shadow-sm">
+                  <span>TOTAL DESPESAS:</span><span id="desp-folha-total">R$ 0,00</span>
+                </div>
               </div>
             </div>
           </div>
+          
+          <div class="dev-only mt-8 border-2 border-dashed border-sky-500 rounded-lg bg-slate-900 p-4">
+            <h4 class="text-sky-400 font-bold mb-2 text-sm uppercase flex items-center gap-2">
+              <span>👨‍💻</span> Debug - Resposta Bruta
+            </h4>
+            <pre id="dev-json-dump" class="text-emerald-400 text-xs overflow-x-auto max-h-64"></pre>
+          </div>
+
         </div>
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: COMPRA E VENDA                                                     -->
+    <!-- SEÇÃO 2: TABELA DE COMPRA E VENDA (ALEX, WERNEK E SÉRGIO)                 -->
     <!-- ========================================================================= -->
     <section id="sec-compra-venda" class="hidden p-6 space-y-6">
+      <!-- Cabeçalho e Seleção de Vendedor -->
       <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
         <div>
           <h2 class="text-2xl font-bold text-slate-900">Compra e Venda (Acerto)</h2>
-          <p class="text-slate-500 text-sm">Controle de saídas e baixas de pagamentos no Supabase.</p>
+          <p class="text-slate-500 text-sm">Controle de saídas de carga e baixas de pagamentos salvos no Supabase.</p>
         </div>
+        
         <div class="flex items-center gap-3">
           <label class="text-xs font-bold text-slate-600 uppercase">Vendedor:</label>
           <select id="cv-sel-vendedor" onchange="trocarVendedorCV()" class="border-2 border-sky-500 rounded-lg px-4 py-2 text-sm font-bold bg-sky-50 text-sky-900 shadow-sm">
@@ -349,6 +404,7 @@
         </div>
       </div>
 
+      <!-- Resumo da Tabela de Preços do Vendedor Selecionado -->
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-amber-900">
         <span class="font-bold uppercase text-amber-800 flex items-center gap-1">🏷️ Preços Tabela (<span id="lbl-cv-vendedor-nome">Alex</span>):</span>
         <span>330ml: <strong id="lbl-p-330" class="text-slate-900">R$ 4,20</strong></span>
@@ -358,151 +414,321 @@
         <span>Água c/Gás: <strong id="lbl-p-aguagas" class="text-slate-900">R$ 13,00</strong></span>
       </div>
 
+      <!-- Formulários de Lançamento (Saída + Pagamento) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Formulário 1: Saída de Mercadoria -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500 space-y-4">
-          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2"><span>🚚</span> Lançar Saída (+ Saldo)</h3>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Data</label><input type="date" id="cv-saida-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold"></div>
+          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
+            <span>🚚</span> Lançar Saída de Mercadoria (+ Saldo)
+          </h3>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+            <input type="date" id="cv-saida-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
+          </div>
+
           <div class="grid grid-cols-5 gap-2 text-center text-xs">
-            <div><span class="block font-bold text-slate-700 mb-1">330ml</span><input type="number" id="cv-q-330" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold"></div>
-            <div><span class="block font-bold text-slate-700 mb-1">900ml</span><input type="number" id="cv-q-900" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold"></div>
-            <div><span class="block font-bold text-slate-700 mb-1">Uva</span><input type="number" id="cv-q-uva" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold"></div>
-            <div><span class="block font-bold text-slate-700 mb-1">Água</span><input type="number" id="cv-q-agua" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold"></div>
-            <div><span class="block font-bold text-slate-700 mb-1">c/Gás</span><input type="number" id="cv-q-aguagas" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold"></div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">330ml</span>
+              <input type="number" id="cv-q-330" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">900ml</span>
+              <input type="number" id="cv-q-900" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">Uva</span>
+              <input type="number" id="cv-q-uva" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">Água</span>
+              <input type="number" id="cv-q-agua" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
+            <div>
+              <span class="block font-bold text-slate-700 mb-1">c/Gás</span>
+              <input type="number" id="cv-q-aguagas" value="0" min="0" oninput="calcularPreviaSaidaCV()" class="w-full border border-slate-300 rounded px-1 py-1.5 text-center font-bold">
+            </div>
           </div>
+
           <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-            <span class="text-xs font-bold text-slate-600">Total desta Saída:</span><strong id="cv-lbl-previa-saida" class="text-base text-amber-700">R$ 0,00</strong>
+            <span class="text-xs font-bold text-slate-600">Total desta Saída:</span>
+            <strong id="cv-lbl-previa-saida" class="text-base text-amber-700">R$ 0,00</strong>
           </div>
-          <button onclick="salvarSaidaCV()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">➕ Confirmar Saída</button>
+
+          <button onclick="salvarSaidaCV()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+            ➕ Confirmar Saída
+          </button>
         </div>
 
+        <!-- Formulário 2: Pagamento / Baixa -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-emerald-500 space-y-4">
-          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2"><span>💵</span> Lançar Pagamento (- Saldo)</h3>
+          <h3 class="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
+            <span>💵</span> Lançar Pagamento / Baixa (- Saldo)
+          </h3>
+
           <div class="grid grid-cols-2 gap-3">
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Data</label><input type="date" id="cv-pag-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold"></div>
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Valor Pago (R$)</label><input type="number" step="0.01" id="cv-pag-valor" placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700"></div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+              <input type="date" id="cv-pag-data" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-semibold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Pago (R$)</label>
+              <input type="number" step="0.01" id="cv-pag-valor" placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-emerald-700">
+            </div>
           </div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Descrição do Pagamento</label><input type="text" id="cv-pag-desc" placeholder="Ex: DINHEIRO, PIX..." class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold uppercase"></div>
-          <p class="text-[11px] text-slate-400 italic">* Lançamentos em <strong>DINHEIRO</strong> entram automaticamente no Caixa Diário.</p>
-          <button onclick="salvarPagamentoCV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">🟢 Confirmar Pagamento</button>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição do Pagamento</label>
+            <input type="text" id="cv-pag-desc" placeholder="Ex: DINHEIRO, PIX, CASA VALERIO, AFMM, PILOTO..." class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold uppercase">
+          </div>
+
+          <p class="text-[11px] text-slate-400 italic">
+            * Lançamentos em <strong>DINHEIRO</strong> entram automaticamente no Caixa Diário.
+          </p>
+
+          <button onclick="salvarPagamentoCV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+            🟢 Confirmar Pagamento
+          </button>
         </div>
+
       </div>
 
+      <!-- Tabela de Extrato Planilha -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-900 text-white font-bold flex justify-between items-center text-sm">
           <span>Extrato de Conta Corrente · <span id="cv-titulo-tabela-vendedor">Alex</span></span>
-          <div class="text-right"><span class="text-xs text-slate-400 font-normal">Saldo Devedor: </span><strong id="cv-saldo-devedor-topo" class="text-base text-amber-400">R$ 0,00</strong></div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 font-normal">Saldo Devedor: </span>
+            <strong id="cv-saldo-devedor-topo" class="text-base text-amber-400">R$ 0,00</strong>
+          </div>
         </div>
+
         <div class="overflow-x-auto">
           <table class="w-full text-xs text-center border-collapse">
             <thead class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase font-bold">
               <tr>
-                <th class="p-2 border-r border-slate-200">Data</th><th class="p-2 border-r bg-amber-50/50">330</th><th class="p-2 border-r bg-amber-50/50">900</th>
-                <th class="p-2 border-r bg-amber-50/50">Uva</th><th class="p-2 border-r bg-amber-50/50">Água</th><th class="p-2 border-r bg-amber-50/50">C/G</th>
-                <th class="p-2 border-r text-amber-800">Total Saída</th><th class="p-2 border-r">Descrição</th><th class="p-2 border-r text-emerald-800">Valor Pago</th>
-                <th class="p-2 border-r bg-slate-200">Saldo Devedor</th><th class="p-2">Ação</th>
+                <th class="p-2 border-r border-slate-200">Data</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">330ml</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">900ml</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">Uva</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">Água</th>
+                <th class="p-2 border-r border-slate-200 bg-amber-50/50">c/Gás</th>
+                <th class="p-2 border-r border-slate-200 text-amber-800">Total Saída</th>
+                <th class="p-2 border-r border-slate-200">Pagamento / Descrição</th>
+                <th class="p-2 border-r border-slate-200 text-emerald-800">Valor Pago</th>
+                <th class="p-2 border-r border-slate-200 bg-slate-200 text-slate-900">Saldo Devedor</th>
+                <th class="p-2">Ação</th>
               </tr>
             </thead>
-            <tbody id="cv-tabela-corpo" class="divide-y divide-slate-200 font-medium"></tbody>
+            <tbody id="cv-tabela-corpo" class="divide-y divide-slate-200 font-medium">
+              <!-- Linhas renderizadas via JS -->
+            </tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: MÓDULO INTERNO                                                     -->
+    <!-- SEÇÃO 3: MÓDULO INTERNO / VAREJO                                          -->
     <!-- ========================================================================= -->
     <section id="sec-interno" class="hidden p-6 space-y-8">
       <div class="flex justify-between items-center border-b border-slate-200 pb-4">
         <div>
           <h2 class="text-2xl font-bold text-slate-900">Módulo Interno · Varejo & Estoque Base</h2>
+          <p class="text-slate-500 text-sm">Gerencie o catálogo de produtos e os lançamentos de vendas do varejo direto.</p>
         </div>
         <div class="flex gap-2">
-          <button onclick="alternarSubAbaInterno('vendas')" id="btn-sub-vendas" class="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm">💰 Lançamento de Vendas</button>
-          <button onclick="alternarSubAbaInterno('produtos')" id="btn-sub-produtos" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">📦 Catálogo de Produtos</button>
+          <button onclick="alternarSubAbaInterno('vendas')" id="btn-sub-vendas" class="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm">
+            💰 Lançamento de Vendas
+          </button>
+          <button onclick="alternarSubAbaInterno('produtos')" id="btn-sub-produtos" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">
+            📦 Catálogo de Produtos
+          </button>
         </div>
       </div>
 
+      <!-- SUB-ABA 1: LANÇAMENTOS DE VAREJO -->
       <div id="sub-interno-vendas" class="space-y-6">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-emerald-500">
-          <h3 id="titulo-form-varejo" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">🛒 Nova Venda de Varejo</h3>
+          <h3 id="titulo-form-varejo" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+            <span>🛒</span> Nova Venda de Varejo
+          </h3>
           <form id="form-varejo" onsubmit="salvarVendaVarejo(event)" class="space-y-4">
             <input type="hidden" id="var-edit-id" value="">
+            
             <div class="grid grid-cols-3 gap-4">
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Data</label><input type="date" id="var-data" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Produto</label><select id="var-produto-id" onchange="atualizarPrecoEValorVarejo()" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500"><option value="">Carregando produtos...</option></select></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Pgto</label><select id="var-pgto" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="PIX">PIX</option><option value="DINHEIRO">Dinheiro</option><option value="CARTAO">Cartão</option><option value="PRAZO">A Prazo</option></select></div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Venda</label>
+                <input type="date" id="var-data" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Produto (Tabela Interno)</label>
+                <select id="var-produto-id" onchange="atualizarPrecoEValorVarejo()" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+                  <option value="">Carregando produtos...</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Forma de Pagamento</label>
+                <select id="var-pgto" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+                  <option value="PIX">PIX</option>
+                  <option value="DINHEIRO">Dinheiro</option>
+                  <option value="CARTAO">Cartão</option>
+                  <option value="PRAZO">A Prazo / Boleto</option>
+                </select>
+              </div>
             </div>
+
             <div class="grid grid-cols-3 gap-4">
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Qtd</label><input type="number" id="var-qtd" value="1" min="1" oninput="atualizarPrecoEValorVarejo()" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-bold"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Total (R$)</label><input type="number" step="0.01" id="var-valor" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold text-emerald-700 bg-slate-50"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label><input type="text" id="var-categoria" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade</label>
+                <input type="number" id="var-qtd" value="1" min="1" oninput="atualizarPrecoEValorVarejo()" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-bold">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Total (R$)</label>
+                <input type="number" step="0.01" id="var-valor" placeholder="0.00" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold text-emerald-700 bg-slate-50">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label>
+                <input type="text" id="var-categoria" placeholder="Ex: Suco / Varejo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              </div>
             </div>
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Obs / Cliente</label><textarea id="var-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea></div>
-            <div class="flex gap-3"><button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💰 Salvar Venda</button><button type="button" onclick="limparFormVarejo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">Limpar</button></div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Observações / Nome do Cliente</label>
+              <textarea id="var-obs" rows="2" placeholder="Ex: Cliente Balcão - Compra à vista" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow">
+                <span>💰</span> Salvar Venda Varejo
+              </button>
+              <button type="button" onclick="limparFormVarejo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">
+                Cancelar / Limpar
+              </button>
+            </div>
           </form>
         </div>
+
+        <!-- TABELA REGISTROS DE VAREJO -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center">
-            <span>Histórico de Vendas</span>
-            <button onclick="carregarVendasVarejo()" class="text-xs bg-slate-700 px-3 py-1 rounded">🔄 Atualizar</button>
+            <span>Histórico de Vendas no Varejo (`interno_registros`)</span>
+            <button onclick="carregarVendasVarejo()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded">🔄 Atualizar</button>
           </div>
           <table class="w-full text-sm text-left">
             <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-xs">
-              <tr><th class="p-3">Data</th><th class="p-3">Produto</th><th class="p-3">Obs</th><th class="p-3">Pgto</th><th class="p-3 text-center">Qtd</th><th class="p-3 text-right">Valor Total</th><th class="p-3 text-center">Ações</th></tr>
+              <tr>
+                <th class="p-3">Data</th>
+                <th class="p-3">Produto / Categoria</th>
+                <th class="p-3">Observação</th>
+                <th class="p-3">Pgto</th>
+                <th class="p-3 text-center">Qtd</th>
+                <th class="p-3 text-right">Valor Total</th>
+                <th class="p-3 text-center">Ações</th>
+              </tr>
             </thead>
-            <tbody id="tabela-varejo-body" class="divide-y divide-slate-100"></tbody>
+            <tbody id="tabela-varejo-body" class="divide-y divide-slate-100">
+              <tr><td colspan="7" class="text-center p-4 text-slate-400">Carregando vendas do varejo...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
 
+      <!-- SUB-ABA 2: PRODUTOS DO MÓDULO INTERNO -->
       <div id="sub-interno-produtos" class="hidden space-y-6">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl border-l-4 border-l-sky-500">
-          <h3 id="titulo-form-produto" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">📦 Cadastrar / Editar Produto Interno</h3>
+          <h3 id="titulo-form-produto" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+            <span>📦</span> Cadastrar / Editar Produto Interno
+          </h3>
           <form id="form-produto-interno" onsubmit="salvarProdutoInterno(event)" class="space-y-4">
             <input type="hidden" id="prod-edit-id" value="">
+
             <div class="grid grid-cols-3 gap-4">
-              <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Produto</label><input type="text" id="prod-nome" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label><input type="text" id="prod-categoria" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Produto</label>
+                <input type="text" id="prod-nome" required placeholder="Ex: Suco Laranja Semi-Pasteurizado" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label>
+                <input type="text" id="prod-categoria" placeholder="Ex: Sucos / Bebidas" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              </div>
             </div>
+
             <div class="grid grid-cols-4 gap-4">
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label><input type="text" id="prod-tipo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tamanho</label><input type="text" id="prod-tamanho" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Preço Unitário</label><input type="number" step="0.01" id="prod-preco" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold"></div>
-              <div><label class="block text-xs font-semibold text-slate-600 mb-1">Estoque Inicial</label><input type="number" id="prod-estoque" value="0" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-bold"></div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label>
+                <input type="text" id="prod-tipo" placeholder="Ex: Garrafa" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tamanho</label>
+                <input type="text" id="prod-tamanho" placeholder="Ex: 900ml / 330ml" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Preço Unitário (R$)</label>
+                <input type="number" step="0.01" id="prod-preco" required placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Estoque Inicial / Atual</label>
+                <input type="number" id="prod-estoque" value="0" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-bold">
+              </div>
             </div>
-            <div class="flex gap-3"><button type="submit" class="bg-sky-600 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">💾 Salvar Produto</button><button type="button" onclick="limparFormProduto()" class="bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">Limpar</button></div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition shadow">
+                💾 Salvar Produto
+              </button>
+              <button type="button" onclick="limparFormProduto()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">
+                Limpar
+              </button>
+            </div>
           </form>
         </div>
+
+        <!-- TABELA DE PRODUTOS INTERNOS -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center">
-            <span>Catálogo de Produtos</span><button onclick="carregarProdutosInternos()" class="text-xs bg-slate-700 px-3 py-1 rounded">🔄 Atualizar</button>
+            <span>Catálogo de Produtos (`interno_produtos`)</span>
+            <button onclick="carregarProdutosInternos()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded">🔄 Atualizar</button>
           </div>
           <table class="w-full text-sm text-left">
             <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-xs">
-              <tr><th class="p-3">Nome</th><th class="p-3">Categoria</th><th class="p-3">Tipo / Tamanho</th><th class="p-3 text-right">Preço</th><th class="p-3 text-center">Estoque</th><th class="p-3 text-center">Ações</th></tr>
+              <tr>
+                <th class="p-3">Nome</th>
+                <th class="p-3">Categoria</th>
+                <th class="p-3">Tipo / Tamanho</th>
+                <th class="p-3 text-right">Preço</th>
+                <th class="p-3 text-center">Estoque</th>
+                <th class="p-3 text-center">Ações</th>
+              </tr>
             </thead>
-            <tbody id="tabela-produtos-body" class="divide-y divide-slate-100"></tbody>
+            <tbody id="tabela-produtos-body" class="divide-y divide-slate-100">
+              <tr><td colspan="6" class="text-center p-4 text-slate-400">Carregando catálogo de produtos...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: CAIXA DIÁRIO SUPABASE                                              -->
+    <!-- SEÇÃO 4: CAIXA DIÁRIO INTEGRADO                                           -->
     <!-- ========================================================================= -->
     <section id="sec-caixa" class="hidden p-6 space-y-6">
       <div class="flex justify-between items-center border-b border-slate-200 pb-4">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">Caixa Diário (Supabase)</h2>
-          <p class="text-slate-500 text-sm">Salva os registros na nuvem na tabela caixa_diario.</p>
+          <h2 class="text-2xl font-bold text-slate-900">Caixa Diário Integrado</h2>
+          <p class="text-slate-500 text-sm">Controle diário de entradas, saídas e recebimentos em dinheiro.</p>
         </div>
         <div class="flex items-center gap-3">
           <label class="text-xs font-semibold text-slate-600">Data do Caixa:</label>
           <input type="date" id="selDataCaixa" onchange="carregarCaixaDiario()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 font-bold">
-          <button onclick="carregarCaixaDiario()" class="bg-emerald-50 text-emerald-700 border border-emerald-300 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Recarregar</button>
+          <button onclick="carregarCaixaDiario()" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-3 py-2 rounded-lg text-xs font-bold transition">
+            🔄 Recarregar
+          </button>
         </div>
       </div>
 
+      <!-- CARDS DE RESUMO FINANCEIRO DO CAIXA -->
       <div class="grid grid-cols-4 gap-4">
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-blue-500">
           <p class="text-xs font-semibold text-slate-500 uppercase">Saldo Inicial</p>
@@ -525,55 +751,138 @@
         </div>
       </div>
 
+      <!-- FORMULÁRIO DE NOVA MOVIMENTAÇÃO DE CAIXA -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-slate-800">
-        <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2"><span>💵</span> Lançar Movimentação de Caixa</h3>
+        <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2">
+          <span>💵</span> Lançar Movimentação de Caixa
+        </h3>
         <form id="form-caixa-mov" onsubmit="salvarMovimentacaoCaixa(event)" class="grid grid-cols-5 gap-4 items-end">
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Movimentação</label><select id="caixa-tipo" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold"><option value="ENTRADA">🟢 Entrada</option><option value="SAIDA">🔴 Saída / Despesa</option></select></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Forma Pgto</label><select id="caixa-forma-pgto" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="DINHEIRO">Dinheiro</option><option value="PIX">PIX</option><option value="CARTAO">Cartão</option></select></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Valor (R$)</label><input type="number" step="0.01" id="caixa-valor" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800"></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label><input type="text" id="caixa-descricao" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-          <div><button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">➕ Confirmar Lançamento</button></div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Movimentação</label>
+            <select id="caixa-tipo" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold">
+              <option value="ENTRADA">🟢 Entrada / Suprimento</option>
+              <option value="SAIDA">🔴 Saída / Sangria / Despesa</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Forma Pagamento</label>
+            <select id="caixa-forma-pgto" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              <option value="DINHEIRO">Dinheiro (Espécie)</option>
+              <option value="PIX">PIX</option>
+              <option value="CARTAO">Cartão</option>
+              <option value="OUTRO">Outro / Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Valor (R$)</label>
+            <input type="number" step="0.01" id="caixa-valor" required placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição / Histórico</label>
+            <input type="text" id="caixa-descricao" required placeholder="Ex: Sangria para Banco / Pago Fornecedor X" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div>
+            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow">
+              ➕ Confirmar Lançamento
+            </button>
+          </div>
         </form>
       </div>
 
+      <!-- TABELA DE MOVIMENTAÇÕES DO DIA -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center text-sm">
-          <span>Movimentações na Data</span>
+          <span>Movimentações Registradas na Data</span>
           <span id="caixa-qtd-registros" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full">0 registros</span>
         </div>
         <table class="w-full text-sm text-left">
           <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-xs">
-            <tr><th class="p-3">Horário</th><th class="p-3">Tipo</th><th class="p-3">Forma Pgto</th><th class="p-3">Descrição</th><th class="p-3 text-right">Valor</th><th class="p-3 text-center">Ações</th></tr>
+            <tr>
+              <th class="p-3">Horário</th>
+              <th class="p-3">Tipo</th>
+              <th class="p-3">Forma Pgto</th>
+              <th class="p-3">Descrição / Histórico</th>
+              <th class="p-3 text-right">Valor (R$)</th>
+              <th class="p-3 text-center">Ações</th>
+            </tr>
           </thead>
-          <tbody id="tabela-caixa-body" class="divide-y divide-slate-100"></tbody>
+          <tbody id="tabela-caixa-body" class="divide-y divide-slate-100">
+            <tr><td colspan="6" class="text-center p-4 text-slate-400">Nenhuma movimentação registrada no caixa hoje.</td></tr>
+          </tbody>
         </table>
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: LANÇAMENTOS EXTRAS                                                 -->
+    <!-- SEÇÃO 5: LANÇAMENTOS EXTRAS E BRINDES                                     -->
     <!-- ========================================================================= -->
     <section id="sec-lancamentos" class="hidden p-6 space-y-8">
       <div>
-        <div class="mb-6"><h2 class="text-2xl font-bold text-slate-900">Lançamentos Extras e Brindes</h2></div>
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-slate-900">Lançamentos Extras e Brindes</h2>
+          <p class="text-slate-500 text-sm">Registre a saída de brindes ou outras movimentações que não são vendas normais.</p>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl">
           <form id="form-lancamento" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Vendedor</label><select id="lanc-vendedor" class="w-full border border-slate-300 rounded-lg px-3 py-2"><option value="Sérgio">Sérgio</option><option value="Alex">Alex</option><option value="Wernek">Wernek</option><option value="Luan">Luan</option><option value="Charles">Charles</option><option value="Guilherme">Guilherme</option><option value="Gustavo">Gustavo</option><option value="Felipe">Felipe</option><option value="Alessandro">Alessandro</option></select></div>
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Data</label><input type="date" id="lanc-data" class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Vendedor</label>
+                <select id="lanc-vendedor" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+                  <option value="Sérgio">Sérgio</option>
+                  <option value="Alex">Alex</option>
+                  <option value="Wernek">Wernek</option>
+                  <option value="Luan">Luan</option>
+                  <option value="Charles">Charles</option>
+                  <option value="Guilherme">Guilherme</option>
+                  <option value="Gustavo">Gustavo</option>
+                  <option value="Felipe">Felipe</option>
+                  <option value="Alessandro">Alessandro</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Data</label>
+                <input type="date" id="lanc-data" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
             </div>
+            
             <div class="grid grid-cols-3 gap-4">
-              <div class="col-span-2"><label class="block text-sm font-semibold text-slate-600 mb-1">Produto / Brinde</label><input type="text" id="lanc-produto" class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Quantidade</label><input type="number" id="lanc-qtd" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center"></div>
+              <div class="col-span-2">
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Produto / Descrição do Brinde</label>
+                <input type="text" id="lanc-produto" placeholder="Ex: Fardo 330ml - Brinde Cliente X" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Quantidade</label>
+                <input type="number" id="lanc-qtd" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center">
+              </div>
             </div>
-            <div><label class="block text-sm font-semibold text-slate-600 mb-1">Obs</label><textarea id="lanc-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
-            <button type="button" onclick="salvarLancamentoMock()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition">Registrar Lançamento</button>
+
+            <div>
+               <label class="block text-sm font-semibold text-slate-600 mb-1">Observações do Lançamento</label>
+               <textarea id="lanc-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea>
+            </div>
+
+            <button type="button" onclick="salvarLancamentoMock()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition">
+              Registrar Lançamento
+            </button>
           </form>
+
           <div class="mt-8 border-t border-slate-200 pt-6">
-            <h3 class="font-bold text-slate-700 mb-3">Lançamentos Recentes</h3>
+            <h3 class="font-bold text-slate-700 mb-3">Lançamentos Recentes Registrados</h3>
             <table class="w-full text-sm text-left">
-              <thead class="bg-slate-100 border-b border-slate-200"><tr><th class="p-2">Data</th><th class="p-2">Vendedor</th><th class="p-2">Descrição</th><th class="p-2 text-center">Qtd</th></tr></thead>
-              <tbody id="tabela-lancamentos-body" class="divide-y divide-slate-100"></tbody>
+              <thead class="bg-slate-100 border-b border-slate-200">
+                <tr>
+                  <th class="p-2">Data</th>
+                  <th class="p-2">Vendedor</th>
+                  <th class="p-2">Descrição / Brinde</th>
+                  <th class="p-2 text-center">Qtd</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-lancamentos-body" class="divide-y divide-slate-100">
+                 <tr>
+                   <td colspan="4" class="text-center p-4 text-slate-400 italic">Nenhum lançamento registrado nesta sessão ainda.</td>
+                 </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -581,105 +890,168 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: RELATÓRIO MENSAL                                                   -->
+    <!-- SEÇÃO 6: RELATÓRIO MENSAL                                                 -->
     <!-- ========================================================================= -->
     <section id="sec-dashboard" class="hidden p-6">
       <div class="no-print flex flex-wrap justify-between items-center mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
-        <div><h2 class="text-2xl font-bold text-slate-900">Relatório Mensal de Fechamento</h2></div>
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Relatório Mensal de Fechamento</h2>
+          <p class="text-slate-500 text-sm">Gere a folha consolidada por vendedor para acerto de contas.</p>
+        </div>
         <div class="flex items-end gap-3">
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Filtrar Dias Úteis</label><select id="selFiltroDias" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-sky-50 text-sky-900 font-semibold"><option value="seg-sex" selected>Segunda a Sexta-feira</option><option value="todos">Todos os Dias do Mês</option></select></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor</label><select id="selVendedorDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="Sérgio">Sérgio</option><option value="Alex">Alex</option><option value="Wernek">Wernek</option><option value="Luan">Luan</option><option value="Charles">Charles</option><option value="Guilherme">Guilherme</option><option value="Gustavo">Gustavo</option><option value="Felipe">Felipe</option><option value="Alessandro">Alessandro</option></select></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Mês / Ano</label><input type="month" id="selMesDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-          <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-sm">🖨️ Imprimir</button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Filtrar Dias Úteis</label>
+            <select id="selFiltroDias" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 font-semibold bg-sky-50 text-sky-900">
+              <option value="seg-sex" selected>Segunda a Sexta-feira</option>
+              <option value="todos">Todos os Dias do Mês</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor</label>
+            <select id="selVendedorDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+              <option value="Sérgio">Sérgio</option>
+              <option value="Alex">Alex</option>
+              <option value="Wernek">Wernek</option>
+              <option value="Luan">Luan</option>
+              <option value="Charles">Charles</option>
+              <option value="Guilherme">Guilherme</option>
+              <option value="Gustavo">Gustavo</option>
+              <option value="Felipe">Felipe</option>
+              <option value="Alessandro">Alessandro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Mês / Ano</label>
+            <input type="month" id="selMesDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+          </div>
+          <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-sm">
+            🖨️ Imprimir Folha
+          </button>
         </div>
       </div>
 
+      <!-- FOLHA IMPRESSA -->
       <div id="folha-impressao-mensal" class="bg-white p-4 text-black text-xs font-sans max-w-[1200px] mx-auto border border-slate-300">
-        <h1 id="titulo-relatorio-mensal" class="text-center font-black text-2xl tracking-widest uppercase mb-2 border-b-2 border-black pb-1">SÉRGIO AGOSTO 2026</h1>
+        
+        <h1 id="titulo-relatorio-mensal" class="text-center font-black text-2xl tracking-widest uppercase mb-2 border-b-2 border-black pb-1">
+          SÉRGO AGOSTO 2026
+        </h1>
+
         <div class="overflow-x-auto mb-3">
           <table class="w-full border-collapse border border-black text-[10px] text-center">
             <thead>
               <tr class="bg-amber-200 font-bold border-b border-black">
-                <th class="border border-black p-1">DATA</th><th class="border border-black p-1">330ML</th><th class="border border-black p-1">900ML</th>
-                <th class="border border-black p-1">UVA</th><th class="border border-black p-1">AGUA</th><th class="border border-black p-1 bg-amber-100">TROCA 330</th>
-                <th class="border border-black p-1 bg-amber-100">TROCA 900</th><th class="border border-black p-1 bg-amber-100">TROCA UVA</th><th class="border border-black p-1">TOTAL</th>
-                <th class="border border-black p-1">VALOR BRUTO</th><th class="border border-black p-1 bg-indigo-100">BRINDES</th><th class="border border-black p-1 bg-red-100">COMB.</th>
-                <th class="border border-black p-1 bg-red-100">ALMOÇO</th><th class="border border-black p-1 bg-red-100">DESP. DIV.</th><th class="border border-black p-1 bg-red-100">VALE</th>
+                <th class="border border-black p-1">DATA</th>
+                <th class="border border-black p-1">330ML</th>
+                <th class="border border-black p-1">900ML</th>
+                <th class="border border-black p-1">UVA</th>
+                <th class="border border-black p-1">AGUA</th>
+                <th class="border border-black p-1 bg-amber-100">TROCA 330</th>
+                <th class="border border-black p-1 bg-amber-100">TROCA 900</th>
+                <th class="border border-black p-1 bg-amber-100">TROCA UVA</th>
+                <th class="border border-black p-1">TOTAL</th>
+                <th class="border border-black p-1">VALOR BRUTO</th>
+                <th class="border border-black p-1 bg-indigo-100">BRINDES</th>
+                <th class="border border-black p-1 bg-red-100">COMBUSTÍVEL</th>
+                <th class="border border-black p-1 bg-red-100">ALMOÇO</th>
+                <th class="border border-black p-1 bg-red-100">DESP. DIV.</th>
+                <th class="border border-black p-1 bg-red-100">VALE</th>
               </tr>
             </thead>
-            <tbody id="corpo-tabela-mensal"></tbody>
-            <tfoot><tr id="rodape-tabela-mensal" class="font-bold bg-amber-200 border-t-2 border-black"></tr></tfoot>
+            <tbody id="corpo-tabela-mensal">
+              <!-- Preenchido via JavaScript -->
+            </tbody>
+            <tfoot>
+              <tr id="rodape-tabela-mensal" class="font-bold bg-amber-200 border-t-2 border-black">
+                <!-- Totais Finais -->
+              </tr>
+            </tfoot>
           </table>
         </div>
 
+        <!-- Quadros Inferiores de Resumo -->
         <div class="grid grid-cols-6 gap-2 mt-3 pt-2 border-t border-black">
+          
           <div class="border border-black text-[10px]">
-            <div class="bg-slate-200 font-bold p-1 border-b border-black text-center">VENDAS (Brutas)</div>
+            <div class="bg-slate-200 font-bold p-1 border-b border-black text-center">VENDAS TOTAIS (Brutas)</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-bruta-330">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>900ML</span><strong id="res-bruta-900">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>UVA</span><strong id="res-bruta-uva">0</strong></div>
             <div class="flex justify-between p-1 font-bold bg-slate-100"><span>TOTAL</span><strong id="res-bruta-total">0</strong></div>
           </div>
+
           <div class="border border-black text-[10px]">
-            <div class="bg-orange-200 font-bold p-1 border-b border-black text-center">TROCAS</div>
+            <div class="bg-orange-200 font-bold p-1 border-b border-black text-center">TROCAS NO MÊS</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-troca-330">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>900ML</span><strong id="res-troca-900">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>UVA</span><strong id="res-troca-uva">0</strong></div>
             <div class="flex justify-between p-1 font-bold bg-orange-100"><span>TOTAL</span><strong id="res-troca-total">0</strong></div>
           </div>
+
           <div class="border border-black text-[10px]">
-            <div class="bg-emerald-200 font-bold p-1 border-b border-black text-center text-[9px] uppercase">Líquidas</div>
+            <div class="bg-emerald-200 font-bold p-1 border-b border-black text-center text-[9px] uppercase">Vendas Líquidas</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>330ML</span><strong id="res-liq-330" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>900ML</span><strong id="res-liq-900" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>UVA</span><strong id="res-liq-uva" class="text-emerald-800">0</strong></div>
             <div class="flex justify-between p-1 font-bold bg-emerald-100"><span>TOTAL</span><strong id="res-liq-total">0</strong></div>
           </div>
+
           <div class="border border-black text-[10px]">
-            <div class="bg-indigo-200 font-bold p-1 border-b border-black text-center">BRINDES</div>
-            <div class="p-2 text-center text-slate-500 italic mt-2"><span id="res-brindes-total" class="text-xl font-bold text-indigo-700 block not-italic">0</span> Lançados</div>
+            <div class="bg-indigo-200 font-bold p-1 border-b border-black text-center">BRINDES / EXTRAS</div>
+            <div class="p-2 text-center text-slate-500 italic mt-2">
+              <span id="res-brindes-total" class="text-xl font-bold text-indigo-700 block not-italic">0</span>
+              Lançados
+            </div>
           </div>
+
           <div class="border border-black text-[10px]">
-            <div class="bg-red-200 font-bold p-1 border-b border-black text-center">DESPESAS</div>
+            <div class="bg-red-200 font-bold p-1 border-b border-black text-center">DESPESAS DO MÊS</div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>COMB.</span><strong id="res-desp-combustivel">R$ 0,00</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>ALMOÇO</span><strong id="res-desp-almoco">R$ 0,00</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300"><span>OUTRAS</span><strong id="res-desp-diversas">R$ 0,00</strong></div>
             <div class="flex justify-between p-1 border-b border-slate-300 text-red-700"><span>VALE</span><strong id="res-desp-vale">R$ 0,00</strong></div>
           </div>
+
           <div class="border border-black text-[10px] bg-slate-50 flex flex-col justify-between">
-            <div class="bg-amber-400 font-bold p-1 border-b border-black text-center text-[10px]">ACERTO</div>
+            <div class="bg-amber-400 font-bold p-1 border-b border-black text-center text-[10px]">ACERTO FINANCEIRO</div>
             <div class="p-1 space-y-1">
               <div class="flex justify-between"><span>Bruto Rec.:</span><strong id="res-fin-recebido">R$ 0,00</strong></div>
-              <div class="flex justify-between text-red-600"><span>(-) Desp.:</span><strong id="res-fin-despesas">R$ 0,00</strong></div>
+              <div class="flex justify-between text-red-600"><span>(-) Despesas:</span><strong id="res-fin-despesas">R$ 0,00</strong></div>
             </div>
-            <div class="p-2 bg-amber-200 border-t border-black text-center"><span class="block text-[8px] uppercase font-bold">Saldo Patrão</span><strong id="res-fin-saldo-patrao" class="text-[13px] text-emerald-800">R$ 0,00</strong></div>
+            <div class="p-2 bg-amber-200 border-t border-black text-center">
+              <span class="block text-[8px] uppercase font-bold">Saldo do Patrão</span>
+              <strong id="res-fin-saldo-patrao" class="text-[13px] text-emerald-800">R$ 0,00</strong>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
   </main>
 
+  <!-- SCRIPT JS COMPLETO INTEGRADO AO SUPABASE -->
   <script>
     const SUPABASE_URL = 'https://podnijlrofkhcbbqliem.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvZG5pamxyb2ZraGNiYnFsaWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI3NDEsImV4cCI6MjEwNDgzODc0MX0.ezeNX5Ik4XkswxnAwaCIp3hHZyNRjrSEUJICV0N2jtE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // URL DA API NODE NO RENDER
+    // URL DA API NODE NO RENDER (Para os Filtros de Rota)
     const URL_API = "https://server-sux7.onrender.com/api";
 
     let dadosAtendimentoAtuais = [];
     let vendedorSelecionadoAtual = null;
     let canalRealtime = null;
     let listaProdutosCache = [];
-    let listaClientesAPICache = []; 
+    let listaClientesAPICache = []; // Cache para a Tabela de Rotas API
     let abaAtiva = 'vendedores';
     let lancamentosMemoria = [];
-    let caixaMovimentacoesBD = [];
+    let caixaMovimentacoesMemoria = [];
 
-    // =========================================================================
-    // ROTAS E CLIENTES LIGADOS DIRETO NO SUPABASE
-    // =========================================================================
+    /* ========================================================================= */
+    /* NOVA LÓGICA: ROTAS E CLIENTES (COM FILTROS PARA NÃO TRAVAR O NAVEGADOR)   */
+    /* ========================================================================= */
     
-    // (Mantive os Selects buscando da sua API para não quebrar nada visualmente)
+    // Busca Vendedores disponíveis na API do Node
     async function carregarVendedoresAPI() {
       const selectFiltro = document.getElementById('filtro-api-vendedor');
       if (!selectFiltro) return;
@@ -695,19 +1067,25 @@
       }
     }
 
+    // Busca os Dias/Rotas do Vendedor selecionado na API do Node
     async function carregarRotasDoVendedorAPI(vendedor) {
       const selectRota = document.getElementById('filtro-api-rota');
       if (!selectRota) return;
+      
       if (!vendedor) {
         selectRota.innerHTML = '<option value="">Selecione o Vendedor 1º</option>';
         return;
       }
+
       selectRota.innerHTML = '<option value="">Carregando rotas...</option>';
       try {
         const res = await fetch(`${URL_API}/vendedores-cidades?vendedor=${encodeURIComponent(vendedor)}`);
         const rotas = await res.json();
+        
         selectRota.innerHTML = '<option value="">-- Selecione o Dia --</option>';
-        rotas.forEach(r => { selectRota.innerHTML += `<option value="${r}">${r}</option>`; });
+        rotas.forEach(r => {
+          selectRota.innerHTML += `<option value="${r}">${r}</option>`;
+        });
       } catch (e) {
         selectRota.innerHTML = '<option value="">Erro na API</option>';
       }
@@ -718,6 +1096,7 @@
       const vend = document.getElementById('filtro-api-vendedor')?.value;
       const dia = document.getElementById('filtro-api-rota')?.value;
       const tbody = document.getElementById("tabela-clientes-body");
+      
       if (!tbody) return;
 
       if (!vend || !dia) {
@@ -725,7 +1104,7 @@
         return;
       }
 
-      tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 font-bold text-indigo-600">Buscando clientes no Supabase...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 font-bold text-indigo-600">Buscando clientes...</td></tr>`;
 
       try {
         const { data, error } = await supabaseClient
@@ -734,24 +1113,11 @@
           .ilike('vendedor_nome', vend)
           .ilike('dia_semana', dia)
           .order('cidade', { ascending: true })
-          .order('nome_cliente', { ascending: true });
+          .order('ordem', { ascending: true });
 
         if (error) throw error;
         
-        let clientesPlanos = [];
-        (data || []).forEach(c => {
-          clientesPlanos.push({
-            id: c.id,
-            nome: c.nome_cliente,
-            vendedor: c.vendedor_nome,
-            dia_semana: c.dia_semana,
-            cidade: c.cidade,
-            endereco: c.endereco || '',
-            ordem: c.ordem || 1
-          });
-        });
-
-        listaClientesAPICache = clientesPlanos;
+        listaClientesAPICache = data || [];
         renderizarTabelaClientesAPI(listaClientesAPICache);
       } catch (e) {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500 font-bold">Erro ao buscar: ${e.message}</td></tr>`;
@@ -762,6 +1128,7 @@
       const tbody = document.getElementById("tabela-clientes-body");
       if (!tbody) return;
       tbody.innerHTML = "";
+      
       if (dados.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-400">Nenhum cliente cadastrado nessa rota.</td></tr>`;
         return;
@@ -770,10 +1137,10 @@
       dados.forEach(cli => {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="p-3 font-bold text-indigo-700">${cli.vendedor}<br><span class="text-[10px] text-slate-500 font-normal uppercase">${cli.dia_semana}</span></td>
+            <td class="p-3 font-bold text-indigo-700">${cli.vendedor_nome}<br><span class="text-[10px] text-slate-500 font-normal uppercase">${cli.dia_semana}</span></td>
             <td class="p-3 font-semibold text-slate-700">${cli.cidade}</td>
-            <td class="p-3 text-center"><span class="bg-slate-200 px-2 py-1 rounded text-xs font-bold">${cli.ordem}</span></td>
-            <td class="p-3 font-bold text-slate-800">${cli.nome}<br><span class="text-[10px] font-normal text-slate-500">${cli.endereco || '-'}</span></td>
+            <td class="p-3 text-center"><span class="bg-slate-200 px-2 py-1 rounded text-xs font-bold">${cli.ordem || 1}</span></td>
+            <td class="p-3 font-bold text-slate-800">${cli.nome_cliente}<br><span class="text-[10px] font-normal text-slate-500">${cli.endereco || '-'}</span></td>
             <td class="p-3 text-center flex justify-center gap-2">
               <button onclick='editarClienteAPI(${JSON.stringify(cli)})' class="bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200 text-xs font-bold">Editar</button>
               <button onclick="deletarClienteAPI('${cli.id}')" class="bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 text-xs font-bold">Excluir</button>
@@ -786,7 +1153,7 @@
     function filtrarTabelaAPI() {
       const termo = document.getElementById("filtro-cliente").value.toLowerCase();
       const filtrados = listaClientesAPICache.filter(c => 
-        (c.nome && c.nome.toLowerCase().includes(termo)) || 
+        (c.nome_cliente && c.nome_cliente.toLowerCase().includes(termo)) || 
         (c.cidade && c.cidade.toLowerCase().includes(termo))
       );
       renderizarTabelaClientesAPI(filtrados);
@@ -794,23 +1161,24 @@
 
     function editarClienteAPI(cli) {
       document.getElementById("cli-edit-id").value = cli.id;
-      document.getElementById("cli-nome").value = cli.nome;
-      document.getElementById("cli-vendedor").value = cli.vendedor;
+      document.getElementById("cli-nome").value = cli.nome_cliente;
+      document.getElementById("cli-vendedor").value = cli.vendedor_nome;
       document.getElementById("cli-dia").value = cli.dia_semana;
       document.getElementById("cli-cidade").value = cli.cidade;
       document.getElementById("cli-endereco").value = cli.endereco || '';
       document.getElementById("cli-ordem").value = cli.ordem || 1;
-      document.getElementById("titulo-form-cliente").innerHTML = `<span>✏️</span> Editando: ${cli.nome}`;
+      
+      document.getElementById("titulo-form-cliente").innerHTML = `<span>✏️</span> Editando: ${cli.nome_cliente}`;
       window.scrollTo(0, 0);
     }
 
     function limparFormCliente() {
       document.getElementById("cli-edit-id").value = "";
       document.getElementById("form-cliente").reset();
-      document.getElementById("titulo-form-cliente").innerHTML = `<span>📍</span> Cadastrar Novo Cliente`;
+      document.getElementById("titulo-form-cliente").innerHTML = `<span>📍</span> Cadastrar / Editar Cliente na Rota`;
     }
 
-    // SALVAR: Agora salva no Supabase direto
+    // SALVAR NO SUPABASE
     async function salvarClienteAPI(event) {
       event.preventDefault();
       
@@ -820,7 +1188,8 @@
         vendedor_nome: document.getElementById("cli-vendedor").value.toUpperCase(),
         dia_semana: document.getElementById("cli-dia").value.toLowerCase(),
         cidade: document.getElementById("cli-cidade").value.toUpperCase(),
-        endereco: document.getElementById("cli-endereco").value
+        endereco: document.getElementById("cli-endereco").value,
+        ordem: parseInt(document.getElementById("cli-ordem").value || 1)
       };
 
       try {
@@ -834,251 +1203,484 @@
         
         alert("Cliente salvo no Supabase com sucesso!");
         limparFormCliente();
-        if(document.getElementById('filtro-api-vendedor').value) carregarClientesAPI(); 
+        
+        // Só atualiza a tabela se o filtro atual bater com o que foi salvo
+        if (document.getElementById('filtro-api-vendedor').value) {
+           carregarClientesAPI();
+        }
       } catch (err) {
         alert("Erro ao salvar: " + err.message);
       }
     }
 
-    // DELETAR: Agora deleta do Supabase direto
+    // DELETAR DO SUPABASE
     async function deletarClienteAPI(id) {
       if (!confirm("Excluir este cliente da rota permanentemente?")) return;
       try {
         const { error } = await supabaseClient.from('clientes_rotas').delete().eq('id', id);
         if (error) throw error;
-        alert("Cliente excluído!");
         carregarClientesAPI();
       } catch (err) {
         alert("Erro: " + err.message);
       }
     }
 
-    // =========================================================================
-    // COMPRA E VENDA
-    // =========================================================================
+    /* ========================================================================= */
+    /* LÓGICA DA ABA COMPRA E VENDA CONECTADA AO SUPABASE                        */
+    /* ========================================================================= */
+
+    // 1. Tabela de Preços por Vendedor
     const TABELA_PRECOS_CV = {
-      "Alex": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },
+      "Alex":   { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },
       "Wernek": { p330: 4.20, p900: 9.00, puva: 4.20, pagua: 11.00, paguagas: 12.50 },
       "Sérgio": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 }
     };
 
-    const SALDOS_INICIAIS_CV = { "Alex": 0.00, "Wernek": 0.00, "Sérgio": 0.00 };
+    // 2. Saldos Anteriores / Iniciais por Vendedor
+    const SALDOS_INICIAIS_CV = {
+      "Alex": 2039.00,
+      "Wernek": 0.00,
+      "Sérgio": 0.00
+    };
+
     let vendedorCVAtual = "Alex";
     let HISTORICO_CV_DADOS = [];
 
-    function fmtR$(val) { return "R$ " + Number(val || 0).toFixed(2).replace('.', ','); }
-    function fmtData(str) { if (!str) return ""; const p = str.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : str; }
-
-    async function carregarLancamentosCV() {
-      try {
-        const { data, error } = await supabaseClient.from('compra_venda_lancamentos').select('*').eq('vendedor_nome', vendedorCVAtual).order('data', { ascending: true }).order('created_at', { ascending: true });
-        if (error) throw error;
-        HISTORICO_CV_DADOS = data || [];
-        renderizarTabelaCV();
-      } catch (err) { console.error(err); }
+    // Formatações Auxiliares
+    function fmtR$(val) {
+      return "R$ " + Number(val || 0).toFixed(2).replace('.', ',');
     }
 
+    function fmtData(str) {
+      if (!str) return "";
+      const p = str.split('-');
+      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : str;
+    }
+
+    // Carregar lançamentos do Supabase
+    async function carregarLancamentosCV() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('compra_venda_lancamentos')
+          .select('*')
+          .eq('vendedor_nome', vendedorCVAtual)
+          .order('data', { ascending: true })
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        HISTORICO_CV_DADOS = data || [];
+        renderizarTabelaCV();
+      } catch (err) {
+        console.error("Erro ao carregar lançamentos de Compra e Venda do Supabase:", err);
+      }
+    }
+
+    // Alternar Vendedor
     async function trocarVendedorCV() {
       const sel = document.getElementById("cv-sel-vendedor");
       if (sel) vendedorCVAtual = sel.value;
+      
       if (document.getElementById("lbl-cv-vendedor-nome")) document.getElementById("lbl-cv-vendedor-nome").innerText = vendedorCVAtual;
       if (document.getElementById("cv-titulo-tabela-vendedor")) document.getElementById("cv-titulo-tabela-vendedor").innerText = vendedorCVAtual;
 
       const p = TABELA_PRECOS_CV[vendedorCVAtual];
       if (p) {
-        document.getElementById("lbl-p-330").innerText = fmtR$(p.p330);
-        document.getElementById("lbl-p-900").innerText = fmtR$(p.p900);
-        document.getElementById("lbl-p-uva").innerText = fmtR$(p.puva);
-        document.getElementById("lbl-p-agua").innerText = fmtR$(p.pagua);
-        document.getElementById("lbl-p-aguagas").innerText = fmtR$(p.paguagas);
+        if (document.getElementById("lbl-p-330")) document.getElementById("lbl-p-330").innerText = fmtR$(p.p330);
+        if (document.getElementById("lbl-p-900")) document.getElementById("lbl-p-900").innerText = fmtR$(p.p900);
+        if (document.getElementById("lbl-p-uva")) document.getElementById("lbl-p-uva").innerText = fmtR$(p.puva);
+        if (document.getElementById("lbl-p-agua")) document.getElementById("lbl-p-agua").innerText = fmtR$(p.pagua);
+        if (document.getElementById("lbl-p-aguagas")) document.getElementById("lbl-p-aguagas").innerText = fmtR$(p.paguagas);
       }
+
       calcularPreviaSaidaCV();
       await carregarLancamentosCV();
     }
 
+    // Prévia de cálculo antes de salvar
     function calcularPreviaSaidaCV() {
       const p = TABELA_PRECOS_CV[vendedorCVAtual];
       if (!p) return 0;
-      const total = (parseInt(document.getElementById("cv-q-330")?.value||0) * p.p330) + (parseInt(document.getElementById("cv-q-900")?.value||0) * p.p900) + (parseInt(document.getElementById("cv-q-uva")?.value||0) * p.puva) + (parseInt(document.getElementById("cv-q-agua")?.value||0) * p.pagua) + (parseInt(document.getElementById("cv-q-aguagas")?.value||0) * p.paguagas);
-      if (document.getElementById("cv-lbl-previa-saida")) document.getElementById("cv-lbl-previa-saida").innerText = fmtR$(total);
+
+      const q330 = parseInt(document.getElementById("cv-q-330")?.value || 0);
+      const q900 = parseInt(document.getElementById("cv-q-900")?.value || 0);
+      const quva = parseInt(document.getElementById("cv-q-uva")?.value || 0);
+      const qagua = parseInt(document.getElementById("cv-q-agua")?.value || 0);
+      const qaguagas = parseInt(document.getElementById("cv-q-aguagas")?.value || 0);
+
+      const total = (q330 * p.p330) + (q900 * p.p900) + (quva * p.puva) + (qagua * p.pagua) + (qaguagas * p.paguagas);
+      
+      if (document.getElementById("cv-lbl-previa-saida")) {
+        document.getElementById("cv-lbl-previa-saida").innerText = fmtR$(total);
+      }
       return total;
     }
 
+    // Salvar Saída no Supabase
     async function salvarSaidaCV() {
+      const dataInput = document.getElementById("cv-saida-data")?.value || new Date().toISOString().split('T')[0];
+      const q330 = parseInt(document.getElementById("cv-q-330")?.value || 0);
+      const q900 = parseInt(document.getElementById("cv-q-900")?.value || 0);
+      const quva = parseInt(document.getElementById("cv-q-uva")?.value || 0);
+      const qagua = parseInt(document.getElementById("cv-q-agua")?.value || 0);
+      const qaguagas = parseInt(document.getElementById("cv-q-aguagas")?.value || 0);
+
       const totalSaida = calcularPreviaSaidaCV();
-      if (totalSaida <= 0) { alert("Informe quantidade!"); return; }
+
+      if (totalSaida <= 0) {
+        alert("Informe ao menos uma quantidade para realizar a saída.");
+        return;
+      }
+
       const payload = {
-        vendedor_nome: vendedorCVAtual, tipo: 'SAIDA', data: document.getElementById("cv-saida-data").value,
-        qtd_330: parseInt(document.getElementById("cv-q-330").value||0), qtd_900: parseInt(document.getElementById("cv-q-900").value||0),
-        qtd_uva: parseInt(document.getElementById("cv-q-uva").value||0), qtd_agua: parseInt(document.getElementById("cv-q-agua").value||0),
-        qtd_aguagas: parseInt(document.getElementById("cv-q-aguagas").value||0), total_saida: totalSaida
+        vendedor_nome: vendedorCVAtual,
+        tipo: 'SAIDA',
+        data: dataInput,
+        qtd_330: q330,
+        qtd_900: q900,
+        qtd_uva: quva,
+        qtd_agua: qagua,
+        qtd_aguagas: qaguagas,
+        total_saida: totalSaida
       };
+
       try {
-        await supabaseClient.from('compra_venda_lancamentos').insert([payload]);
-        ['330', '900', 'uva', 'agua', 'aguagas'].forEach(id => document.getElementById(`cv-q-${id}`).value = 0);
+        const { error } = await supabaseClient.from('compra_venda_lancamentos').insert([payload]);
+        if (error) throw error;
+
+        ['330', '900', 'uva', 'agua', 'aguagas'].forEach(id => {
+          const el = document.getElementById(`cv-q-${id}`);
+          if (el) el.value = 0;
+        });
         calcularPreviaSaidaCV();
         await carregarLancamentosCV();
-      } catch (err) { alert(err.message); }
-    }
-
-    async function salvarPagamentoCV() {
-      const dataInput = document.getElementById("cv-pag-data").value;
-      const valorInput = parseFloat(document.getElementById("cv-pag-valor").value || 0);
-      const descInput = document.getElementById("cv-pag-desc").value.trim().toUpperCase();
-      if (valorInput <= 0 || !descInput) { alert("Informe valor e descrição."); return; }
-
-      try {
-        await supabaseClient.from('compra_venda_lancamentos').insert([{ vendedor_nome: vendedorCVAtual, tipo: 'PAGAMENTO', data: dataInput, desc_pagamento: descInput, valor_pago: valorInput }]);
-        
-        if (descInput.includes('DINHEIRO')) {
-          const horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          await supabaseClient.from('caixa_diario').insert([{
-            data: dataInput, hora: horaStr, tipo: 'ENTRADA', forma_pgto: 'DINHEIRO', valor: valorInput, descricao: `C&V - ${vendedorCVAtual} (${descInput})`
-          }]);
-          alert(`Pagamento salvo e lançado no Caixa Diário Supabase!`);
-          if(abaAtiva === 'caixa') carregarCaixaDiario();
-        }
-
-        document.getElementById("cv-pag-valor").value = '';
-        document.getElementById("cv-pag-desc").value = '';
-        await carregarLancamentosCV();
-      } catch (err) { alert(err.message); }
-    }
-
-    async function excluirLinhaCV(id) {
-      if (confirm("Excluir linha?")) {
-        await supabaseClient.from('compra_venda_lancamentos').delete().eq('id', id);
-        await carregarLancamentosCV();
+      } catch (err) {
+        alert("Erro ao salvar saída no Supabase: " + err.message);
       }
     }
 
+    // Salvar Pagamento no Supabase
+    async function salvarPagamentoCV() {
+      const dataInput = document.getElementById("cv-pag-data")?.value || new Date().toISOString().split('T')[0];
+      const valorInput = parseFloat(document.getElementById("cv-pag-valor")?.value || 0);
+      const descInput = (document.getElementById("cv-pag-desc")?.value || '').trim().toUpperCase();
+
+      if (valorInput <= 0 || !descInput) {
+        alert("Informe a descrição e o valor do pagamento.");
+        return;
+      }
+
+      const payload = {
+        vendedor_nome: vendedorCVAtual,
+        tipo: 'PAGAMENTO',
+        data: dataInput,
+        desc_pagamento: descInput,
+        valor_pago: valorInput
+      };
+
+      try {
+        const { error } = await supabaseClient.from('compra_venda_lancamentos').insert([payload]);
+        if (error) throw error;
+
+        // Integração com Caixa Diário se for DINHEIRO
+        if (descInput.includes('DINHEIRO') && typeof caixaMovimentacoesMemoria !== 'undefined') {
+          const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          caixaMovimentacoesMemoria.push({
+            data: dataInput,
+            hora: hora,
+            tipo: 'ENTRADA',
+            formaPgto: 'DINHEIRO',
+            valor: valorInput,
+            descricao: `Recebimento C&V - ${vendedorCVAtual} (${descInput})`
+          });
+          alert(`Pagamento em DINHEIRO de ${fmtR$(valorInput)} registrado no Supabase e lançado no Caixa Diário!`);
+        }
+
+        const valEl = document.getElementById("cv-pag-valor");
+        const descEl = document.getElementById("cv-pag-desc");
+        if (valEl) valEl.value = '';
+        if (descEl) descEl.value = '';
+
+        await carregarLancamentosCV();
+      } catch (err) {
+        alert("Erro ao salvar pagamento no Supabase: " + err.message);
+      }
+    }
+
+    // Excluir Linha do Supabase
+    async function excluirLinhaCV(id) {
+      if (confirm("Deseja remover esta linha do extrato no Supabase?")) {
+        try {
+          const { error } = await supabaseClient.from('compra_venda_lancamentos').delete().eq('id', id);
+          if (error) throw error;
+          await carregarLancamentosCV();
+        } catch (err) {
+          alert("Erro ao excluir do Supabase: " + err.message);
+        }
+      }
+    }
+
+    // Renderizar Tabela com Saldo Devedor Acumulado
     function renderizarTabelaCV() {
       const tbody = document.getElementById("cv-tabela-corpo");
       if (!tbody) return;
+
       tbody.innerHTML = "";
       let saldoAcumulado = Number(SALDOS_INICIAIS_CV[vendedorCVAtual] || 0);
 
+      // Linha de Saldo Anterior
       tbody.innerHTML += `
         <tr class="bg-slate-50 font-bold border-b border-slate-200 text-slate-600">
-          <td class="p-2 border-r">---</td><td colspan="5" class="p-2 border-r text-left px-4">Saldo Anterior Inicial</td>
-          <td class="p-2 border-r">-</td><td class="p-2 border-r">-</td><td class="p-2 border-r">-</td>
-          <td class="p-2 border-r bg-amber-100 text-amber-900 font-black">${fmtR$(saldoAcumulado)}</td><td class="p-2">-</td>
-        </tr>`;
+          <td class="p-2 border-r border-slate-200">---</td>
+          <td colspan="5" class="p-2 border-r border-slate-200 text-left px-4">Saldo Anterior</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200">-</td>
+          <td class="p-2 border-r border-slate-200 bg-amber-100 text-amber-900 font-black">${fmtR$(saldoAcumulado)}</td>
+          <td class="p-2">-</td>
+        </tr>
+      `;
 
       HISTORICO_CV_DADOS.forEach((item) => {
         const isSaida = item.tipo === 'SAIDA';
-        if (isSaida) saldoAcumulado += Number(item.total_saida || 0); else saldoAcumulado -= Number(item.valor_pago || 0);
+        const totalSaida = Number(item.total_saida || 0);
+        const valorPago = Number(item.valor_pago || 0);
+        const q330 = item.qtd_330 || 0;
+        const q900 = item.qtd_900 || 0;
+        const quva = item.qtd_uva || 0;
+        const qagua = item.qtd_agua || 0;
+        const qaguagas = item.qtd_aguagas || 0;
+        const desc = item.desc_pagamento || '';
+
+        if (isSaida) {
+          saldoAcumulado += totalSaida;
+        } else {
+          saldoAcumulado -= valorPago;
+        }
+
         tbody.innerHTML += `
-          <tr class="hover:bg-amber-50/40 border-b border-slate-200">
-            <td class="p-2 border-r font-mono text-slate-600">${fmtData(item.data)}</td>
-            <td class="p-2 border-r font-bold">${item.qtd_330 || ''}</td><td class="p-2 border-r font-bold">${item.qtd_900 || ''}</td>
-            <td class="p-2 border-r font-bold">${item.qtd_uva || ''}</td><td class="p-2 border-r font-bold">${item.qtd_agua || ''}</td><td class="p-2 border-r font-bold">${item.qtd_aguagas || ''}</td>
-            <td class="p-2 border-r font-bold text-amber-700">${isSaida ? fmtR$(item.total_saida) : ''}</td>
-            <td class="p-2 border-r font-bold text-slate-800 uppercase">${item.desc_pagamento || ''}</td>
-            <td class="p-2 border-r font-bold text-emerald-600">${!isSaida ? fmtR$(item.valor_pago) : ''}</td>
-            <td class="p-2 border-r font-black text-slate-900 bg-amber-50">${fmtR$(saldoAcumulado)}</td>
-            <td class="p-2"><button onclick="excluirLinhaCV('${item.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-0.5 rounded bg-red-50">🗑️</button></td>
-          </tr>`;
+          <tr class="hover:bg-amber-50/40 transition border-b border-slate-200">
+            <td class="p-2 border-r border-slate-200 font-mono text-slate-600">${fmtData(item.data)}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${q330 ? 'text-slate-800' : 'text-slate-300'}">${q330 || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${q900 ? 'text-slate-800' : 'text-slate-300'}">${q900 || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${quva ? 'text-slate-800' : 'text-slate-300'}">${quva || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${qagua ? 'text-slate-800' : 'text-slate-300'}">${qagua || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold ${qaguagas ? 'text-slate-800' : 'text-slate-300'}">${qaguagas || ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-amber-700">${totalSaida > 0 ? fmtR$(totalSaida) : ''}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-slate-800 uppercase">${desc}</td>
+            <td class="p-2 border-r border-slate-200 font-bold text-emerald-600">${valorPago > 0 ? fmtR$(valorPago) : ''}</td>
+            <td class="p-2 border-r border-slate-200 font-black text-slate-900 bg-amber-50">${fmtR$(saldoAcumulado)}</td>
+            <td class="p-2">
+              <button onclick="excluirLinhaCV('${item.id}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-0.5 rounded hover:bg-red-50">🗑️</button>
+            </td>
+          </tr>
+        `;
       });
-      if (document.getElementById("cv-saldo-devedor-topo")) document.getElementById("cv-saldo-devedor-topo").innerText = fmtR$(saldoAcumulado);
+
+      const topoSaldo = document.getElementById("cv-saldo-devedor-topo");
+      if (topoSaldo) topoSaldo.innerText = fmtR$(saldoAcumulado);
     }
 
-    // =========================================================================
-    // INICIALIZAÇÃO
-    // =========================================================================
+    /* ========================================================================= */
+    /* INICIALIZAÇÃO DA PÁGINA E SINCRO DE REALTIME                              */
+    /* ========================================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       const dataLocal = new Date();
       const offset = dataLocal.getTimezoneOffset() * 60000;
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       const mesAtual = hoje.substring(0, 7);
       
-      ['selDataVendedores','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
-        if (document.getElementById(id)) document.getElementById(id).value = hoje;
-      });
+      if (document.getElementById('selDataVendedores')) document.getElementById('selDataVendedores').value = hoje;
+      if (document.getElementById('lanc-data')) document.getElementById('lanc-data').value = hoje;
+      if (document.getElementById('var-data')) document.getElementById('var-data').value = hoje;
+      if (document.getElementById('selDataCaixa')) document.getElementById('selDataCaixa').value = hoje;
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
       
+      if (document.getElementById("cv-saida-data")) document.getElementById("cv-saida-data").value = hoje;
+      if (document.getElementById("cv-pag-data")) document.getElementById("cv-pag-data").value = hoje;
+
+      // Inicializa os filtros de API antes de mais nada
       carregarVendedoresAPI();
       iniciarRealtimeSupabase();
+      
+      setInterval(() => {
+        if (abaAtiva === 'vendedores') {
+          if (vendedorSelecionadoAtual) {
+            abrirDetalheVendedor(vendedorSelecionadoAtual, true);
+          } else {
+            carregarAbaVendedores(true);
+          }
+        }
+      }, 4000);
+
       mudarAba('vendedores'); 
     });
 
-    function toggleDevMode() { document.body.classList.toggle('dev-mode-active', document.getElementById('dev-toggle').checked); }
+    function toggleDevMode() {
+      const toggle = document.getElementById('dev-toggle').checked;
+      if (toggle) document.body.classList.add('dev-mode-active');
+      else document.body.classList.remove('dev-mode-active');
+    }
 
     function iniciarRealtimeSupabase() {
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
-      canalRealtime = supabaseClient.channel('mudancas-ao-vivo')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes_rotas' }, () => { if (abaAtiva === 'rotas') carregarClientesAPI(); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => { carregarAbaVendedores(); if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => carregarVendasVarejo())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => carregarProdutosInternos())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if(abaAtiva==='compra-venda') carregarLancamentosCV(); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'caixa_diario' }, () => { if(abaAtiva==='caixa') carregarCaixaDiario(); })
+      canalRealtime = supabaseClient
+        .channel('mudancas-ao-vivo')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes_rotas' }, () => {
+            if (abaAtiva === 'rotas') carregarClientesAPI();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => {
+            carregarAbaVendedores();
+            if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual);
+            if (abaAtiva === 'caixa') carregarCaixaDiario();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => {
+            carregarVendasVarejo();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => {
+            carregarProdutosInternos();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => {
+            if (abaAtiva === 'compra-venda') carregarLancamentosCV();
+        })
         .subscribe();
     }
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
       ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas'].forEach(id => {
         const btn = document.getElementById(id);
-        if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
+        if (btn) {
+          btn.classList.remove('bg-sky-600', 'text-white');
+          btn.classList.add('text-slate-300');
+        }
       });
+      const mapaAbas = { 
+        'vendedores': 'aba-vendedores',
+        'compra-venda': 'sec-compra-venda',
+        'interno': 'sec-interno', 
+        'caixa': 'sec-caixa',
+        'lancamentos': 'sec-lancamentos', 
+        'dashboard': 'sec-dashboard',
+        'rotas': 'sec-rotas'
+      };
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas'};
-      document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
-      document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
-      document.getElementById(`nav-${aba}`)?.classList.add('text-white');
+      const secEl = document.getElementById(mapaAbas[aba]);
+      if (secEl) secEl.classList.remove('hidden');
 
-      if (aba === 'vendedores') { vendedorSelecionadoAtual = null; document.getElementById('visao-detalhe-vendedor').classList.add('hidden'); document.getElementById('visao-lista-vendedores').classList.remove('hidden'); carregarAbaVendedores(); }
-      else if (aba === 'compra-venda') trocarVendedorCV();
-      else if (aba === 'interno') { carregarProdutosInternos(); carregarVendasVarejo(); }
-      else if (aba === 'caixa') carregarCaixaDiario();
-      else if (aba === 'dashboard') carregarRelatorioMensal();
-      else if (aba === 'rotas') carregarVendedoresAPI();
+      const activeBtn = document.getElementById(`nav-${aba}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-300');
+        activeBtn.classList.add('bg-sky-600', 'text-white');
+      }
+
+      if (aba === 'vendedores') {
+        vendedorSelecionadoAtual = null;
+        document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
+        document.getElementById('visao-lista-vendedores').classList.remove('hidden');
+        carregarAbaVendedores();
+      } else if (aba === 'compra-venda') {
+        trocarVendedorCV();
+      } else if (aba === 'interno') {
+        carregarProdutosInternos();
+        carregarVendasVarejo();
+      } else if (aba === 'caixa') {
+        carregarCaixaDiario();
+      } else if (aba === 'dashboard') {
+        carregarRelatorioMensal();
+      } else if (aba === 'rotas') {
+        // Carrega Vendedores ao abrir a aba para preencher o Select
+        carregarVendedoresAPI();
+      }
     }
 
-    // =========================================================================
-    // VENDEDORES & FECHAMENTOS
-    // =========================================================================
+    /* ========================================================================= */
+    /* LÓGICA DE VENDEDORES & FECHAMENTOS DE ROTA                                */
+    /* ========================================================================= */
     function getIntervaloDataSelecionada(idInputData) {
-      let dataStr = document.getElementById(idInputData)?.value || new Date().toISOString().split('T')[0];
-      return { inicio: `${dataStr}T00:00:00-03:00`, fim: `${dataStr}T23:59:59-03:00`, dataFormatada: dataStr.split('-').reverse().join('/') };
+      let dataStr = document.getElementById(idInputData)?.value;
+      if (!dataStr) {
+        const dataLocal = new Date();
+        dataStr = (new Date(dataLocal - dataLocal.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      }
+      const inicio = `${dataStr}T00:00:00-03:00`;
+      const fim = `${dataStr}T23:59:59-03:00`;
+      const partes = dataStr.split('-');
+      return { inicio, fim, dataFormatada: `${partes[2]}/${partes[1]}/${partes[0]}` };
     }
 
     function processarRegistosVendedor(registos) {
-      const cabecalhos = [], atendimentos = [];
-      (registos || []).forEach(r => { if ((r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null) atendimentos.push(r); else cabecalhos.push(r); });
-      return { cabecalhos, atendimentos, totalClientes: atendimentos.length, totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
+      const cabecalhos = [];
+      const atendimentos = [];
+      (registos || []).forEach(r => {
+        const temCliente = (r.cliente_nome || r.cliente || '').trim().length > 0 || r.cliente_id !== null;
+        if (temCliente) atendimentos.push(r);
+        else cabecalhos.push(r);
+      });
+      return {
+        cabecalhos, 
+        atendimentos,
+        totalClientes: atendimentos.length,
+        totalValor: atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0)
+      };
     }
 
-    async function carregarAbaVendedores() {
+    async function carregarAbaVendedores(silencioso = false) {
       const container = document.getElementById('container-lista-vendedores');
       if (!container) return;
+
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
       const { data: fechamentosData } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO');
       
-      const nomesVendedores = [...new Set(['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton', 'Sérgio', 'Alex', ...(fechamentosData||[]).map(f=>f.vendedor_nome).filter(Boolean)])];
+      const fixos = ['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton', 'Sérgio', 'Alex'];
+      let nomesVendedores = [...fixos];
+      
+      if (fechamentosData) {
+        fechamentosData.forEach(f => {
+            if (f.vendedor_nome && !nomesVendedores.includes(f.vendedor_nome)) nomesVendedores.push(f.vendedor_nome);
+        });
+      }
 
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
-        const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome||'').toLowerCase() === vendedor.toLowerCase());
-        const { totalClientes, totalValor } = processarRegistosVendedor(todosRegistros);
+        const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome || '').trim().toLowerCase() === vendedor.toLowerCase());
+        const { atendimentos, cabecalhos, totalClientes, totalValor } = processarRegistosVendedor(todosRegistros);
+        
+        let avisoMultiplasRotas = '';
+        const idsRotasUnicas = [...new Set(todosRegistros.map(r => r.rota_id).filter(Boolean))];
+        if (idsRotasUnicas.length > 1) {
+          avisoMultiplasRotas = `<span class="ml-2 px-2 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider animate-pulse">⚠️ ${idsRotasUnicas.length} Rotas</span>`;
+        }
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
-          if (todosRegistros.some(f => ['ROTA_FECHADA','FECHADO_ESCRITORIO','CONCLUIDO_ESCRITORIO','FECHADO'].includes(String(f.status||'').toUpperCase()))) {
-            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Fechada</span>`;
+          const rotaFechadaExplicitamente = todosRegistros.some(f => 
+            ['ROTA_FECHADA', 'FECHADO_ESCRITORIO', 'CONCLUIDO_ESCRITORIO'].includes(String(f.status || '').toUpperCase()) ||
+            (f.tipo === 'FECHAMENTO_ROTA' && String(f.status || '').toUpperCase() === 'FECHADO')
+          );
+
+          if (rotaFechadaExplicitamente) {
+            statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Rota Fechada</span>`;
           } else {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
           }
         }
-        container.innerHTML += `<div onclick="abrirDetalheVendedor('${vendedor}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
-          <div><span class="font-bold text-slate-800">${vendedor}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} atendido(s)</p></div>
-          <div class="flex items-center gap-4"><span class="font-bold text-slate-700">R$ ${totalValor.toFixed(2)}</span>${statusHTML}</div></div>`;
+
+        const linha = document.createElement('div');
+        linha.className = "flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
+        linha.onclick = () => abrirDetalheVendedor(vendedor);
+        linha.innerHTML = `
+          <div><span class="font-bold text-slate-800 text-base flex items-center">${vendedor} ${avisoMultiplasRotas}</span><p class="text-xs text-slate-500 mt-1">${totalClientes} cliente(s) atendido(s)</p></div>
+          <div class="flex items-center gap-4"><span class="font-bold text-slate-700 text-sm tracking-tight">R$ ${totalValor.toFixed(2)}</span>${statusHTML}</div>`;
+        container.appendChild(linha);
       });
     }
 
-    async function abrirDetalheVendedor(vendedorNome) {
+    async function abrirDetalheVendedor(vendedorNome, silencioso = false) {
       vendedorSelecionadoAtual = vendedorNome;
       document.getElementById('visao-lista-vendedores').classList.add('hidden');
       document.getElementById('visao-detalhe-vendedor').classList.remove('hidden');
@@ -1087,30 +1689,49 @@
       document.getElementById('folha-vendedor-nome').innerText = vendedorNome;
       document.getElementById('folha-data').innerText = dataFormatada;
 
-      const { data } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorNome).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
-      const { atendimentos, cabecalhos } = processarRegistosVendedor(data);
-      dadosAtendimentoAtuais = atendimentos;
+      const { data: todosRegistros } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorNome).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
 
+      document.getElementById('dev-json-dump').textContent = JSON.stringify(todosRegistros, null, 2);
+
+      const processado = processarRegistosVendedor(todosRegistros);
+      dadosAtendimentoAtuais = processado.atendimentos;
+      const cabecalhos = processado.cabecalhos;
+
+      const badgeLocal = document.getElementById('badge-rotas-detalhe');
+      badgeLocal.innerHTML = '';
+      
       if (cabecalhos.length > 0) {
         const ult = cabecalhos[cabecalhos.length - 1];
-        ['330', '900', 'uva', 'sg', 'cg'].forEach(t => { if(document.getElementById(`carga-${t}`)) document.getElementById(`carga-${t}`).value = ult[`carga_${t}`] || 0; });
+        ['330', '900', 'uva', 'sg', 'cg'].forEach(t => {
+            const val = ult[`carga_${t}`];
+            if (val !== undefined && document.getElementById(`carga-${t}`)) {
+              document.getElementById(`carga-${t}`).value = val || 0;
+            }
+        });
       }
 
       const tbody = document.getElementById('tabela-atendimentos-body');
       tbody.innerHTML = '';
-      if (dadosAtendimentoAtuais.length === 0) tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum registro.</td></tr>`;
-      else {
+      
+      if (dadosAtendimentoAtuais.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento registrado nesta data.</td></tr>`;
+      } else {
         dadosAtendimentoAtuais.forEach(item => {
           const dataHora = new Date(item.created_at || item.data_atendimento);
           const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+          const obs = item.observacao || item.observacoes || item.obs || '-';
+
           tbody.innerHTML += `
-            <tr class="hover:bg-sky-50 border-b border-slate-100">
+            <tr class="hover:bg-sky-50 transition-colors border-b border-slate-100">
               <td class="p-2 text-slate-500 font-mono text-xs">${horaString}</td>
-              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}</td>
-              <td class="p-2 text-slate-600 text-[10px] truncate max-w-[100px]">${item.observacao || item.obs || '-'}</td>
-              <td class="p-2 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
-              <td class="p-2 text-center">${item.qtd_330ml || 0}</td><td class="p-2 text-center">${item.qtd_900ml || 0}</td><td class="p-2 text-center">${item.qtd_uva || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td><td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
+              <td class="p-2 font-bold text-slate-800">${item.cliente_nome || item.cliente || 'Sem nome'}</td>
+              <td class="p-2 text-slate-600 text-[10px] italic max-w-[150px] truncate" title="${obs}">${obs}</td>
+              <td class="p-2 text-slate-700 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_330ml || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_900ml || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_uva || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_agua_sg || 0}</td>
+              <td class="p-2 text-center text-slate-600">${item.qtd_agua_cg || 0}</td>
               <td class="p-2 text-right font-bold text-emerald-600 bg-emerald-50/30">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
             </tr>`;
         });
@@ -1119,188 +1740,352 @@
     }
 
     function calcularFechamentoFisico() {
-      let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0, totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
+      let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0;
+      let totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
+
       dadosAtendimentoAtuais.forEach(item => {
-        v330 += Number(item.qtd_330ml||0); v900 += Number(item.qtd_900ml||0); vuva += Number(item.qtd_uva||0); vsg += Number(item.qtd_agua_sg||0); vcg += Number(item.qtd_agua_cg||0);
-        const val = Number(item.valor_total||0); totGeral += val;
-        const pgto = String(item.forma_pagamento||item.forma_pgto||'').toUpperCase();
+        v330 += Number(item.qtd_330ml || 0); v900 += Number(item.qtd_900ml || 0); vuva += Number(item.qtd_uva || 0);
+        vsg += Number(item.qtd_agua_sg || 0); vcg += Number(item.qtd_agua_cg || 0);
+        const val = Number(item.valor_total || 0);
+        totGeral += val;
+        const pgto = String(item.forma_pagamento || item.forma_pgto || '').toUpperCase();
         if (pgto.includes('DINHEIRO')) totDinheiro += val; else if (pgto.includes('PIX')) totPix += val; else totPrazo += val;
       });
-      ['330','900','uva','sg','cg'].forEach(id => {
-        if(document.getElementById(`venda-${id}`)) document.getElementById(`venda-${id}`).innerText = eval(`v${id}`);
-        if(document.getElementById(`ret-atual-${id}`)) document.getElementById(`ret-atual-${id}`).innerText = Number(document.getElementById(`carga-${id}`)?.value||0) - eval(`v${id}`);
-      });
-      document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
-      document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
-      document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
-      document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+
+      const getV = id => Number(document.getElementById(id)?.value || 0);
+
+      if (document.getElementById('venda-330')) document.getElementById('venda-330').innerText = v330; 
+      if (document.getElementById('venda-900')) document.getElementById('venda-900').innerText = v900; 
+      if (document.getElementById('venda-uva')) document.getElementById('venda-uva').innerText = vuva;
+      if (document.getElementById('venda-sg')) document.getElementById('venda-sg').innerText = vsg; 
+      if (document.getElementById('venda-cg')) document.getElementById('venda-cg').innerText = vcg;
+
+      if (document.getElementById('ret-atual-330')) document.getElementById('ret-atual-330').innerText = getV('carga-330') - v330; 
+      if (document.getElementById('ret-atual-900')) document.getElementById('ret-atual-900').innerText = getV('carga-900') - v900; 
+      if (document.getElementById('ret-atual-uva')) document.getElementById('ret-atual-uva').innerText = getV('carga-uva') - vuva;
+      if (document.getElementById('ret-atual-sg')) document.getElementById('ret-atual-sg').innerText = getV('carga-sg') - vsg; 
+      if (document.getElementById('ret-atual-cg')) document.getElementById('ret-atual-cg').innerText = getV('carga-cg') - vcg;
+
+      if (document.getElementById('fin-folha-dinheiro')) document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`; 
+      if (document.getElementById('fin-folha-pix')) document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+      if (document.getElementById('fin-folha-prazo')) document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`; 
+      if (document.getElementById('fin-folha-total-geral')) document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+
+      const getDesp = id => Number(document.getElementById(`desp-folha-${id}`)?.value || 0);
+      if (document.getElementById('desp-folha-total')) {
+        document.getElementById('desp-folha-total').innerText = `R$ ${(getDesp('combustivel') + getDesp('almoco') + getDesp('outras')).toFixed(2)}`;
+      }
     }
 
-    function voltarParaListaVendedores() { vendedorSelecionadoAtual = null; document.getElementById('visao-detalhe-vendedor').classList.add('hidden'); document.getElementById('visao-lista-vendedores').classList.remove('hidden'); carregarAbaVendedores(); }
+    function voltarParaListaVendedores() {
+      vendedorSelecionadoAtual = null;
+      document.getElementById('visao-detalhe-vendedor').classList.add('hidden');
+      document.getElementById('visao-lista-vendedores').classList.remove('hidden');
+      carregarAbaVendedores();
+    }
 
     async function excluirFechamentoAtual() {
-      if (!vendedorSelecionadoAtual || !confirm(`EXCLUIR TUDO de ${vendedorSelecionadoAtual}?`)) return;
+      if (!vendedorSelecionadoAtual) return;
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
+      if (!confirm(`Tem certeza que quer EXCLUIR TUDO de ${vendedorSelecionadoAtual} na data selecionada?`)) return;
       await supabaseClient.from('fechamentos').update({ status: 'EXCLUIDO' }).gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorSelecionadoAtual);
       voltarParaListaVendedores(); 
     }
 
-    // =========================================================================
-    // MÓDULO INTERNO / VAREJO
-    // =========================================================================
+    /* ========================================================================= */
+    /* LÓGICA DO MÓDULO INTERNO / VAREJO & PRODUTOS                              */
+    /* ========================================================================= */
     function alternarSubAbaInterno(sub) {
-      document.getElementById('sub-interno-vendas').classList.toggle('hidden', sub !== 'vendas');
-      document.getElementById('sub-interno-produtos').classList.toggle('hidden', sub !== 'produtos');
-      document.getElementById('btn-sub-vendas').className = sub === 'vendas' ? "px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm" : "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
-      document.getElementById('btn-sub-produtos').className = sub === 'produtos' ? "px-4 py-2 bg-sky-600 text-white font-semibold text-sm rounded-lg shadow-sm" : "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
+      if (sub === 'vendas') {
+        document.getElementById('sub-interno-vendas').classList.remove('hidden');
+        document.getElementById('sub-interno-produtos').classList.add('hidden');
+        document.getElementById('btn-sub-vendas').className = "px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm";
+        document.getElementById('btn-sub-produtos').className = "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
+      } else {
+        document.getElementById('sub-interno-vendas').classList.add('hidden');
+        document.getElementById('sub-interno-produtos').classList.remove('hidden');
+        document.getElementById('btn-sub-produtos').className = "px-4 py-2 bg-sky-600 text-white font-semibold text-sm rounded-lg shadow-sm";
+        document.getElementById('btn-sub-vendas').className = "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
+      }
     }
 
     async function carregarProdutosInternos() {
       try {
-        const { data } = await supabaseClient.from('interno_produtos').select('*').order('nome', { ascending: true });
+        const { data, error } = await supabaseClient.from('interno_produtos').select('*').order('nome', { ascending: true });
+        if (error) throw error;
+
         listaProdutosCache = data || [];
+        
         const selProd = document.getElementById('var-produto-id');
         if (selProd) {
           selProd.innerHTML = '<option value="">-- Selecione o Produto --</option>';
-          listaProdutosCache.forEach(p => selProd.innerHTML += `<option value="${p.id}" data-preco="${p.preco||0}">${p.nome} - R$ ${Number(p.preco||0).toFixed(2)} [Est: ${p.estoque||0}]</option>`);
+          listaProdutosCache.forEach(p => {
+            selProd.innerHTML += `<option value="${p.id}" data-preco="${p.preco || 0}">${p.nome} (${p.tamanho || 'Un'}) - R$ ${Number(p.preco || 0).toFixed(2)} [Estoque: ${p.estoque || 0}]</option>`;
+          });
         }
+
         const tbody = document.getElementById('tabela-produtos-body');
         if (!tbody) return;
-        tbody.innerHTML = listaProdutosCache.length ? listaProdutosCache.map(p => `<tr class="border-b border-slate-100"><td class="p-3 font-bold">${p.nome}</td><td class="p-3">${p.categoria||'-'}</td><td class="p-3">${p.tipo||'-'} / ${p.tamanho||'-'}</td><td class="p-3 text-right font-bold">R$ ${Number(p.preco||0).toFixed(2)}</td><td class="p-3 text-center">${p.estoque||0}</td><td class="p-3 text-center"><button onclick='editarProdutoInterno(${JSON.stringify(p)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs mr-1">Editar</button><button onclick="excluirProdutoInterno('${p.id}')" class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Excluir</button></td></tr>`).join('') : '<tr><td colspan="6" class="text-center p-4">Vazio</td></tr>';
-      } catch (err) { console.error(err); }
+        tbody.innerHTML = '';
+        if (listaProdutosCache.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-slate-400">Nenhum produto cadastrado no banco.</td></tr>';
+          return;
+        }
+
+        listaProdutosCache.forEach(p => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+              <td class="p-3 font-bold text-slate-800">${p.nome}</td>
+              <td class="p-3 text-slate-600">${p.categoria || '-'}</td>
+              <td class="p-3 text-slate-600">${p.tipo || '-'} / ${p.tamanho || '-'}</td>
+              <td class="p-3 text-right font-bold text-slate-700">R$ ${Number(p.preco || 0).toFixed(2)}</td>
+              <td class="p-3 text-center font-bold ${p.estoque < 10 ? 'text-red-600' : 'text-emerald-700'}">${p.estoque || 0}</td>
+              <td class="p-3 text-center">
+                <button onclick='editarProdutoInterno(${JSON.stringify(p)})' class="bg-amber-100 text-amber-800 hover:bg-amber-200 px-2 py-1 rounded text-xs font-bold mr-1">✏️ Editar</button>
+                <button onclick="excluirProdutoInterno('${p.id}')" class="bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded text-xs font-bold">🗑️ Deletar</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+      }
     }
 
     function atualizarPrecoEValorVarejo() {
       const sel = document.getElementById('var-produto-id');
-      if (!sel.options[sel.selectedIndex]?.dataset.preco) return;
-      document.getElementById('var-valor').value = (parseFloat(sel.options[sel.selectedIndex].dataset.preco) * (parseInt(document.getElementById('var-qtd').value)||1)).toFixed(2);
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt || !opt.dataset.preco) return;
+
+      const precoUnitario = parseFloat(opt.dataset.preco) || 0;
+      const qtd = parseInt(document.getElementById('var-qtd').value) || 1;
+      document.getElementById('var-valor').value = (precoUnitario * qtd).toFixed(2);
     }
 
     async function salvarProdutoInterno(e) {
       e.preventDefault();
       const id = document.getElementById('prod-edit-id').value;
-      const payload = { nome: document.getElementById('prod-nome').value, categoria: document.getElementById('prod-categoria').value, tipo: document.getElementById('prod-tipo').value, tamanho: document.getElementById('prod-tamanho').value, preco: parseFloat(document.getElementById('prod-preco').value||0), estoque: parseInt(document.getElementById('prod-estoque').value||0) };
+      const payload = {
+        nome: document.getElementById('prod-nome').value,
+        categoria: document.getElementById('prod-categoria').value,
+        tipo: document.getElementById('prod-tipo').value,
+        tamanho: document.getElementById('prod-tamanho').value,
+        preco: parseFloat(document.getElementById('prod-preco').value || 0),
+        estoque: parseInt(document.getElementById('prod-estoque').value || 0)
+      };
+
       try {
-        if(id) await supabaseClient.from('interno_produtos').update(payload).eq('id', id); else await supabaseClient.from('interno_produtos').insert([payload]);
-        limparFormProduto(); carregarProdutosInternos();
-      } catch(err) { alert(err.message); }
+        if (id) {
+          await supabaseClient.from('interno_produtos').update(payload).eq('id', id);
+          alert('Produto atualizado com sucesso!');
+        } else {
+          await supabaseClient.from('interno_produtos').insert([payload]);
+          alert('Produto cadastrado com sucesso!');
+        }
+        limparFormProduto();
+        carregarProdutosInternos();
+      } catch (err) {
+        alert('Erro ao salvar produto: ' + err.message);
+      }
     }
-    function editarProdutoInterno(p) { document.getElementById('prod-edit-id').value=p.id; document.getElementById('prod-nome').value=p.nome||''; document.getElementById('prod-categoria').value=p.categoria||''; document.getElementById('prod-tipo').value=p.tipo||''; document.getElementById('prod-tamanho').value=p.tamanho||''; document.getElementById('prod-preco').value=p.preco||0; document.getElementById('prod-estoque').value=p.estoque||0; }
-    async function excluirProdutoInterno(id) { if(confirm('Excluir?')) { await supabaseClient.from('interno_produtos').delete().eq('id',id); carregarProdutosInternos(); } }
-    function limparFormProduto() { document.getElementById('prod-edit-id').value=''; document.getElementById('form-produto-interno').reset(); }
+
+    function editarProdutoInterno(p) {
+      document.getElementById('prod-edit-id').value = p.id;
+      document.getElementById('prod-nome').value = p.nome || '';
+      document.getElementById('prod-categoria').value = p.categoria || '';
+      document.getElementById('prod-tipo').value = p.tipo || '';
+      document.getElementById('prod-tamanho').value = p.tamanho || '';
+      document.getElementById('prod-preco').value = p.preco || 0;
+      document.getElementById('prod-estoque').value = p.estoque || 0;
+      document.getElementById('titulo-form-produto').innerText = '✏️ Editar Produto Interno';
+    }
+
+    async function excluirProdutoInterno(id) {
+      if (!confirm('Tem certeza que deseja excluir este produto do catálogo?')) return;
+      await supabaseClient.from('interno_produtos').delete().eq('id', id);
+      carregarProdutosInternos();
+    }
+
+    function limparFormProduto() {
+      document.getElementById('prod-edit-id').value = '';
+      document.getElementById('form-produto-interno').reset();
+      document.getElementById('titulo-form-produto').innerText = '📦 Cadastrar / Editar Produto Interno';
+    }
 
     async function salvarVendaVarejo(e) {
       e.preventDefault();
+      const id = document.getElementById('var-edit-id').value;
       const selProd = document.getElementById('var-produto-id');
-      const payload = { data_venda: document.getElementById('var-data').value, produto_id: selProd.value, produto_nome: selProd.options[selProd.selectedIndex]?.text||'', forma_pgto: document.getElementById('var-pgto').value, quantidade: parseInt(document.getElementById('var-qtd').value||1), valor_total: parseFloat(document.getElementById('var-valor').value||0), categoria: document.getElementById('var-categoria').value, observacao: document.getElementById('var-obs').value };
+      const prodNome = selProd.options[selProd.selectedIndex]?.text || '';
+
+      const payload = {
+        data_venda: document.getElementById('var-data').value,
+        produto_id: document.getElementById('var-produto-id').value,
+        produto_nome: prodNome,
+        forma_pgto: document.getElementById('var-pgto').value,
+        quantidade: parseInt(document.getElementById('var-qtd').value || 1),
+        valor_total: parseFloat(document.getElementById('var-valor').value || 0),
+        categoria: document.getElementById('var-categoria').value,
+        observacao: document.getElementById('var-obs').value
+      };
+
       try {
-        const id = document.getElementById('var-edit-id').value;
-        if(id) await supabaseClient.from('interno_registros').update(payload).eq('id',id); else await supabaseClient.from('interno_registros').insert([payload]);
-        limparFormVarejo(); carregarVendasVarejo();
-      } catch(err) { alert(err.message); }
+        if (id) {
+          await supabaseClient.from('interno_registros').update(payload).eq('id', id);
+          alert('Venda atualizada com sucesso!');
+        } else {
+          await supabaseClient.from('interno_registros').insert([payload]);
+          alert('Venda registrada com sucesso!');
+        }
+        limparFormVarejo();
+        carregarVendasVarejo();
+      } catch (err) {
+        alert('Erro ao salvar venda: ' + err.message);
+      }
     }
 
     async function carregarVendasVarejo() {
-      try {
-        const { data } = await supabaseClient.from('interno_registros').select('*').order('created_at', { ascending: false });
-        const tbody = document.getElementById('tabela-varejo-body');
-        if(!tbody) return;
-        tbody.innerHTML = (data||[]).length ? data.map(v => `<tr class="border-b"><td class="p-3 text-xs">${v.data_venda||''}</td><td class="p-3 font-bold">${v.produto_nome||''}</td><td class="p-3 text-xs">${v.observacao||'-'}</td><td class="p-3 text-xs">${v.forma_pgto||''}</td><td class="p-3 text-center">${v.quantidade||1}</td><td class="p-3 text-right font-bold text-emerald-700">R$ ${Number(v.valor_total||0).toFixed(2)}</td><td class="p-3 text-center"><button onclick="excluirVendaVarejo('${v.id}')" class="text-red-600 bg-red-50 px-2 py-1 rounded text-xs">Excluir</button></td></tr>`).join('') : '<tr><td colspan="7" class="text-center p-4">Nenhuma venda.</td></tr>';
-      } catch(err) { console.error(err); }
-    }
-    async function excluirVendaVarejo(id) { if(confirm('Excluir?')) { await supabaseClient.from('interno_registros').delete().eq('id',id); carregarVendasVarejo(); } }
-    function limparFormVarejo() { document.getElementById('var-edit-id').value=''; document.getElementById('form-varejo').reset(); }
+      const tbody = document.getElementById('tabela-varejo-body');
+      if (!tbody) return;
 
-    // =========================================================================
-    // CAIXA DIÁRIO AGORA PERSISTIDO NO SUPABASE
-    // =========================================================================
-    async function carregarCaixaDiario() {
+      try {
+        const { data, error } = await supabaseClient.from('interno_registros').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+
+        tbody.innerHTML = '';
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-slate-400">Nenhuma venda de varejo registrada ainda.</td></tr>';
+          return;
+        }
+
+        data.forEach(v => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+              <td class="p-3 text-slate-600 font-mono text-xs">${v.data_venda || '--/--/----'}</td>
+              <td class="p-3 font-bold text-slate-800">${v.produto_nome || 'Produto'} <span class="text-xs text-slate-400 font-normal">(${v.categoria || 'Geral'})</span></td>
+              <td class="p-3 text-slate-600 text-xs">${v.observacao || '-'}</td>
+              <td class="p-3 font-semibold text-xs uppercase">${v.forma_pgto || '-'}</td>
+              <td class="p-3 text-center font-bold">${v.quantidade || 1}</td>
+              <td class="p-3 text-right font-bold text-emerald-700">R$ ${Number(v.valor_total || 0).toFixed(2)}</td>
+              <td class="p-3 text-center">
+                <button onclick='editarVendaVarejo(${JSON.stringify(v)})' class="bg-amber-100 text-amber-800 hover:bg-amber-200 px-2 py-1 rounded text-xs font-bold mr-1">✏️ Editar</button>
+                <button onclick="excluirVendaVarejo('${v.id}')" class="bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded text-xs font-bold">🗑 Deletar</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-red-500">Erro ao carregar vendas do varejo.</td></tr>';
+      }
+    }
+
+    function editarVendaVarejo(v) {
+      document.getElementById('var-edit-id').value = v.id;
+      document.getElementById('var-data').value = v.data_venda || '';
+      document.getElementById('var-produto-id').value = v.produto_id || '';
+      document.getElementById('var-pgto').value = v.forma_pgto || 'PIX';
+      document.getElementById('var-qtd').value = v.quantidade || 1;
+      document.getElementById('var-valor').value = v.valor_total || 0;
+      document.getElementById('var-categoria').value = v.categoria || '';
+      document.getElementById('var-obs').value = v.observacao || '';
+      document.getElementById('titulo-form-varejo').innerText = '✏️ Editar Venda de Varejo';
+    }
+
+    async function excluirVendaVarejo(id) {
+      if (!confirm('Deseja excluir este registro de venda?')) return;
+      await supabaseClient.from('interno_registros').delete().eq('id', id);
+      carregarVendasVarejo();
+    }
+
+    function limparFormVarejo() {
+      document.getElementById('var-edit-id').value = '';
+      document.getElementById('form-varejo').reset();
+      document.getElementById('titulo-form-varejo').innerText = '🛒 Nova Venda de Varejo';
+    }
+
+    /* ========================================================================= */
+    /* LÓGICA DO CAIXA DIÁRIO INTEGRADO                                          */
+    /* ========================================================================= */
+    function carregarCaixaDiario() {
       const dataSel = document.getElementById('selDataCaixa')?.value;
       const tbody = document.getElementById('tabela-caixa-body');
       if (!tbody) return;
 
-      try {
-        const { data, error } = await supabaseClient
-          .from('caixa_diario')
-          .select('*')
-          .eq('data', dataSel)
-          .order('hora', { ascending: false })
-          .order('created_at', { ascending: false });
+      const filtrados = caixaMovimentacoesMemoria.filter(m => m.data === dataSel);
+      tbody.innerHTML = '';
 
-        if (error) throw error;
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-slate-400">Nenhuma movimentação registrada nesta data.</td></tr>';
+      } else {
+        filtrados.forEach((m, idx) => {
+          const badgeTipo = m.tipo === 'ENTRADA' 
+            ? '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-bold">🟢 Entrada</span>'
+            : '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-xs font-bold">🔴 Saída</span>';
 
-        caixaMovimentacoesBD = data || [];
-        tbody.innerHTML = '';
-
-        if (caixaMovimentacoesBD.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-slate-400">Nenhuma movimentação registrada nesta data no banco.</td></tr>';
-        } else {
-          caixaMovimentacoesBD.forEach((m) => {
-            const badgeTipo = m.tipo === 'ENTRADA' 
-              ? '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-bold">🟢 Entrada</span>'
-              : '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-xs font-bold">🔴 Saída</span>';
-
-            tbody.innerHTML += `
-              <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                <td class="p-3 text-slate-500 font-mono text-xs">${m.hora || '--:--'}</td>
-                <td class="p-3">${badgeTipo}</td>
-                <td class="p-3 font-semibold text-xs">${m.forma_pgto || '-'}</td>
-                <td class="p-3 text-slate-800 font-medium">${m.descricao || '-'}</td>
-                <td class="p-3 text-right font-bold ${m.tipo === 'ENTRADA' ? 'text-emerald-700' : 'text-red-600'}">
-                  ${m.tipo === 'ENTRADA' ? '+' : '-'} R$ ${Number(m.valor).toFixed(2)}
-                </td>
-                <td class="p-3 text-center">
-                  <button onclick="excluirMovimentacaoCaixa('${m.id}')" class="text-red-600 hover:text-red-800 font-bold px-2 py-1 bg-red-50 rounded">🗑️</button>
-                </td>
-              </tr>
-            `;
-          });
-        }
-
-        if (document.getElementById('caixa-qtd-registros')) document.getElementById('caixa-qtd-registros').innerText = `${caixaMovimentacoesBD.length} registro(s)`;
-        calcularTotaisCaixa();
-      } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-red-500 font-bold">Crie a tabela caixa_diario no Supabase para visualizar.</td></tr>';
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+              <td class="p-3 text-slate-500 font-mono text-xs">${m.hora}</td>
+              <td class="p-3">${badgeTipo}</td>
+              <td class="p-3 font-semibold text-xs">${m.formaPgto || m.forma}</td>
+              <td class="p-3 text-slate-800 font-medium">${m.descricao}</td>
+              <td class="p-3 text-right font-bold ${m.tipo === 'ENTRADA' ? 'text-emerald-700' : 'text-red-600'}">
+                ${m.tipo === 'ENTRADA' ? '+' : '-'} R$ ${Number(m.valor).toFixed(2)}
+              </td>
+              <td class="p-3 text-center">
+                <button onclick="excluirMovimentacaoCaixa(${idx})" class="text-red-600 hover:text-red-800 font-bold px-2 py-1 bg-red-50 rounded">🗑️</button>
+              </td>
+            </tr>
+          `;
+        });
       }
+
+      if (document.getElementById('caixa-qtd-registros')) {
+        document.getElementById('caixa-qtd-registros').innerText = `${filtrados.length} registro(s)`;
+      }
+
+      calcularTotaisCaixa();
     }
 
-    async function salvarMovimentacaoCaixa(e) {
+    function salvarMovimentacaoCaixa(e) {
       e.preventDefault();
       const dataSel = document.getElementById('selDataCaixa')?.value;
       const tipo = document.getElementById('caixa-tipo').value;
       const formaPgto = document.getElementById('caixa-forma-pgto').value;
       const valor = parseFloat(document.getElementById('caixa-valor').value || 0);
       const descricao = document.getElementById('caixa-descricao').value;
-      const horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-      try {
-        await supabaseClient.from('caixa_diario').insert([{
-          data: dataSel,
-          hora: horaStr,
-          tipo: tipo,
-          forma_pgto: formaPgto,
-          valor: valor,
-          descricao: descricao
-        }]);
+      const agora = new Date();
+      const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        document.getElementById('caixa-valor').value = '';
-        document.getElementById('caixa-descricao').value = '';
-        carregarCaixaDiario();
-      } catch (err) {
-        alert("Erro ao salvar no caixa: " + err.message);
-      }
+      caixaMovimentacoesMemoria.push({
+        data: dataSel,
+        hora: horaStr,
+        tipo,
+        formaPgto,
+        valor,
+        descricao
+      });
+
+      document.getElementById('caixa-valor').value = '';
+      document.getElementById('caixa-descricao').value = '';
+      carregarCaixaDiario();
     }
 
-    async function excluirMovimentacaoCaixa(id) {
-      if (confirm('Deletar movimentação do banco?')) {
-        await supabaseClient.from('caixa_diario').delete().eq('id', id);
+    function excluirMovimentacaoCaixa(idx) {
+      if (confirm('Remover esta movimentação do caixa?')) {
+        caixaMovimentacoesMemoria.splice(idx, 1);
         carregarCaixaDiario();
       }
     }
 
     function calcularTotaisCaixa() {
-      let totalEntradas = 0, totalSaidas = 0;
-      caixaMovimentacoesBD.forEach(m => {
+      const dataSel = document.getElementById('selDataCaixa')?.value;
+      const filtrados = caixaMovimentacoesMemoria.filter(m => m.data === dataSel);
+
+      let totalEntradas = 0;
+      let totalSaidas = 0;
+
+      filtrados.forEach(m => {
         if (m.tipo === 'ENTRADA') totalEntradas += Number(m.valor || 0);
         else totalSaidas += Number(m.valor || 0);
       });
@@ -1313,53 +2098,129 @@
       if (document.getElementById('caixa-saldo-final')) document.getElementById('caixa-saldo-final').innerText = `R$ ${saldoFinal.toFixed(2)}`;
     }
 
-    // =========================================================================
-    // LANÇAMENTOS EXTRAS E DASHBOARD 
-    // =========================================================================
+    /* ========================================================================= */
+    /* LANÇAMENTOS MOCK E RELATÓRIO MENSAL (INTOCADO - IGUAL AO ORIGINAL)        */
+    /* ========================================================================= */
     function salvarLancamentoMock() {
-      const v = document.getElementById('lanc-vendedor').value, d = document.getElementById('lanc-data').value, p = document.getElementById('lanc-produto').value, q = document.getElementById('lanc-qtd').value;
-      if (!p) { alert('Digite o produto!'); return; }
+      const v = document.getElementById('lanc-vendedor').value;
+      const d = document.getElementById('lanc-data').value;
+      const p = document.getElementById('lanc-produto').value;
+      const q = document.getElementById('lanc-qtd').value;
+
+      if (!p) { alert('Digite a descrição do brinde/produto!'); return; }
+
       lancamentosMemoria.push({ vendedor: v, data: d, produto: p, qtd: q });
+
       const tbody = document.getElementById('tabela-lancamentos-body');
       tbody.innerHTML = '';
-      lancamentosMemoria.forEach(l => tbody.innerHTML += `<tr class="border-b"><td class="p-2 text-xs">${l.data}</td><td class="p-2 font-bold">${l.vendedor}</td><td class="p-2">${l.produto}</td><td class="p-2 text-center text-indigo-600">${l.qtd}</td></tr>`);
+      lancamentosMemoria.forEach(l => {
+        tbody.innerHTML += `
+          <tr class="border-b border-slate-100">
+            <td class="p-2 text-xs font-mono">${l.data}</td>
+            <td class="p-2 font-bold">${l.vendedor}</td>
+            <td class="p-2">${l.produto}</td>
+            <td class="p-2 text-center font-bold text-indigo-600">${l.qtd}</td>
+          </tr>
+        `;
+      });
+
       document.getElementById('lanc-produto').value = '';
+      document.getElementById('lanc-obs').value = '';
     }
 
     async function carregarRelatorioMensal() {
       const vendedor = document.getElementById('selVendedorDashboard')?.value || 'Sérgio';
       const mesAno = document.getElementById('selMesDashboard')?.value || '2026-08';
       const filtroDias = document.getElementById('selFiltroDias')?.value || 'seg-sex';
-      if (document.getElementById('titulo-relatorio-mensal')) document.getElementById('titulo-relatorio-mensal').innerText = `${vendedor.toUpperCase()} - RELATÓRIO MENSAL (${mesAno})`;
 
-      const [ano, mes] = mesAno.split('-');
-      const ultimoDia = new Date(ano, mes, 0).getDate();
-      
-      const { data } = await supabaseClient.from('fechamentos').select('*').gte('created_at', `${mesAno}-01T00:00:00-03:00`).lte('created_at', `${mesAno}-${ultimoDia}T23:59:59-03:00`).ilike('vendedor_nome', vendedor).neq('status', 'EXCLUIDO');
+      const titulo = document.getElementById('titulo-relatorio-mensal');
+      if (titulo) titulo.innerText = `${vendedor.toUpperCase()} - RELATÓRIO MENSAL DE FECHAMENTO (${mesAno})`;
 
-      const corpo = document.getElementById('corpo-tabela-mensal'); if(!corpo) return; corpo.innerHTML = '';
-      let tot330=0, tot900=0, totUva=0, totAgua=0, totBruto=0;
+      const [anoStr, mesStr] = mesAno.split('-');
+      const ano = parseInt(anoStr);
+      const mes = parseInt(mesStr) - 1;
+
+      const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+      const inicioMes = `${mesAno}-01T00:00:00-03:00`;
+      const fimMes = `${mesAno}-${String(ultimoDia).padStart(2,'0')}T23:59:59-03:00`;
+
+      const { data: dadosSupabase } = await supabaseClient
+        .from('fechamentos')
+        .select('*')
+        .gte('created_at', inicioMes)
+        .lte('created_at', fimMes)
+        .ilike('vendedor_nome', vendedor)
+        .neq('status', 'EXCLUIDO');
+
+      const corpo = document.getElementById('corpo-tabela-mensal');
+      if (!corpo) return;
+      corpo.innerHTML = '';
+
+      let tot330 = 0, tot900 = 0, totUva = 0, totAgua = 0;
+      let totBruto = 0;
 
       for (let dia = 1; dia <= ultimoDia; dia++) {
-        const diaSemana = new Date(ano, mes-1, dia).getDay();
-        if (filtroDias === 'seg-sex' && (diaSemana === 0 || diaSemana === 6)) continue;
-        const diaStr = String(dia).padStart(2,'0');
-        
-        const regDia = (data||[]).filter(r => (r.created_at||r.data_atendimento)?.startsWith(`${mesAno}-${diaStr}`));
-        let d330=0, d900=0, duva=0, dagua=0, dBruto=0;
-        regDia.forEach(r => { d330+=Number(r.qtd_330ml||0); d900+=Number(r.qtd_900ml||0); duva+=Number(r.qtd_uva||0); dagua+=Number(r.qtd_agua_sg||0)+Number(r.qtd_agua_cg||0); dBruto+=Number(r.valor_total||0); });
+        const dObj = new Date(ano, mes, dia);
+        const diaSemana = dObj.getDay();
 
-        tot330+=d330; tot900+=d900; totUva+=duva; totAgua+=dagua; totBruto+=dBruto;
-        corpo.innerHTML += `<tr class="border-b border-black"><td class="border border-black p-1">${diaStr}/${mes}</td><td class="border border-black p-1">${d330||'-'}</td><td class="border border-black p-1">${d900||'-'}</td><td class="border border-black p-1">${duva||'-'}</td><td class="border border-black p-1">${dagua||'-'}</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 font-bold">${d330+d900+duva+dagua||'-'}</td><td class="border border-black p-1 text-right">R$ ${dBruto.toFixed(2)}</td><td class="border border-black p-1 bg-indigo-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td></tr>`;
+        if (filtroDias === 'seg-sex' && (diaSemana === 0 || diaSemana === 6)) continue;
+
+        const diaPadded = String(dia).padStart(2, '0');
+        const dataKey = `${mesAno}-${diaPadded}`;
+
+        const regDia = (dadosSupabase || []).filter(r => {
+          const createdAt = r.created_at || r.data_atendimento;
+          return createdAt && createdAt.startsWith(dataKey);
+        });
+
+        let d330 = 0, d900 = 0, duva = 0, dagua = 0, dBruto = 0;
+        regDia.forEach(r => {
+          d330 += Number(r.qtd_330ml || 0);
+          d900 += Number(r.qtd_900ml || 0);
+          duva += Number(r.qtd_uva || 0);
+          dagua += Number(r.qtd_agua_sg || 0) + Number(r.qtd_agua_cg || 0);
+          dBruto += Number(r.valor_total || 0);
+        });
+
+        const totalQtdDia = d330 + d900 + duva + dagua;
+
+        tot330 += d330; tot900 += d900; totUva += duva; totAgua += dagua;
+        totBruto += dBruto;
+
+        corpo.innerHTML += `
+          <tr class="border-b border-black">
+            <td class="border border-black p-1 font-bold">${diaPadded}/${mesStr}</td>
+            <td class="border border-black p-1">${d330 || '-'}</td>
+            <td class="border border-black p-1">${d900 || '-'}</td>
+            <td class="border border-black p-1">${duva || '-'}</td>
+            <td class="border border-black p-1">${dagua || '-'}</td>
+            <td class="border border-black p-1 bg-amber-50">-</td>
+            <td class="border border-black p-1 bg-amber-50">-</td>
+            <td class="border border-black p-1 bg-amber-50">-</td>
+            <td class="border border-black p-1 font-bold">${totalQtdDia || '-'}</td>
+            <td class="border border-black p-1 font-bold text-right">R$ ${dBruto.toFixed(2)}</td>
+            <td class="border border-black p-1 bg-indigo-50">-</td>
+            <td class="border border-black p-1 bg-red-50">-</td>
+            <td class="border border-black p-1 bg-red-50">-</td>
+            <td class="border border-black p-1 bg-red-50">-</td>
+            <td class="border border-black p-1 bg-red-50">-</td>
+          </tr>
+        `;
       }
-      
-      ['330','900','uva','total'].forEach(k => {
-        const v = k==='330'?tot330:k==='900'?tot900:k==='uva'?totUva:tot330+tot900+totUva;
-        if(document.getElementById(`res-bruta-${k}`)) document.getElementById(`res-bruta-${k}`).innerText = v;
-        if(document.getElementById(`res-liq-${k}`)) document.getElementById(`res-liq-${k}`).innerText = v;
-      });
-      document.getElementById('res-fin-recebido').innerText = `R$ ${totBruto.toFixed(2)}`;
-      document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${totBruto.toFixed(2)}`;
+
+      if (document.getElementById('res-bruta-330')) document.getElementById('res-bruta-330').innerText = tot330;
+      if (document.getElementById('res-bruta-900')) document.getElementById('res-bruta-900').innerText = tot900;
+      if (document.getElementById('res-bruta-uva')) document.getElementById('res-bruta-uva').innerText = totUva;
+      if (document.getElementById('res-bruta-total')) document.getElementById('res-bruta-total').innerText = tot330 + tot900 + totUva;
+
+      if (document.getElementById('res-liq-330')) document.getElementById('res-liq-330').innerText = tot330;
+      if (document.getElementById('res-liq-900')) document.getElementById('res-liq-900').innerText = tot900;
+      if (document.getElementById('res-liq-uva')) document.getElementById('res-liq-uva').innerText = totUva;
+      if (document.getElementById('res-liq-total')) document.getElementById('res-liq-total').innerText = tot330 + tot900 + totUva;
+
+      if (document.getElementById('res-fin-recebido')) document.getElementById('res-fin-recebido').innerText = `R$ ${totBruto.toFixed(2)}`;
+      if (document.getElementById('res-fin-despesas')) document.getElementById('res-fin-despesas').innerText = `R$ 0,00`;
+      if (document.getElementById('res-fin-saldo-patrao')) document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${totBruto.toFixed(2)}`;
     }
   </script>
 </body>
