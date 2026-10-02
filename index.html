@@ -69,6 +69,9 @@
         <button onclick="mudarAba('vendedores')" id="nav-vendedores" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-sky-600 text-white">
           <span>🚚</span> Vendedores
         </button>
+        <button onclick="mudarAba('notinhas')" id="nav-notinhas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
+          <span>📝</span> Notinhas a Prazo
+        </button>
         <button onclick="mudarAba('notas')" id="nav-notas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800">
           <span>🧾</span> Notas e Boletos
         </button>
@@ -326,6 +329,43 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO: NOTINHAS A PRAZO                                                   -->
+    <!-- ========================================================================= -->
+    <section id="sec-notinhas" class="hidden p-6">
+      <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Notinhas a Prazo</h1>
+          <p class="text-slate-500 text-sm">Vendas realizadas a prazo pelos vendedores para acompanhamento e cobrança.</p>
+        </div>
+        <div class="flex items-end gap-3">
+          <button onclick="carregarNotinhasAPrazo()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+            <select id="filtroStatusNotinha" onchange="carregarNotinhasAPrazo()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+              <option value="ABERTAS">Em Aberto / Pendentes</option>
+              <option value="PAGAS">Pagas</option>
+              <option value="TODAS">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
+            <input type="date" id="selDataNotinhas" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500" onchange="carregarNotinhasAPrazo()">
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="bg-slate-800 text-white font-semibold flex justify-between px-6 py-3 text-sm">
+          <span>Vendedor</span>
+          <span id="notinhas-resumo-geral">--</span>
+        </div>
+        <div id="container-notinhas-vendedores" class="divide-y divide-slate-100">
+          <div class="p-4 text-center text-slate-400">Carregando notinhas...</div>
         </div>
       </div>
     </section>
@@ -713,12 +753,11 @@
     let lancamentosMemoria = [];
     let caixaMovimentacoesBD = [];
     let notasAbertas = new Set();
+    let notinhasAbertas = new Set();
 
     // =========================================================================
     // ROTAS E CLIENTES LIGADOS DIRETO NO SUPABASE
     // =========================================================================
-    
-    // (Mantive os Selects buscando da sua API para não quebrar nada visualmente)
     async function carregarVendedoresAPI() {
       const selectFiltro = document.getElementById('filtro-api-vendedor');
       if (!selectFiltro) return;
@@ -753,7 +792,6 @@
       }
     }
 
-    // LISTAR: Busca direto do Supabase com os filtros! (Evita travamentos)
     async function carregarClientesAPI() {
       const vend = document.getElementById('filtro-api-vendedor')?.value;
       const dia = document.getElementById('filtro-api-rota')?.value;
@@ -843,7 +881,6 @@
       window.scrollTo(0, 0);
     }
 
-    // Preenche Vendedor e Dia do formulário com o que está selecionado nos filtros (só em novo cadastro)
     function preencherFormComFiltros() {
       if (document.getElementById("cli-edit-id").value) return;
       const vend = document.getElementById('filtro-api-vendedor')?.value;
@@ -859,7 +896,6 @@
       preencherFormComFiltros();
     }
 
-    // SALVAR: Agora salva no Supabase direto
     async function salvarClienteAPI(event) {
       event.preventDefault();
       
@@ -888,7 +924,6 @@
       }
     }
 
-    // DELETAR: Agora deleta do Supabase direto
     async function deletarClienteAPI(id) {
       if (!confirm("Excluir este cliente da rota permanentemente?")) return;
       try {
@@ -1040,7 +1075,7 @@
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       const mesAtual = hoje.substring(0, 7);
       
-      ['selDataVendedores','selDataNotas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
+      ['selDataVendedores','selDataNotas','selDataNotinhas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
         if (document.getElementById(id)) document.getElementById(id).value = hoje;
       });
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
@@ -1056,7 +1091,12 @@
       if (canalRealtime) supabaseClient.removeChannel(canalRealtime);
       canalRealtime = supabaseClient.channel('mudancas-ao-vivo')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes_rotas' }, () => { if (abaAtiva === 'rotas') carregarClientesAPI(); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => { carregarAbaVendedores(); if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); if (abaAtiva === 'notas') carregarAbaNotas(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'fechamentos' }, () => { 
+          carregarAbaVendedores(); 
+          if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); 
+          if (abaAtiva === 'notas') carregarAbaNotas(); 
+          if (abaAtiva === 'notinhas') carregarNotinhasAPrazo();
+        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => carregarVendasVarejo())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => carregarProdutosInternos())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if(abaAtiva==='compra-venda') carregarLancamentosCV(); })
@@ -1066,13 +1106,13 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -1084,6 +1124,7 @@
       else if (aba === 'dashboard') carregarRelatorioMensal();
       else if (aba === 'rotas') carregarVendedoresAPI();
       else if (aba === 'notas') carregarAbaNotas();
+      else if (aba === 'notinhas') carregarNotinhasAPrazo();
     }
 
     // =========================================================================
@@ -1094,9 +1135,6 @@
       return { inicio: `${dataStr}T00:00:00-03:00`, fim: `${dataStr}T23:59:59-03:00`, dataFormatada: dataStr.split('-').reverse().join('/') };
     }
 
-    // --- Unificação de envios repetidos ---
-    // Mesmo cliente + mesmo dia + mesmos produtos/trocas + mesmo valor final (ignora observação) = 1 envio só.
-    // Mesmo cliente com produtos/valor diferentes = continua separado e fica marcado como "múltiplos envios".
     function normalizarTexto(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
     function dataHoraRegistro(r) { return new Date(r.created_at || r.data_atendimento); }
     function horaDoRegistro(r) { const d = dataHoraRegistro(r); return isNaN(d.getTime()) ? '--:--' : d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}); }
@@ -1116,7 +1154,7 @@
       Object.values(porCliente).forEach(lista => {
         const grupos = {};
         lista.forEach(r => {
-          const assinatura = [r.qtd_330ml, r.qtd_900ml, r.qtd_uva, r.qtd_agua_sg, r.qtd_agua_cg, r.troca_330ml, r.troca_900ml, r.troca_uva].map(v => Number(v || 0)).join('|') + '|' + Number(r.valor_total || 0).toFixed(2);
+          const assinatura = [r.qtd_330ml, r.qtd_900ml, r.qtd_uva, r.qtd_agua_sg, r.qtd_agua_cg, r.qtd_copo, r.qtd_gelo, r.qtd_venda_troca, r.valor_venda_troca, r.troca_330ml, r.troca_900ml, r.troca_uva].map(v => Number(v || 0)).join('|') + '|' + Number(r.valor_total || 0).toFixed(2);
           (grupos[assinatura] = grupos[assinatura] || []).push(r);
         });
         const listaGrupos = Object.values(grupos);
@@ -1150,7 +1188,7 @@
       nomesVendedores.sort().forEach(vendedor => {
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome||'').toLowerCase() === vendedor.toLowerCase());
         const { totalClientes, totalValor, clientesMultiplos, enviosIguais } = processarRegistosVendedor(todosRegistros);
-        const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠️ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
+        const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠️️ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
@@ -1243,8 +1281,132 @@
     }
 
     // =========================================================================
+    // NOTINHAS A PRAZO (NOVA ABA)
+    // =========================================================================
+    function toggleNotinhasVendedor(chave) {
+      const el = document.getElementById(`notinhas-det-${chave}`);
+      if (!el) return;
+      el.classList.toggle('hidden');
+      if (el.classList.contains('hidden')) notinhasAbertas.delete(chave); else notinhasAbertas.add(chave);
+    }
+
+    function formatarProdutosResumo(d) {
+      const prods = [];
+      if (Number(d.qtd_330ml||0) > 0) prods.push(`${d.qtd_330ml}x 330ml`);
+      if (Number(d.qtd_900ml||0) > 0) prods.push(`${d.qtd_900ml}x 900ml`);
+      if (Number(d.qtd_uva||0) > 0) prods.push(`${d.qtd_uva}x Uva`);
+      if (Number(d.qtd_agua_sg||0) > 0) prods.push(`${d.qtd_agua_sg}x Água S/G`);
+      if (Number(d.qtd_agua_cg||0) > 0) prods.push(`${d.qtd_agua_cg}x Água C/G`);
+      if (Number(d.qtd_copo||0) > 0) prods.push(`${d.qtd_copo}x Copo`);
+      if (Number(d.qtd_gelo||0) > 0) prods.push(`${d.qtd_gelo}x Gelo`);
+      if (Number(d.qtd_venda_troca||0) > 0) prods.push(`${d.qtd_venda_troca}x Troca`);
+      return prods.length > 0 ? prods.join(' · ') : 'Sem produtos registrados';
+    }
+
+    async function carregarNotinhasAPrazo() {
+      const container = document.getElementById('container-notinhas-vendedores');
+      if (!container) return;
+      const { inicio, fim } = getIntervaloDataSelecionada('selDataNotinhas');
+      const filtroStatus = document.getElementById('filtroStatusNotinha')?.value || 'ABERTAS';
+
+      const { data, error } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
+      if (error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao carregar notinhas: ${escaparHTML(error.message)}</div>`; return; }
+
+      const porVendedor = {};
+      (data || []).forEach(r => {
+        const nome = (r.vendedor_nome || '').trim();
+        if (!nome) return;
+        const k = nome.toLowerCase();
+        (porVendedor[k] = porVendedor[k] || { nome, regs: [] }).regs.push(r);
+      });
+
+      let totalGeral = 0, valorTotalGeral = 0, html = '';
+      Object.keys(porVendedor).sort().forEach(k => {
+        const v = porVendedor[k];
+        const notinhas = processarRegistosVendedor(v.regs).atendimentos
+          .filter(a => {
+            const pgto = String(a.forma_pagamento || a.forma_pgto || '').toUpperCase();
+            const isPrazo = pgto.includes('PRAZO') || pgto.includes('NOTINHA');
+            if (!isPrazo) return false;
+
+            const st = String(a.status || '').toUpperCase();
+            const isPaga = st === 'PAGO' || st === 'CONCLUIDO';
+            if (filtroStatus === 'ABERTAS') return !isPaga;
+            if (filtroStatus === 'PAGAS') return isPaga;
+            return true;
+          });
+
+        if (notinhas.length === 0) return;
+
+        totalGeral += notinhas.length;
+        const totalVendedor = notinhas.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
+        valorTotalGeral += totalVendedor;
+
+        const chave = encodeURIComponent(k).replace(/%/g, '_');
+        const aberto = notinhasAbertas.has(chave);
+
+        const linhas = notinhas.map(d => {
+          const st = String(d.status || '').toUpperCase();
+          const isPaga = st === 'PAGO' || st === 'CONCLUIDO';
+          const badgeStatus = isPaga 
+            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">✅ PAGA</span>'
+            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">⏳ PENDENTE</span>';
+
+          return `
+            <tr class="border-b border-slate-100 ${d._multiplo ? 'bg-amber-50' : ''}">
+              <td class="p-2 font-mono text-xs text-slate-500">${horaDoRegistro(d)}</td>
+              <td class="p-2 font-bold">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}${d._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}</td>
+              <td class="p-2 text-xs text-slate-600">${escaparHTML(d.cidade || '-')}</td>
+              <td class="p-2 text-xs text-slate-700 font-medium">${formatarProdutosResumo(d)}</td>
+              <td class="p-2 text-right font-bold text-amber-800">R$ ${Number(d.valor_total || 0).toFixed(2)}</td>
+              <td class="p-2 text-center">${badgeStatus}</td>
+              <td class="p-2 text-[10px] text-slate-600">${escaparHTML(d.observacao || '-')}</td>
+              <td class="p-2 text-center">
+                ${!isPaga ? `<button onclick="darBaixaNotinha('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">Dar Baixa</button>` : '<span class="text-[10px] text-slate-400">Ok</span>'}
+              </td>
+            </tr>`;
+        }).join('');
+
+        html += `
+          <div>
+            <div onclick="toggleNotinhasVendedor('${chave}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer">
+              <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${notinhas.length} notinha(s) registrada(s)</p></div>
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-amber-800">Total: R$ ${totalVendedor.toFixed(2)}</span>
+                <span class="text-slate-400">▼</span>
+              </div>
+            </div>
+            <div id="notinhas-det-${chave}" class="${aberto ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
+              <div class="overflow-x-auto border border-slate-200 rounded bg-white">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
+                    <tr><th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Cidade</th><th class="p-2">Produtos / Qtd</th><th class="p-2 text-right">Valor Total</th><th class="p-2 text-center">Status</th><th class="p-2">Obs</th><th class="p-2 text-center">Ação</th></tr>
+                  </thead>
+                  <tbody>${linhas}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>`;
+      });
+
+      container.innerHTML = html || '<div class="p-4 text-center text-slate-400">Nenhuma notinha a prazo encontrada nesta data.</div>';
+      const resumo = document.getElementById('notinhas-resumo-geral');
+      if (resumo) resumo.innerText = `${totalGeral} notinha(s) · R$ ${valorTotalGeral.toFixed(2)}`;
+    }
+
+    async function darBaixaNotinha(id) {
+      if (!confirm('Confirmar o recebimento/baixa desta notinha a prazo?')) return;
+      try {
+        const { error } = await supabaseClient.from('fechamentos').update({ status: 'PAGO' }).eq('id', id);
+        if (error) throw error;
+        carregarNotinhasAPrazo();
+      } catch (err) {
+        alert('Erro ao dar baixa: ' + err.message);
+      }
+    }
+
+    // =========================================================================
     // NOTAS E BOLETOS
-    // O app grava em fechamentos.solicitacao_documento: 'NOTA', 'BOLETO' ou 'NOTA E BOLETO' (vazio = nenhum)
     // =========================================================================
     function escaparHTML(t) { return String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
@@ -1287,7 +1449,6 @@
       let totalGeral = 0, html = '';
       Object.keys(porVendedor).sort().forEach(k => {
         const v = porVendedor[k];
-        // unifica reenvios iguais ANTES de filtrar, para valer o documento marcado no último envio
         const docs = processarRegistosVendedor(v.regs).atendimentos
           .map(a => ({ ...a, _tipoDoc: tipoDocumento(a) }))
           .filter(a => a._tipoDoc && (filtro === 'TODOS' || (filtro === 'NOTA' && (a._tipoDoc === 'NOTA' || a._tipoDoc === 'AMBOS')) || (filtro === 'BOLETO' && (a._tipoDoc === 'BOLETO' || a._tipoDoc === 'AMBOS')) || filtro === a._tipoDoc));
