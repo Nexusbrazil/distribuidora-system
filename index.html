@@ -460,15 +460,16 @@
           <h2 class="text-2xl font-bold text-slate-900">Módulo Interno · Varejo & Estoque Base</h2>
         </div>
         <div class="flex gap-2">
-          <button onclick="alternarSubAbaInterno('vendas')" id="btn-sub-vendas" class="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm">💰 Lançamento de Vendas</button>
-          <button onclick="alternarSubAbaInterno('produtos')" id="btn-sub-produtos" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">📦 Catálogo de Produtos</button>
-          <button onclick="alternarSubAbaInterno('estoque')" id="btn-sub-estoque" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">🏭 Estoque do Barracão</button>
+          <button onclick="alternarSubAbaInterno('vendas')" id="btn-sub-vendas" class="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm hover:opacity-90">💰 Vendas</button>
+          <button onclick="alternarSubAbaInterno('produtos')" id="btn-sub-produtos" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300 shadow-sm hover:opacity-90">📦 Produtos</button>
+          <button onclick="alternarSubAbaInterno('estoque')" id="btn-sub-estoque" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300 shadow-sm hover:opacity-90">🏭 Estoque Geral</button>
+          <button onclick="alternarSubAbaInterno('conferencia')" id="btn-sub-conferencia" class="px-4 py-2 bg-amber-100 text-amber-800 font-bold border border-amber-300 text-sm rounded-lg hover:bg-amber-200 shadow-sm flex items-center gap-2 transition"><span>🚛</span> Conferir Cargas</button>
         </div>
       </div>
 
       <div id="sub-interno-estoque" class="hidden space-y-6">
         <div id="estoque-cards" class="grid grid-cols-2 lg:grid-cols-5 gap-4"></div>
-        <p class="text-xs text-slate-500">O saldo desconta sozinho a <strong>carga que os vendedores de rota pegam</strong> ao iniciar a rota e as <strong>saídas lançadas na Compra e Venda</strong>. Você lança aqui as entradas, retornos e a contagem física.</p>
+        <p class="text-xs text-slate-500">O saldo desconta sozinho a <strong>carga que os vendedores de rota pegam</strong> (após ser confirmada pelo armazém) e as <strong>saídas lançadas na Compra e Venda</strong>. Você lança aqui as entradas, retornos e a contagem física.</p>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-sky-500">
           <h3 class="font-bold text-lg text-slate-800 mb-4">🏭 Lançar Movimentação do Barracão</h3>
@@ -491,6 +492,34 @@
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="bg-slate-800 text-white font-semibold px-4 py-3 text-sm">Saídas automáticas (rota e compra e venda)</div>
             <div class="overflow-x-auto max-h-96"><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2">Data</th><th class="p-2">Origem</th><th class="p-2 text-right">330</th><th class="p-2 text-right">900</th><th class="p-2 text-right">Uva</th><th class="p-2 text-right">Água S/G</th><th class="p-2 text-right">Água C/G</th></tr></thead><tbody id="estoque-auto-body"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOVA SECÇÃO: CONFERÊNCIA DE CARGA -->
+      <div id="sub-interno-conferencia" class="hidden space-y-6">
+        <div class="bg-amber-50 rounded-xl shadow-sm border border-amber-200 p-6">
+          <h3 class="font-bold text-lg text-amber-900 mb-2 flex items-center gap-2">🚛 Aguardando Conferência de Armazém</h3>
+          <p class="text-xs text-amber-700 mb-4">Confira fisicamente o que o vendedor colocou no camião. Só após clicar em "Confirmar" é que o estoque será descontado do Barracão.</p>
+          
+          <div class="overflow-x-auto bg-white rounded border border-amber-200">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-amber-100 border-b border-amber-200 text-amber-800 uppercase text-xs">
+                <tr>
+                  <th class="p-3">Data</th>
+                  <th class="p-3">Vendedor</th>
+                  <th class="p-3 text-center">330ml</th>
+                  <th class="p-3 text-center">900ml</th>
+                  <th class="p-3 text-center">Uva</th>
+                  <th class="p-3 text-center">Água S/G</th>
+                  <th class="p-3 text-center">Água C/G</th>
+                  <th class="p-3 text-center">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-conferencia-body" class="divide-y divide-amber-50 font-medium">
+                <tr><td colspan="8" class="text-center p-4 text-slate-400">Carregando cargas pendentes...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1152,6 +1181,7 @@
           if (vendedorSelecionadoAtual) abrirDetalheVendedor(vendedorSelecionadoAtual); 
           if (abaAtiva === 'notas') carregarAbaNotas(); 
           if (abaAtiva === 'notinhas') carregarNotinhasAPrazo();
+          if (abaAtiva === 'interno' && !document.getElementById('sub-interno-conferencia').classList.contains('hidden')) carregarCargasPendentes();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'estoque_barracao' }, () => { if (abaAtiva === 'interno' && !document.getElementById('sub-interno-estoque').classList.contains('hidden')) carregarEstoqueBarracao(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if (abaAtiva === 'interno' && !document.getElementById('sub-interno-estoque').classList.contains('hidden')) carregarEstoqueBarracao(); })
@@ -1252,7 +1282,7 @@
       nomesVendedores.sort().forEach(vendedor => {
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome||'').toLowerCase() === vendedor.toLowerCase());
         const { totalClientes, totalValor, clientesMultiplos, enviosIguais, marcadores, atendimentos: atendLista } = processarRegistosVendedor(todosRegistros);
-        const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠️️ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
+        const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
@@ -1614,19 +1644,96 @@
     }
 
     // =========================================================================
-    // MÓDULO INTERNO / VAREJO
+    // MÓDULO INTERNO / VAREJO E CONFERÊNCIA
     // =========================================================================
     function alternarSubAbaInterno(sub) {
-      ['vendas', 'produtos', 'estoque'].forEach(n => document.getElementById('sub-interno-' + n).classList.toggle('hidden', sub !== n));
-      const ativo = { vendas: 'bg-emerald-600', produtos: 'bg-sky-600', estoque: 'bg-amber-600' };
-      ['vendas', 'produtos', 'estoque'].forEach(n => {
-        document.getElementById('btn-sub-' + n).className = sub === n ? `px-4 py-2 ${ativo[n]} text-white font-semibold text-sm rounded-lg shadow-sm` : 'px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300';
+      ['vendas', 'produtos', 'estoque', 'conferencia'].forEach(n => {
+        const el = document.getElementById('sub-interno-' + n);
+        if(el) el.classList.toggle('hidden', sub !== n);
       });
+      
+      const ativo = { 
+        vendas: 'bg-emerald-600 text-white', 
+        produtos: 'bg-sky-600 text-white', 
+        estoque: 'bg-amber-600 text-white', 
+        conferencia: 'bg-amber-600 text-white border-none' 
+      };
+      const inativo = 'bg-slate-200 text-slate-700';
+      
+      ['vendas', 'produtos', 'estoque'].forEach(n => {
+        const btn = document.getElementById('btn-sub-' + n);
+        if(btn) btn.className = `px-4 py-2 font-semibold text-sm rounded-lg shadow-sm hover:opacity-90 transition ${sub === n ? ativo[n] : inativo}`;
+      });
+      
+      const btnConf = document.getElementById('btn-sub-conferencia');
+      if(btnConf) btnConf.className = `px-4 py-2 font-bold text-sm rounded-lg shadow-sm flex items-center gap-2 transition ${sub === 'conferencia' ? ativo.conferencia : 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200'}`;
+
       if (sub === 'estoque') carregarEstoqueBarracao();
+      if (sub === 'conferencia') carregarCargasPendentes();
+    }
+
+    // ---------- CONFERÊNCIA DE CARGA DO BARRACÃO ----------
+    async function carregarCargasPendentes() {
+      const tbody = document.getElementById('tabela-conferencia-body');
+      if (!tbody) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('fechamentos')
+          .select('id, vendedor_nome, data_fechamento, carga_330ml, carga_900ml, carga_uva, carga_agua, carga_agua_gas, estoque_confirmado, status')
+          .eq('estoque_confirmado', false)
+          .neq('status', 'EXCLUIDO')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (error) throw error;
+
+        const pendentes = (data || []).filter(r => r.carga_330ml > 0 || r.carga_900ml > 0 || r.carga_uva > 0 || r.carga_agua > 0 || r.carga_agua_gas > 0);
+
+        if (pendentes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center p-6 text-slate-500 font-bold">Nenhuma carga pendente de conferência no momento. Tudo certo! ✅</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = pendentes.map(r => `
+          <tr class="hover:bg-amber-50/50 transition">
+            <td class="p-3 text-xs text-slate-600">${r.data_fechamento ? r.data_fechamento.split('-').reverse().join('/') : '-'}</td>
+            <td class="p-3 font-bold text-slate-800 uppercase">${r.vendedor_nome}</td>
+            <td class="p-3 text-center ${r.carga_330ml ? 'font-bold text-indigo-700' : 'text-slate-300'}">${r.carga_330ml || 0}</td>
+            <td class="p-3 text-center ${r.carga_900ml ? 'font-bold text-indigo-700' : 'text-slate-300'}">${r.carga_900ml || 0}</td>
+            <td class="p-3 text-center ${r.carga_uva ? 'font-bold text-indigo-700' : 'text-slate-300'}">${r.carga_uva || 0}</td>
+            <td class="p-3 text-center ${r.carga_agua ? 'font-bold text-sky-700' : 'text-slate-300'}">${r.carga_agua || 0}</td>
+            <td class="p-3 text-center ${r.carga_agua_gas ? 'font-bold text-sky-700' : 'text-slate-300'}">${r.carga_agua_gas || 0}</td>
+            <td class="p-3 text-center">
+              <button onclick="confirmarCargaNoEstoque('${r.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded shadow text-xs flex items-center gap-1 mx-auto transition">
+                ✔️ Confirmar
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-red-500 font-bold">Erro: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function confirmarCargaNoEstoque(id) {
+      if (!confirm('Tem a certeza que esta carga está correta e já saiu do armazém?')) return;
+      try {
+        const { error } = await supabaseClient
+          .from('fechamentos')
+          .update({ estoque_confirmado: true })
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        carregarCargasPendentes();
+        carregarEstoqueBarracao();
+        alert('Carga confirmada e descontada do armazém com sucesso!');
+      } catch (err) {
+        alert('Erro ao confirmar carga: ' + err.message);
+      }
     }
 
     // ---------- ESTOQUE DO BARRACÃO (saldo real da empresa) ----------
-    // Quantidades em unidades (330ml, 900ml, uva) e em fardos (águas). Caixa: 330ml = 80 un, 900ml = 25 un.
     const ESTOQUE_PRODUTOS = [
       { k: '330ml', nome: '330ml', cx: 80, un: 'un' }, { k: '900ml', nome: '900ml', cx: 25, un: 'un' }, { k: 'uva', nome: 'Uva', cx: 0, un: 'un' },
       { k: 'agua_sg', nome: 'Água S/G', cx: 0, un: 'fardos' }, { k: 'agua_cg', nome: 'Água C/G', cx: 0, un: 'fardos' }
@@ -1654,15 +1761,14 @@
       ajustarFormEstoque();
       const [rm, rf, rc] = await Promise.all([
         supabaseClient.from('estoque_barracao').select('*').order('data', { ascending: false }).order('created_at', { ascending: false }).limit(5000),
-        supabaseClient.from('fechamentos').select('vendedor_nome,data_fechamento,status,created_at,carga_330ml,carga_900ml,carga_uva,carga_agua,carga_agua_gas').not('data_fechamento', 'is', null).limit(5000),
+        supabaseClient.from('fechamentos').select('vendedor_nome,data_fechamento,status,created_at,carga_330ml,carga_900ml,carga_uva,carga_agua,carga_agua_gas,estoque_confirmado').not('data_fechamento', 'is', null).limit(5000),
         supabaseClient.from('compra_venda_lancamentos').select('vendedor_nome,tipo,data,qtd_330,qtd_900,qtd_uva,qtd_agua,qtd_aguagas').eq('tipo', 'SAIDA').limit(5000)
       ]);
       const cards = document.getElementById('estoque-cards');
-      if (rm.error) { cards.innerHTML = `<div class="col-span-5 p-4 text-sm font-bold text-red-600 bg-red-50 rounded">Tabela estoque_barracao não encontrada: rode o SQL v4. (${escaparHTML(rm.error.message)})</div>`; return; }
+      if (rm.error) { cards.innerHTML = `<div class="col-span-5 p-4 text-sm font-bold text-red-600 bg-red-50 rounded">Tabela estoque_barracao não encontrada. (${escaparHTML(rm.error.message)})</div>`; return; }
       const mov = rm.data || [];
       estoqueMovCache = mov;
 
-      // contagem de partida por produto: último INVENTARIO; sem ele, a primeira movimentação lançada
       const res = {};
       ESTOQUE_PRODUTOS.forEach(p => {
         const doProd = mov.filter(m => m.produto === p.k);
@@ -1676,7 +1782,6 @@
         if (m.tipo === 'ENTRADA') r.entr += q; else if (m.tipo === 'RETORNO') r.ret += q; else if (m.tipo === 'SAIDA') r.saiM += q;
       });
 
-      // saídas automáticas: 1 carga por vendedor/dia (vale a última vez que ele confirmou o estoque no app)
       const autoLinhas = [];
       const ultimos = {};
       (rf.data || []).filter(r => !['EXCLUIDO', 'ROTA_FECHADA'].includes(String(r.status || '').toUpperCase()) && Object.values(ESTOQUE_COL_ROTA).some(c => r[c] !== null && r[c] !== undefined))
@@ -1684,7 +1789,13 @@
         .forEach(r => { ultimos[normalizarTexto(r.vendedor_nome) + '|' + r.data_fechamento] = r; });
       Object.values(ultimos).forEach(r => {
         const linha = { data: r.data_fechamento, origem: 'Rota · ' + r.vendedor_nome, q: {} };
-        ESTOQUE_PRODUTOS.forEach(p => { const q = Number(r[ESTOQUE_COL_ROTA[p.k]]) || 0; linha.q[p.k] = q; if (q && res[p.k].ini && r.data_fechamento >= res[p.k].ini) res[p.k].rota += q; });
+        ESTOQUE_PRODUTOS.forEach(p => { 
+          const q = Number(r[ESTOQUE_COL_ROTA[p.k]]) || 0; 
+          linha.q[p.k] = q; 
+          if (q && res[p.k].ini && r.data_fechamento >= res[p.k].ini && r.estoque_confirmado === true) {
+            res[p.k].rota += q; 
+          }
+        });
         autoLinhas.push(linha);
       });
       (rc.data || []).forEach(r => {
@@ -1706,7 +1817,7 @@
             <div class="flex justify-between"><span>${r.temInv ? 'Contagem ' + dataBR(r.ini) : 'Início ' + dataBR(r.ini)}</span><span>${r.inv}</span></div>
             <div class="flex justify-between text-emerald-700"><span>+ Entradas</span><span>${r.entr}</span></div>
             ${r.ret ? `<div class="flex justify-between text-emerald-700"><span>+ Retornos</span><span>${r.ret}</span></div>` : ''}
-            <div class="flex justify-between text-red-600"><span>− Rota (carga)</span><span>${r.rota}</span></div>
+            <div class="flex justify-between text-red-600"><span>− Rota (confirmada)</span><span>${r.rota}</span></div>
             <div class="flex justify-between text-red-600"><span>− Compra e venda</span><span>${r.cv}</span></div>
             ${r.saiM ? `<div class="flex justify-between text-red-600"><span>− Saídas manuais</span><span>${r.saiM}</span></div>` : ''}
           </div>
