@@ -90,6 +90,12 @@
         <button onclick="mudarAba('lancamentos')" id="nav-lancamentos" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>🎁</span> Lançamentos
         </button>
+        <button onclick="mudarAba('carros')" id="nav-carros" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>🚗</span> Carros
+        </button>
+        <button onclick="mudarAba('contas')" id="nav-contas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>💳</span> Contas a Pagar
+        </button>
         <button onclick="mudarAba('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>📊</span> Relatório Mensal
         </button>
@@ -468,14 +474,14 @@
       </div>
 
       <div id="sub-interno-estoque" class="hidden space-y-6">
-        <div id="estoque-cards" class="grid grid-cols-2 lg:grid-cols-5 gap-4"></div>
+        <div id="estoque-cards" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4"></div>
         <p class="text-xs text-slate-500">O saldo desconta sozinho a <strong>carga que os vendedores de rota pegam</strong> (após ser confirmada pelo armazém) e as <strong>saídas lançadas na Compra e Venda</strong>. Você lança aqui as entradas, retornos e a contagem física.</p>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-sky-500">
           <h3 class="font-bold text-lg text-slate-800 mb-4">🏭 Lançar Movimentação do Barracão</h3>
           <form id="form-estoque" onsubmit="salvarMovEstoque(event)" class="grid grid-cols-2 md:grid-cols-6 gap-4 items-end">
             <div><label class="block text-xs font-semibold text-slate-600 mb-1">Data</label><input type="date" id="est-data" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Produto</label><select id="est-produto" onchange="ajustarFormEstoque()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="330ml">330ml</option><option value="900ml">900ml</option><option value="uva">Uva</option><option value="agua_sg">Água S/G (fardo)</option><option value="agua_cg">Água C/G (fardo)</option></select></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Produto</label><select id="est-produto" onchange="ajustarFormEstoque()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="330ml">330ml</option><option value="900ml">900ml</option><option value="uva">Uva</option><option value="agua_sg">Água S/G (fardo)</option><option value="agua_cg">Água C/G (fardo)</option><option value="agua_15">Água 1,5L (fardo)</option><option value="caixa_copo">Caixa Copo</option></select></div>
             <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label><select id="est-tipo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="ENTRADA">Entrada (chegou)</option><option value="SAIDA">Saída manual</option><option value="RETORNO">Retorno de vendedor</option><option value="INVENTARIO">Contagem física (inventário)</option></select></div>
             <div><label class="block text-xs font-semibold text-slate-600 mb-1">Caixas</label><input type="number" id="est-cx" min="0" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
             <div><label id="est-un-label" class="block text-xs font-semibold text-slate-600 mb-1">Unidades</label><input type="number" id="est-un" min="0" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
@@ -491,7 +497,7 @@
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="bg-slate-800 text-white font-semibold px-4 py-3 text-sm">Saídas automáticas (rota e compra e venda)</div>
-            <div class="overflow-x-auto max-h-96"><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2">Data</th><th class="p-2">Origem</th><th class="p-2 text-right">330</th><th class="p-2 text-right">900</th><th class="p-2 text-right">Uva</th><th class="p-2 text-right">Água S/G</th><th class="p-2 text-right">Água C/G</th></tr></thead><tbody id="estoque-auto-body"></tbody></table></div>
+            <div class="overflow-x-auto max-h-96"><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2">Data</th><th class="p-2">Origem</th><th class="p-2 text-right">330</th><th class="p-2 text-right">900</th><th class="p-2 text-right">Uva</th><th class="p-2 text-right">Água S/G</th><th class="p-2 text-right">Água C/G</th><th class="p-2 text-right">Água 1,5L</th><th class="p-2 text-right">Cx Copo</th></tr></thead><tbody id="estoque-auto-body"></tbody></table></div>
           </div>
         </div>
       </div>
@@ -513,11 +519,13 @@
                   <th class="p-3 text-center">Uva</th>
                   <th class="p-3 text-center">Água S/G</th>
                   <th class="p-3 text-center">Água C/G</th>
+                  <th class="p-3 text-center">Água 1,5L</th>
+                  <th class="p-3 text-center">Cx Copo</th>
                   <th class="p-3 text-center">Ação</th>
                 </tr>
               </thead>
               <tbody id="tabela-conferencia-body" class="divide-y divide-amber-50 font-medium">
-                <tr><td colspan="8" class="text-center p-4 text-slate-400">Carregando cargas pendentes...</td></tr>
+                <tr><td colspan="10" class="text-center p-4 text-slate-400">Carregando cargas pendentes...</td></tr>
               </tbody>
             </table>
           </div>
@@ -815,6 +823,121 @@
           <span id="notas-feitos-resumo">--</span>
         </div>
         <div id="container-notas-feitos"><div class="p-4 text-center text-slate-400">Nada marcado como feito ainda.</div></div>
+      </div>
+    </section>
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO: CARROS                                                             -->
+    <!-- ========================================================================= -->
+    <section id="sec-carros" class="hidden p-6 space-y-6">
+      <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Carros da Frota</h2>
+          <p class="text-slate-500 text-sm">Cadastre os veículos e acompanhe as despesas de cada um. Tudo é sincronizado com Contas a Pagar.</p>
+        </div>
+        <button onclick="carregarDadosFrota()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
+      </div>
+      <div id="frota-aviso-carros" class="hidden p-3 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-5xl border-l-4 border-l-sky-500">
+        <h3 id="titulo-form-carro" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2"><span>🚗</span> Cadastrar Veículo</h3>
+        <form id="form-carro" onsubmit="salvarCarro(event)" class="space-y-4">
+          <input type="hidden" id="carro-edit-id" value="">
+          <div class="grid grid-cols-4 gap-4">
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Placa</label><input type="text" id="carro-placa" required placeholder="ABC1D23" maxlength="8" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase font-bold"></div>
+            <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Modelo</label><input type="text" id="carro-modelo" required placeholder="Ex: VW Delivery 9.170" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Ano</label><input type="number" id="carro-ano" min="1950" max="2100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Motorista / Vendedor</label><input type="text" id="carro-motorista" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Observações</label><input type="text" id="carro-obs" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">💾 Salvar Veículo</button>
+            <button type="button" onclick="limparFormCarro()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">Limpar</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="carros-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+
+      <div id="carro-painel" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-900 text-white flex flex-wrap justify-between items-center gap-3">
+          <div><span class="font-bold text-base" id="carro-painel-titulo">Veículo</span><p class="text-xs text-slate-400" id="carro-painel-sub"></p></div>
+          <div class="text-right text-xs">
+            <span class="text-slate-400">A pagar: </span><strong id="carro-painel-pendente" class="text-amber-400 text-base">R$ 0,00</strong>
+            <span class="text-slate-400 ml-3">Pago: </span><strong id="carro-painel-pago" class="text-emerald-400 text-base">R$ 0,00</strong>
+          </div>
+        </div>
+        <form onsubmit="salvarDespesaCarro(event)" class="p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label>
+            <select id="dc-tipo" class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm">
+              <option>Combustível</option><option>Manutenção</option><option>Multa</option><option>IPVA/Licenciamento</option><option>Seguro</option><option>Pneus</option><option>Outros</option>
+            </select></div>
+          <div class="md:col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label><input type="text" id="dc-desc" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Valor (R$)</label><input type="number" step="0.01" min="0.01" id="dc-valor" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Vencimento</label><input type="date" id="dc-venc" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          <div class="flex flex-col gap-1">
+            <label class="flex items-center gap-1 text-[11px] font-bold text-slate-600 cursor-pointer"><input type="checkbox" id="dc-pago" class="w-4 h-4 accent-emerald-600"> Já foi paga</label>
+            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow">➕ Lançar despesa</button>
+          </div>
+        </form>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase"><tr><th class="p-2">Vencimento</th><th class="p-2">Tipo</th><th class="p-2">Descrição</th><th class="p-2 text-right">Valor</th><th class="p-2 text-center">Status</th><th class="p-2 text-center">Ações</th></tr></thead>
+            <tbody id="carro-despesas-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO: CONTAS A PAGAR                                                     -->
+    <!-- ========================================================================= -->
+    <section id="sec-contas" class="hidden p-6 space-y-6">
+      <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Contas a Pagar</h2>
+          <p class="text-slate-500 text-sm">Todas as despesas da empresa. Contas dos veículos aparecem aqui com a categoria VEÍCULO e a placa/modelo.</p>
+        </div>
+        <div class="flex items-end gap-3">
+          <button onclick="carregarDadosFrota()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+            <select id="filtro-conta-status" onchange="renderizarContas()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="ABERTAS">Em aberto</option><option value="PAGAS">Pagas</option><option value="TODAS">Todas</option></select></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label>
+            <select id="filtro-conta-categoria" onchange="renderizarContas()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="">Todas</option></select></div>
+        </div>
+      </div>
+      <div id="frota-aviso-contas" class="hidden p-3 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg"></div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-amber-500"><p class="text-xs font-semibold text-slate-500 uppercase">A pagar (em aberto)</p><p id="contas-total-aberto" class="text-xl font-bold text-amber-700 mt-1">R$ 0,00</p></div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-red-500"><p class="text-xs font-semibold text-slate-500 uppercase">Vencidas</p><p id="contas-total-vencido" class="text-xl font-bold text-red-600 mt-1">R$ 0,00</p></div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-500"><p class="text-xs font-semibold text-slate-500 uppercase">Pago neste mês</p><p id="contas-total-pago-mes" class="text-xl font-bold text-emerald-700 mt-1">R$ 0,00</p></div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-slate-800">
+        <h3 class="font-bold text-base text-slate-800 mb-4 flex items-center gap-2"><span>➕</span> Lançar Conta</h3>
+        <form onsubmit="salvarConta(event)" class="grid grid-cols-2 md:grid-cols-6 gap-4 items-end">
+          <div class="md:col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label><input type="text" id="cp-desc" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label><select id="cp-categoria" onchange="alternarCampoCarroConta()" class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm"></select></div>
+          <div id="cp-carro-wrap" class="hidden"><label class="block text-xs font-semibold text-slate-600 mb-1">Veículo</label><select id="cp-carro" class="w-full border border-sky-400 rounded-lg px-2 py-2 text-sm bg-sky-50"></select></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Valor (R$)</label><input type="number" step="0.01" min="0.01" id="cp-valor" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold"></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Vencimento</label><input type="date" id="cp-venc" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          <div class="flex flex-col gap-1">
+            <label class="flex items-center gap-1 text-[11px] font-bold text-slate-600 cursor-pointer"><input type="checkbox" id="cp-pago" class="w-4 h-4 accent-emerald-600"> Já foi paga</label>
+            <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs shadow">➕ Lançar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center text-sm"><span>Contas</span><span id="contas-qtd" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full">0 registros</span></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase"><tr><th class="p-3">Vencimento</th><th class="p-3">Descrição</th><th class="p-3">Categoria</th><th class="p-3 text-right">Valor</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Ações</th></tr></thead>
+            <tbody id="contas-body"></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
@@ -1188,19 +1311,21 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => carregarVendasVarejo())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => carregarProdutosInternos())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if(abaAtiva==='compra-venda') carregarLancamentosCV(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'carros' }, () => { if (abaAtiva === 'carros' || abaAtiva === 'contas') carregarDadosFrota(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'contas_pagar' }, () => { if (abaAtiva === 'carros' || abaAtiva === 'contas') carregarDadosFrota(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'caixa_diario' }, () => { if(abaAtiva==='caixa') carregarCaixaDiario(); })
         .subscribe();
     }
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -1213,6 +1338,7 @@
       else if (aba === 'rotas') carregarVendedoresAPI();
       else if (aba === 'notas') carregarAbaNotas();
       else if (aba === 'notinhas') carregarNotinhasAPrazo();
+      else if (aba === 'carros' || aba === 'contas') carregarDadosFrota();
     }
 
     // =========================================================================
@@ -1679,7 +1805,7 @@
       try {
         const { data, error } = await supabaseClient
           .from('fechamentos')
-          .select('id, vendedor_nome, data_fechamento, carga_330ml, carga_900ml, carga_uva, carga_agua, carga_agua_gas, estoque_confirmado, status')
+          .select('*')
           .eq('estoque_confirmado', false)
           .neq('status', 'EXCLUIDO')
           .order('created_at', { ascending: false })
@@ -1687,10 +1813,10 @@
 
         if (error) throw error;
 
-        const pendentes = (data || []).filter(r => r.carga_330ml > 0 || r.carga_900ml > 0 || r.carga_uva > 0 || r.carga_agua > 0 || r.carga_agua_gas > 0);
+        const pendentes = (data || []).filter(r => r.carga_330ml > 0 || r.carga_900ml > 0 || r.carga_uva > 0 || r.carga_agua > 0 || r.carga_agua_gas > 0 || r.carga_agua_15l > 0 || r.carga_caixa_copo > 0);
 
         if (pendentes.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center p-6 text-slate-500 font-bold">Nenhuma carga pendente de conferência no momento. Tudo certo! ✅</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10" class="text-center p-6 text-slate-500 font-bold">Nenhuma carga pendente de conferência no momento. Tudo certo! ✅</td></tr>';
           return;
         }
 
@@ -1703,6 +1829,8 @@
             <td class="p-3 text-center ${r.carga_uva ? 'font-bold text-indigo-700' : 'text-slate-300'}">${r.carga_uva || 0}</td>
             <td class="p-3 text-center ${r.carga_agua ? 'font-bold text-sky-700' : 'text-slate-300'}">${r.carga_agua || 0}</td>
             <td class="p-3 text-center ${r.carga_agua_gas ? 'font-bold text-sky-700' : 'text-slate-300'}">${r.carga_agua_gas || 0}</td>
+            <td class="p-3 text-center ${r.carga_agua_15l ? 'font-bold text-sky-700' : 'text-slate-300'}">${r.carga_agua_15l || 0}</td>
+            <td class="p-3 text-center ${r.carga_caixa_copo ? 'font-bold text-indigo-700' : 'text-slate-300'}">${r.carga_caixa_copo || 0}</td>
             <td class="p-3 text-center">
               <button onclick="confirmarCargaNoEstoque('${r.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded shadow text-xs flex items-center gap-1 mx-auto transition">
                 ✔️ Confirmar
@@ -1711,7 +1839,7 @@
           </tr>
         `).join('');
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-red-500 font-bold">Erro: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-red-500 font-bold">Erro: ${err.message}</td></tr>`;
       }
     }
 
@@ -1736,10 +1864,11 @@
     // ---------- ESTOQUE DO BARRACÃO (saldo real da empresa) ----------
     const ESTOQUE_PRODUTOS = [
       { k: '330ml', nome: '330ml', cx: 80, un: 'un' }, { k: '900ml', nome: '900ml', cx: 25, un: 'un' }, { k: 'uva', nome: 'Uva', cx: 0, un: 'un' },
-      { k: 'agua_sg', nome: 'Água S/G', cx: 0, un: 'fardos' }, { k: 'agua_cg', nome: 'Água C/G', cx: 0, un: 'fardos' }
+      { k: 'agua_sg', nome: 'Água S/G', cx: 0, un: 'fardos' }, { k: 'agua_cg', nome: 'Água C/G', cx: 0, un: 'fardos' },
+      { k: 'agua_15', nome: 'Água 1,5L', cx: 0, un: 'fardos' }, { k: 'caixa_copo', nome: 'Caixa Copo', cx: 0, un: 'caixas' }
     ];
-    const ESTOQUE_COL_ROTA = { '330ml': 'carga_330ml', '900ml': 'carga_900ml', 'uva': 'carga_uva', 'agua_sg': 'carga_agua', 'agua_cg': 'carga_agua_gas' };
-    const ESTOQUE_COL_CV = { '330ml': 'qtd_330', '900ml': 'qtd_900', 'uva': 'qtd_uva', 'agua_sg': 'qtd_agua', 'agua_cg': 'qtd_aguagas' };
+    const ESTOQUE_COL_ROTA = { '330ml': 'carga_330ml', '900ml': 'carga_900ml', 'uva': 'carga_uva', 'agua_sg': 'carga_agua', 'agua_cg': 'carga_agua_gas', 'agua_15': 'carga_agua_15l', 'caixa_copo': 'carga_caixa_copo' };
+    const ESTOQUE_COL_CV = { '330ml': 'qtd_330', '900ml': 'qtd_900', 'uva': 'qtd_uva', 'agua_sg': 'qtd_agua', 'agua_cg': 'qtd_aguagas', 'agua_15': 'qtd_agua15', 'caixa_copo': 'qtd_caixacopo' };
     let estoqueMovCache = [];
 
     function fmtEstoque(p, q) {
@@ -1761,11 +1890,11 @@
       ajustarFormEstoque();
       const [rm, rf, rc] = await Promise.all([
         supabaseClient.from('estoque_barracao').select('*').order('data', { ascending: false }).order('created_at', { ascending: false }).limit(5000),
-        supabaseClient.from('fechamentos').select('vendedor_nome,data_fechamento,status,created_at,carga_330ml,carga_900ml,carga_uva,carga_agua,carga_agua_gas,estoque_confirmado').not('data_fechamento', 'is', null).limit(5000),
-        supabaseClient.from('compra_venda_lancamentos').select('vendedor_nome,tipo,data,qtd_330,qtd_900,qtd_uva,qtd_agua,qtd_aguagas').eq('tipo', 'SAIDA').limit(5000)
+        supabaseClient.from('fechamentos').select('*').not('data_fechamento', 'is', null).limit(5000),
+        supabaseClient.from('compra_venda_lancamentos').select('*').eq('tipo', 'SAIDA').limit(5000)
       ]);
       const cards = document.getElementById('estoque-cards');
-      if (rm.error) { cards.innerHTML = `<div class="col-span-5 p-4 text-sm font-bold text-red-600 bg-red-50 rounded">Tabela estoque_barracao não encontrada. (${escaparHTML(rm.error.message)})</div>`; return; }
+      if (rm.error) { cards.innerHTML = `<div class="col-span-7 p-4 text-sm font-bold text-red-600 bg-red-50 rounded">Tabela estoque_barracao não encontrada. (${escaparHTML(rm.error.message)})</div>`; return; }
       const mov = rm.data || [];
       estoqueMovCache = mov;
 
@@ -1834,7 +1963,7 @@
 
       autoLinhas.sort((a, b) => String(b.data).localeCompare(String(a.data)));
       document.getElementById('estoque-auto-body').innerHTML = autoLinhas.slice(0, 40).map(l => `<tr class="border-b border-slate-100"><td class="p-2">${dataBR(l.data)}</td><td class="p-2 font-semibold">${escaparHTML(l.origem)}</td>${ESTOQUE_PRODUTOS.map(p => `<td class="p-2 text-right ${l.q[p.k] ? 'font-bold' : 'text-slate-300'}">${l.q[p.k] || '-'}</td>`).join('')}</tr>`).join('')
-        || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhuma saída ainda.</td></tr>';
+        || '<tr><td colspan="9" class="p-4 text-center text-slate-400">Nenhuma saída ainda.</td></tr>';
     }
 
     async function salvarMovEstoque(e) {
@@ -2122,6 +2251,262 @@
       });
       document.getElementById('res-fin-recebido').innerText = `R$ ${totBruto.toFixed(2)}`;
       document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${totBruto.toFixed(2)}`;
+    }
+
+    // =========================================================================
+    // CARROS + CONTAS A PAGAR (mesma tabela contas_pagar = sincronização total)
+    // =========================================================================
+    const CATEGORIAS_CONTAS = ['VEÍCULO', 'FORNECEDOR', 'ENERGIA/ÁGUA', 'ALUGUEL', 'SALÁRIOS', 'IMPOSTOS', 'OUTROS'];
+    let carrosCache = [], contasCache = [], carroSelecionadoId = null;
+
+    const hojeBR = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+    const carroPorId = id => carrosCache.find(c => String(c.id) === String(id));
+    const carroRotulo = c => c ? `${c.placa} · ${c.modelo}` : '';
+
+    function statusConta(c) {
+      if (c.status === 'PAGO') return 'PAGO';
+      return c.vencimento && c.vencimento < hojeBR() ? 'VENCIDA' : 'PENDENTE';
+    }
+    function badgeStatusConta(c) {
+      const st = statusConta(c);
+      if (st === 'PAGO') return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">✅ PAGO${c.data_pagamento ? ' ' + fmtData(c.data_pagamento).slice(0, 5) : ''}</span>`;
+      if (st === 'VENCIDA') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">⚠️ VENCIDA</span>';
+      return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">⏳ PENDENTE</span>';
+    }
+    function botoesConta(c) {
+      return (c.status === 'PAGO'
+        ? `<button onclick="desfazerPagamentoConta('${c.id}')" class="text-[10px] text-slate-500 underline mr-2">desfazer</button>`
+        : `<button onclick="pagarConta('${c.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold mr-1">Pagar</button>`)
+        + `<button onclick="excluirConta('${c.id}')" class="text-red-600 bg-red-50 px-2 py-1 rounded text-[10px]">🗑️</button>`;
+    }
+
+    async function carregarDadosFrota() {
+      const [rc, rp] = await Promise.all([
+        supabaseClient.from('carros').select('*').order('placa', { ascending: true }),
+        supabaseClient.from('contas_pagar').select('*').order('vencimento', { ascending: true }).limit(5000)
+      ]);
+      const erro = rc.error || rp.error;
+      ['frota-aviso-carros', 'frota-aviso-contas'].forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        el.classList.toggle('hidden', !erro);
+        if (erro) el.innerHTML = `Tabelas "carros" / "contas_pagar" não encontradas ou sem permissão: rode o SQL de criação no Supabase. (${escaparHTML(erro.message)})`;
+      });
+      carrosCache = rc.data || [];
+      contasCache = rp.data || [];
+      renderizarCarros();
+      renderizarContas();
+    }
+
+    // ---------- CARROS ----------
+    function limparFormCarro() {
+      document.getElementById('carro-edit-id').value = '';
+      document.getElementById('form-carro').reset();
+      document.getElementById('titulo-form-carro').innerHTML = '<span>🚗</span> Cadastrar Veículo';
+    }
+
+    async function salvarCarro(e) {
+      e.preventDefault();
+      const id = document.getElementById('carro-edit-id').value;
+      const payload = {
+        placa: document.getElementById('carro-placa').value.trim().toUpperCase(),
+        modelo: document.getElementById('carro-modelo').value.trim(),
+        ano: parseInt(document.getElementById('carro-ano').value) || null,
+        motorista: document.getElementById('carro-motorista').value.trim() || null,
+        obs: document.getElementById('carro-obs').value.trim() || null
+      };
+      const { error } = id ? await supabaseClient.from('carros').update(payload).eq('id', id) : await supabaseClient.from('carros').insert([payload]);
+      if (error) { alert('Erro ao salvar veículo: ' + error.message); return; }
+      limparFormCarro();
+      carregarDadosFrota();
+    }
+
+    function editarCarro(id) {
+      const c = carroPorId(id); if (!c) return;
+      document.getElementById('carro-edit-id').value = c.id;
+      document.getElementById('carro-placa').value = c.placa || '';
+      document.getElementById('carro-modelo').value = c.modelo || '';
+      document.getElementById('carro-ano').value = c.ano || '';
+      document.getElementById('carro-motorista').value = c.motorista || '';
+      document.getElementById('carro-obs').value = c.obs || '';
+      document.getElementById('titulo-form-carro').innerHTML = `<span>✏️</span> Editando: ${escaparHTML(carroRotulo(c))}`;
+      window.scrollTo(0, 0);
+    }
+
+    async function excluirCarro(id) {
+      const c = carroPorId(id); if (!c) return;
+      const qtd = contasCache.filter(x => String(x.carro_id) === String(id)).length;
+      if (!confirm(`Excluir ${carroRotulo(c)}?` + (qtd ? `\n\nAtenção: as ${qtd} despesa(s) deste veículo também serão excluídas de Contas a Pagar.` : ''))) return;
+      const { error } = await supabaseClient.from('carros').delete().eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      if (String(carroSelecionadoId) === String(id)) carroSelecionadoId = null;
+      carregarDadosFrota();
+    }
+
+    function selecionarCarro(id) {
+      carroSelecionadoId = id;
+      const v = document.getElementById('dc-venc'); if (v && !v.value) v.value = hojeBR();
+      renderizarCarros();
+      document.getElementById('carro-painel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderizarCarros() {
+      const cards = document.getElementById('carros-cards');
+      if (!cards) return;
+      if (carroSelecionadoId && !carroPorId(carroSelecionadoId)) carroSelecionadoId = null;
+
+      cards.innerHTML = carrosCache.map(c => {
+        const contas = contasCache.filter(x => String(x.carro_id) === String(c.id));
+        const aberto = contas.filter(x => x.status !== 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0);
+        const pago = contas.filter(x => x.status === 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0);
+        const vencidas = contas.filter(x => statusConta(x) === 'VENCIDA').length;
+        const sel = String(c.id) === String(carroSelecionadoId);
+        return `<div class="bg-white rounded-xl shadow-sm border ${sel ? 'border-sky-500 ring-2 ring-sky-200' : 'border-slate-200'} p-4">
+          <div class="flex justify-between items-start">
+            <div><p class="font-black text-lg text-slate-900 tracking-wider">${escaparHTML(c.placa)}</p><p class="text-sm text-slate-600">${escaparHTML(c.modelo)}${c.ano ? ' · ' + c.ano : ''}</p>${c.motorista ? `<p class="text-[11px] text-slate-400 mt-0.5">👤 ${escaparHTML(c.motorista)}</p>` : ''}</div>
+            ${vencidas ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">⚠️ ${vencidas} vencida(s)</span>` : ''}
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+            <div class="bg-amber-50 border border-amber-200 rounded p-2"><span class="block text-[10px] uppercase text-amber-800 font-bold">A pagar</span><strong class="text-amber-700">${fmtR$(aberto)}</strong></div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded p-2"><span class="block text-[10px] uppercase text-emerald-800 font-bold">Pago</span><strong class="text-emerald-700">${fmtR$(pago)}</strong></div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="selecionarCarro('${c.id}')" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-1.5 rounded text-xs">📋 Despesas</button>
+            <button onclick="editarCarro('${c.id}')" class="bg-amber-100 text-amber-800 px-2 py-1.5 rounded text-xs font-bold">Editar</button>
+            <button onclick="excluirCarro('${c.id}')" class="bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs">🗑️</button>
+          </div>
+        </div>`;
+      }).join('') || '<div class="col-span-full p-6 text-center text-slate-400 bg-white rounded-xl border border-slate-200">Nenhum veículo cadastrado ainda.</div>';
+
+      // painel individual do carro
+      const painel = document.getElementById('carro-painel');
+      const c = carroPorId(carroSelecionadoId);
+      painel.classList.toggle('hidden', !c);
+      if (!c) { popularSelectsContas(); return; }
+      const contas = contasCache.filter(x => String(x.carro_id) === String(c.id)).sort((a, b) => String(b.vencimento).localeCompare(String(a.vencimento)));
+      document.getElementById('carro-painel-titulo').innerText = `🚗 ${carroRotulo(c)}`;
+      document.getElementById('carro-painel-sub').innerText = `Despesas do veículo · ${contas.length} lançamento(s)`;
+      document.getElementById('carro-painel-pendente').innerText = fmtR$(contas.filter(x => x.status !== 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0));
+      document.getElementById('carro-painel-pago').innerText = fmtR$(contas.filter(x => x.status === 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0));
+      document.getElementById('carro-despesas-body').innerHTML = contas.map(x => `<tr class="border-b border-slate-100">
+        <td class="p-2 font-mono">${fmtData(x.vencimento)}</td>
+        <td class="p-2"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">${escaparHTML(x.tipo_despesa || '-')}</span></td>
+        <td class="p-2 font-semibold">${escaparHTML(x.descricao)}</td>
+        <td class="p-2 text-right font-bold">${fmtR$(x.valor)}</td>
+        <td class="p-2 text-center">${badgeStatusConta(x)}</td>
+        <td class="p-2 text-center whitespace-nowrap">${botoesConta(x)}</td>
+      </tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma despesa lançada para este veículo.</td></tr>';
+      popularSelectsContas();
+    }
+
+    async function salvarDespesaCarro(e) {
+      e.preventDefault();
+      const c = carroPorId(carroSelecionadoId); if (!c) return;
+      const pago = document.getElementById('dc-pago').checked;
+      const { error } = await supabaseClient.from('contas_pagar').insert([{
+        descricao: document.getElementById('dc-desc').value.trim(),
+        categoria: 'VEÍCULO',
+        tipo_despesa: document.getElementById('dc-tipo').value,
+        valor: parseFloat(document.getElementById('dc-valor').value),
+        vencimento: document.getElementById('dc-venc').value,
+        status: pago ? 'PAGO' : 'PENDENTE',
+        data_pagamento: pago ? hojeBR() : null,
+        carro_id: c.id
+      }]);
+      if (error) { alert('Erro ao lançar despesa: ' + error.message); return; }
+      document.getElementById('dc-desc').value = ''; document.getElementById('dc-valor').value = ''; document.getElementById('dc-pago').checked = false;
+      carregarDadosFrota();
+    }
+
+    // ---------- CONTAS A PAGAR ----------
+    function popularSelectsContas() {
+      const selCat = document.getElementById('cp-categoria');
+      if (selCat && !selCat.options.length) selCat.innerHTML = CATEGORIAS_CONTAS.map(c => `<option value="${c}">${c}</option>`).join('');
+      const filtroCat = document.getElementById('filtro-conta-categoria');
+      if (filtroCat && filtroCat.options.length <= 1) filtroCat.innerHTML = '<option value="">Todas</option>' + CATEGORIAS_CONTAS.map(c => `<option value="${c}">${c}</option>`).join('');
+      const selCarro = document.getElementById('cp-carro');
+      if (selCarro) { const atual = selCarro.value; selCarro.innerHTML = carrosCache.map(c => `<option value="${c.id}">${escaparHTML(carroRotulo(c))}</option>`).join('') || '<option value="">Cadastre um veículo na aba Carros</option>'; if (atual) selCarro.value = atual; }
+      const v = document.getElementById('cp-venc'); if (v && !v.value) v.value = hojeBR();
+      alternarCampoCarroConta();
+    }
+
+    function alternarCampoCarroConta() {
+      const ehVeiculo = document.getElementById('cp-categoria')?.value === 'VEÍCULO';
+      document.getElementById('cp-carro-wrap')?.classList.toggle('hidden', !ehVeiculo);
+    }
+
+    function renderizarContas() {
+      const tbody = document.getElementById('contas-body');
+      if (!tbody) return;
+      popularSelectsContas();
+      const fStatus = document.getElementById('filtro-conta-status')?.value || 'ABERTAS';
+      const fCat = document.getElementById('filtro-conta-categoria')?.value || '';
+      const mes = hojeBR().slice(0, 7);
+
+      let aberto = 0, vencido = 0, pagoMes = 0;
+      contasCache.forEach(c => {
+        const v = Number(c.valor || 0);
+        if (c.status === 'PAGO') { if ((c.data_pagamento || '').startsWith(mes)) pagoMes += v; }
+        else { aberto += v; if (statusConta(c) === 'VENCIDA') vencido += v; }
+      });
+      document.getElementById('contas-total-aberto').innerText = fmtR$(aberto);
+      document.getElementById('contas-total-vencido').innerText = fmtR$(vencido);
+      document.getElementById('contas-total-pago-mes').innerText = fmtR$(pagoMes);
+
+      const lista = contasCache
+        .filter(c => (fStatus === 'TODAS' || (fStatus === 'ABERTAS' ? c.status !== 'PAGO' : c.status === 'PAGO')) && (!fCat || c.categoria === fCat))
+        .sort((a, b) => String(a.vencimento).localeCompare(String(b.vencimento)));
+      document.getElementById('contas-qtd').innerText = `${lista.length} registro(s)`;
+      tbody.innerHTML = lista.map(c => {
+        const car = c.carro_id ? carroPorId(c.carro_id) : null;
+        const cat = c.categoria === 'VEÍCULO'
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700 border border-sky-200">🚗 VEÍCULO</span>${car ? `<br><span class="text-[10px] text-slate-500 font-semibold">${escaparHTML(carroRotulo(car))}</span>` : ''}${c.tipo_despesa ? `<span class="text-[10px] text-slate-400"> · ${escaparHTML(c.tipo_despesa)}</span>` : ''}`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${escaparHTML(c.categoria || '-')}</span>`;
+        return `<tr class="border-b border-slate-100 ${statusConta(c) === 'VENCIDA' ? 'bg-red-50/40' : ''}">
+          <td class="p-3 font-mono">${fmtData(c.vencimento)}</td>
+          <td class="p-3 font-semibold">${escaparHTML(c.descricao)}</td>
+          <td class="p-3">${cat}</td>
+          <td class="p-3 text-right font-bold">${fmtR$(c.valor)}</td>
+          <td class="p-3 text-center">${badgeStatusConta(c)}</td>
+          <td class="p-3 text-center whitespace-nowrap">${botoesConta(c)}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma conta encontrada.</td></tr>';
+    }
+
+    async function salvarConta(e) {
+      e.preventDefault();
+      const categoria = document.getElementById('cp-categoria').value;
+      const carroId = categoria === 'VEÍCULO' ? document.getElementById('cp-carro').value : null;
+      if (categoria === 'VEÍCULO' && !carroId) { alert('Selecione o veículo (cadastre na aba Carros).'); return; }
+      const pago = document.getElementById('cp-pago').checked;
+      const { error } = await supabaseClient.from('contas_pagar').insert([{
+        descricao: document.getElementById('cp-desc').value.trim(), categoria,
+        tipo_despesa: null, valor: parseFloat(document.getElementById('cp-valor').value),
+        vencimento: document.getElementById('cp-venc').value,
+        status: pago ? 'PAGO' : 'PENDENTE', data_pagamento: pago ? hojeBR() : null, carro_id: carroId || null
+      }]);
+      if (error) { alert('Erro ao lançar conta: ' + error.message); return; }
+      document.getElementById('cp-desc').value = ''; document.getElementById('cp-valor').value = ''; document.getElementById('cp-pago').checked = false;
+      carregarDadosFrota();
+    }
+
+    async function pagarConta(id) {
+      const c = contasCache.find(x => String(x.id) === String(id)); if (!c) return;
+      if (!confirm(`Marcar como paga: ${c.descricao} (${fmtR$(c.valor)})?`)) return;
+      const { error } = await supabaseClient.from('contas_pagar').update({ status: 'PAGO', data_pagamento: hojeBR() }).eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      carregarDadosFrota();
+    }
+    async function desfazerPagamentoConta(id) {
+      if (!confirm('Desfazer pagamento e voltar para pendente?')) return;
+      const { error } = await supabaseClient.from('contas_pagar').update({ status: 'PENDENTE', data_pagamento: null }).eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      carregarDadosFrota();
+    }
+    async function excluirConta(id) {
+      if (!confirm('Excluir esta conta?')) return;
+      const { error } = await supabaseClient.from('contas_pagar').delete().eq('id', id);
+      if (error) { alert('Erro: ' + error.message); return; }
+      carregarDadosFrota();
     }
   </script>
 </body>
