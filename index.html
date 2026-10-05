@@ -644,7 +644,7 @@
         <div><h2 class="text-2xl font-bold text-slate-900">Relatório Mensal de Fechamento</h2></div>
         <div class="flex items-end gap-3">
           <div><label class="block text-xs font-semibold text-slate-600 mb-1">Filtrar Dias Úteis</label><select id="selFiltroDias" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-sky-50 text-sky-900 font-semibold"><option value="seg-sex" selected>Segunda a Sexta-feira</option><option value="todos">Todos os Dias do Mês</option></select></div>
-          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor</label><select id="selVendedorDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="Sérgio">Sérgio</option><option value="Alex">Alex</option><option value="Wernek">Wernek</option><option value="Luan">Luan</option><option value="Charles">Charles</option><option value="Guilherme">Guilherme</option><option value="Gustavo">Gustavo</option><option value="Felipe">Felipe</option><option value="Alessandro">Alessandro</option></select></div>
+          <div><label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor</label><select id="selVendedorDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="Alessandro">Alessandro</option><option value="Aroldo">Aroldo</option><option value="Charles">Charles</option><option value="Elton">Elton</option><option value="Felipe">Felipe</option><option value="Gustavo">Gustavo</option><option value="Luan">Luan</option></select></div>
           <div><label class="block text-xs font-semibold text-slate-600 mb-1">Mês / Ano</label><input type="month" id="selMesDashboard" onchange="carregarRelatorioMensal()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
           <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-sm">🖨️ Imprimir</button>
         </div>
@@ -1188,10 +1188,14 @@
     }
 
     function processarRegistosVendedor(registos) {
-      const cabecalhos = [], brutos = [];
-      (registos || []).forEach(r => { if ((r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null) brutos.push(r); else cabecalhos.push(r); });
+      const cabecalhos = [], brutos = [], marcadores = [];
+      (registos || []).forEach(r => {
+        const ehCliente = (r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null;
+        if (!ehCliente && String(r.status||'').toUpperCase() === 'ROTA_FECHADA') marcadores.push(r); // aviso do app: "fechei o dia"
+        else if (ehCliente) brutos.push(r); else cabecalhos.push(r);
+      });
       const u = unificarEnvios(brutos);
-      return { cabecalhos, atendimentos: u.atendimentos, totalClientes: u.totalClientes, clientesMultiplos: u.clientesMultiplos, enviosIguais: u.enviosIguais, totalValor: u.atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
+      return { cabecalhos, marcadores, atendimentos: u.atendimentos, totalClientes: u.totalClientes, clientesMultiplos: u.clientesMultiplos, enviosIguais: u.enviosIguais, totalValor: u.atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
     }
 
     async function carregarAbaVendedores() {
@@ -1200,17 +1204,22 @@
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
       const { data: fechamentosData } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO');
       
-      const nomesVendedores = [...new Set(['Luan', 'Charles', 'Guilherme', 'Gustavo', 'Felipe', 'Verneck', 'Alessandro', 'Aroldo', 'Elton', 'Sérgio', 'Alex', ...(fechamentosData||[]).map(f=>f.vendedor_nome).filter(Boolean)])];
+      const FORA_DA_LISTA = ['guilherme', 'sergio', 'alex', 'wernek', 'werneck', 'verneck']; // compra e venda e ex-vendedores: sem rota/vendas no app
+      const nomesVendedores = [...new Set(['Luan', 'Charles', 'Gustavo', 'Felipe', 'Alessandro', 'Aroldo', 'Elton', ...(fechamentosData||[]).map(f=>f.vendedor_nome).filter(Boolean)])]
+        .filter(n => !FORA_DA_LISTA.includes(normalizarTexto(n)));
 
       container.innerHTML = '';
       nomesVendedores.sort().forEach(vendedor => {
         const todosRegistros = (fechamentosData || []).filter(f => (f.vendedor_nome||'').toLowerCase() === vendedor.toLowerCase());
-        const { totalClientes, totalValor, clientesMultiplos, enviosIguais } = processarRegistosVendedor(todosRegistros);
+        const { totalClientes, totalValor, clientesMultiplos, enviosIguais, marcadores, atendimentos: atendLista } = processarRegistosVendedor(todosRegistros);
         const avisoEnvios = (clientesMultiplos > 0 ? ` · <span class="text-amber-600 font-semibold">⚠️️ ${clientesMultiplos} cliente(s) com múltiplos envios</span>` : '') + (enviosIguais > 0 ? ` · <span class="text-slate-400">🔁 ${enviosIguais} reenvio(s) igual(is) unificado(s)</span>` : '');
         
         let statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">⚪ Não Iniciado</span>`;
         if (todosRegistros.length > 0) {
-          if (todosRegistros.some(f => ['ROTA_FECHADA','FECHADO_ESCRITORIO','CONCLUIDO_ESCRITORIO','FECHADO'].includes(String(f.status||'').toUpperCase()))) {
+          const ultFechou = Math.max(0, ...marcadores.map(m => dataHoraRegistro(m).getTime() || 0));
+          const ultVendeu = Math.max(0, ...atendLista.map(a => dataHoraRegistro(a).getTime() || 0));
+          const fechadoNoEscritorio = todosRegistros.some(f => !marcadores.includes(f) && ['ROTA_FECHADA','FECHADO_ESCRITORIO','CONCLUIDO_ESCRITORIO','FECHADO'].includes(String(f.status||'').toUpperCase()));
+          if (fechadoNoEscritorio || (ultFechou > 0 && ultFechou >= ultVendeu)) {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Fechada</span>`;
           } else {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">🟢 Em Rota</span>`;
@@ -1758,7 +1767,7 @@
     }
 
     async function carregarRelatorioMensal() {
-      const vendedor = document.getElementById('selVendedorDashboard')?.value || 'Sérgio';
+      const vendedor = document.getElementById('selVendedorDashboard')?.value || 'Alessandro';
       const mesAno = document.getElementById('selMesDashboard')?.value || '2026-08';
       const filtroDias = document.getElementById('selFiltroDias')?.value || 'seg-sex';
       if (document.getElementById('titulo-relatorio-mensal')) document.getElementById('titulo-relatorio-mensal').innerText = `${vendedor.toUpperCase()} - RELATÓRIO MENSAL (${mesAno})`;
