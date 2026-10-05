@@ -462,6 +462,36 @@
         <div class="flex gap-2">
           <button onclick="alternarSubAbaInterno('vendas')" id="btn-sub-vendas" class="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm">💰 Lançamento de Vendas</button>
           <button onclick="alternarSubAbaInterno('produtos')" id="btn-sub-produtos" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">📦 Catálogo de Produtos</button>
+          <button onclick="alternarSubAbaInterno('estoque')" id="btn-sub-estoque" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300">🏭 Estoque do Barracão</button>
+        </div>
+      </div>
+
+      <div id="sub-interno-estoque" class="hidden space-y-6">
+        <div id="estoque-cards" class="grid grid-cols-2 lg:grid-cols-5 gap-4"></div>
+        <p class="text-xs text-slate-500">O saldo desconta sozinho a <strong>carga que os vendedores de rota pegam</strong> ao iniciar a rota e as <strong>saídas lançadas na Compra e Venda</strong>. Você lança aqui as entradas, retornos e a contagem física.</p>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-sky-500">
+          <h3 class="font-bold text-lg text-slate-800 mb-4">🏭 Lançar Movimentação do Barracão</h3>
+          <form id="form-estoque" onsubmit="salvarMovEstoque(event)" class="grid grid-cols-2 md:grid-cols-6 gap-4 items-end">
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Data</label><input type="date" id="est-data" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Produto</label><select id="est-produto" onchange="ajustarFormEstoque()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="330ml">330ml</option><option value="900ml">900ml</option><option value="uva">Uva</option><option value="agua_sg">Água S/G (fardo)</option><option value="agua_cg">Água C/G (fardo)</option></select></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tipo</label><select id="est-tipo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"><option value="ENTRADA">Entrada (chegou)</option><option value="SAIDA">Saída manual</option><option value="RETORNO">Retorno de vendedor</option><option value="INVENTARIO">Contagem física (inventário)</option></select></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Caixas</label><input type="number" id="est-cx" min="0" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label id="est-un-label" class="block text-xs font-semibold text-slate-600 mb-1">Unidades</label><input type="number" id="est-un" min="0" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Obs / Fornecedor</label><input type="text" id="est-obs" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div class="col-span-2 md:col-span-6"><button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-2 rounded-lg text-sm">Salvar movimentação</button> <span class="text-xs text-slate-500 ml-2">Contagem física = o saldo passa a ser exatamente o que você contou, a partir da data informada.</span></div>
+          </form>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-800 text-white font-semibold px-4 py-3 text-sm">Movimentações lançadas (últimas 60)</div>
+            <div class="overflow-x-auto max-h-96"><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2">Data</th><th class="p-2">Produto</th><th class="p-2">Tipo</th><th class="p-2 text-right">Qtd</th><th class="p-2">Obs</th><th class="p-2"></th></tr></thead><tbody id="estoque-mov-body"></tbody></table></div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-800 text-white font-semibold px-4 py-3 text-sm">Saídas automáticas (rota e compra e venda)</div>
+            <div class="overflow-x-auto max-h-96"><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2">Data</th><th class="p-2">Origem</th><th class="p-2 text-right">330</th><th class="p-2 text-right">900</th><th class="p-2 text-right">Uva</th><th class="p-2 text-right">Água S/G</th><th class="p-2 text-right">Água C/G</th></tr></thead><tbody id="estoque-auto-body"></tbody></table></div>
+          </div>
         </div>
       </div>
 
@@ -748,6 +778,14 @@
         <div id="container-notas-vendedores" class="divide-y divide-slate-100">
           <div class="p-4 text-center text-slate-400">Carregando...</div>
         </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-emerald-200 overflow-hidden mb-6">
+        <div class="bg-emerald-700 text-white font-semibold flex justify-between px-6 py-3 text-sm">
+          <span>✅ Já feitos nesta data</span>
+          <span id="notas-feitos-resumo">--</span>
+        </div>
+        <div id="container-notas-feitos"><div class="p-4 text-center text-slate-400">Nada marcado como feito ainda.</div></div>
       </div>
     </section>
   </main>
@@ -1115,6 +1153,8 @@
           if (abaAtiva === 'notas') carregarAbaNotas(); 
           if (abaAtiva === 'notinhas') carregarNotinhasAPrazo();
         })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'estoque_barracao' }, () => { if (abaAtiva === 'interno' && !document.getElementById('sub-interno-estoque').classList.contains('hidden')) carregarEstoqueBarracao(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if (abaAtiva === 'interno' && !document.getElementById('sub-interno-estoque').classList.contains('hidden')) carregarEstoqueBarracao(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_registros' }, () => carregarVendasVarejo())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'interno_produtos' }, () => carregarProdutosInternos())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'compra_venda_lancamentos' }, () => { if(abaAtiva==='compra-venda') carregarLancamentosCV(); })
@@ -1453,44 +1493,76 @@
       if (el.classList.contains('hidden')) notasAbertas.delete(chave); else notasAbertas.add(chave);
     }
 
+    let docsCache = [];
+
+    async function gravarDocFeito(d, campos) {
+      const { error } = await supabaseClient.from('documentos_feitos').upsert({
+        vendedor_nome: d.vendedor_nome, vendedor_chave: normalizarTexto(d.vendedor_nome),
+        cliente_nome: d.cliente_nome || d.cliente, cliente_chave: normalizarTexto(d.cliente_nome || d.cliente),
+        data_venda: d._dia, ...campos, feito_em: new Date().toISOString()
+      }, { onConflict: 'vendedor_chave,cliente_chave,data_venda' });
+      if (error) { alert('Erro ao marcar como feito: ' + error.message); return; }
+      carregarAbaNotas();
+    }
+    function toggleDocFeito(i, campo, marcado) { const d = docsCache[i]; if (d) gravarDocFeito(d, { [campo]: marcado }); }
+    function desfazerDocFeito(i) { const d = docsCache[i]; if (d && confirm('Desfazer e voltar para "a fazer"?')) gravarDocFeito(d, { nota_feita: false, boleto_feito: false }); }
+
     async function carregarAbaNotas() {
       const container = document.getElementById('container-notas-vendedores');
+      const contFeitos = document.getElementById('container-notas-feitos');
       if (!container) return;
       const { inicio, fim } = getIntervaloDataSelecionada('selDataNotas');
+      const diaSel = document.getElementById('selDataNotas')?.value || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
       const filtro = document.getElementById('filtroTipoDoc')?.value || 'TODOS';
 
-      const { data, error } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
-      if (error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao buscar: ${escaparHTML(error.message)}</div>`; return; }
+      const [resV, resF] = await Promise.all([
+        supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO').order('created_at', { ascending: true }),
+        supabaseClient.from('documentos_feitos').select('*').eq('data_venda', diaSel)
+      ]);
+      if (resV.error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao buscar: ${escaparHTML(resV.error.message)}</div>`; return; }
+      const aviso = resF.error ? '<div class="p-3 text-xs font-bold text-red-600 bg-red-50">Tabela documentos_feitos não encontrada: rode o SQL v4 para poder marcar como feito.</div>' : '';
+      const feitosMap = {};
+      (resF.data || []).forEach(f => { feitosMap[f.vendedor_chave + '|' + f.cliente_chave] = f; });
 
       const porVendedor = {};
-      (data || []).forEach(r => {
+      (resV.data || []).forEach(r => {
         const nome = (r.vendedor_nome || '').trim();
         if (!nome) return;
-        const k = nome.toLowerCase();
-        (porVendedor[k] = porVendedor[k] || { nome, regs: [] }).regs.push(r);
+        (porVendedor[nome.toLowerCase()] = porVendedor[nome.toLowerCase()] || { nome, regs: [] }).regs.push(r);
       });
 
-      let totalGeral = 0, html = '';
+      docsCache = [];
+      const listaFeitos = [];
+      let totalPend = 0, html = '';
+      const cb = (i, campo, rotulo, marcado) => `<label class="inline-flex items-center gap-1 mr-3 cursor-pointer"><input type="checkbox" ${marcado ? 'checked' : ''} onchange="toggleDocFeito(${i},'${campo}',this.checked)" class="w-4 h-4 accent-emerald-600"><span class="text-[11px] font-bold">${rotulo}</span></label>`;
+
       Object.keys(porVendedor).sort().forEach(k => {
         const v = porVendedor[k];
         const docs = processarRegistosVendedor(v.regs).atendimentos
-          .map(a => ({ ...a, _tipoDoc: tipoDocumento(a) }))
+          .map(a => ({ ...a, _tipoDoc: tipoDocumento(a), _dia: diaSel }))
           .filter(a => a._tipoDoc && (filtro === 'TODOS' || (filtro === 'NOTA' && (a._tipoDoc === 'NOTA' || a._tipoDoc === 'AMBOS')) || (filtro === 'BOLETO' && (a._tipoDoc === 'BOLETO' || a._tipoDoc === 'AMBOS')) || filtro === a._tipoDoc));
-        if (docs.length === 0) return;
-        totalGeral += docs.length;
 
-        const qNota = docs.filter(d => d._tipoDoc === 'NOTA').length;
-        const qBoleto = docs.filter(d => d._tipoDoc === 'BOLETO').length;
-        const qAmbos = docs.filter(d => d._tipoDoc === 'AMBOS').length;
+        const pend = [];
+        docs.forEach(d => {
+          const f = feitosMap[normalizarTexto(d.vendedor_nome) + '|' + normalizarTexto(d.cliente_nome || d.cliente)] || {};
+          d._f = f; d._idx = docsCache.push(d) - 1;
+          d._precisaNota = d._tipoDoc === 'NOTA' || d._tipoDoc === 'AMBOS';
+          d._precisaBoleto = d._tipoDoc === 'BOLETO' || d._tipoDoc === 'AMBOS';
+          d._ok = (!d._precisaNota || !!f.nota_feita) && (!d._precisaBoleto || !!f.boleto_feito);
+          (d._ok ? listaFeitos : pend).push(d);
+        });
+        if (pend.length === 0) return;
+        totalPend += pend.length;
+
+        const qNota = pend.filter(d => d._tipoDoc === 'NOTA').length, qBoleto = pend.filter(d => d._tipoDoc === 'BOLETO').length, qAmbos = pend.filter(d => d._tipoDoc === 'AMBOS').length;
         const chave = encodeURIComponent(k).replace(/%/g, '_');
-        const aberto = notasAbertas.has(chave);
 
-        const linhas = docs.map(d => `
+        const linhas = pend.map(d => `
           <tr class="border-b border-slate-100 ${d._multiplo ? 'bg-amber-50' : ''}">
             <td class="p-2 font-mono text-xs text-slate-500">${horaDoRegistro(d)}</td>
             <td class="p-2 font-bold">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}${d._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}</td>
             <td class="p-2 text-xs text-slate-600">${escaparHTML(d.cidade || '-')}</td>
-            <td class="p-2">${badgeDocumento(d._tipoDoc)}</td>
+            <td class="p-2">${d._precisaNota ? cb(d._idx, 'nota_feita', '🧾 Nota feita', !!d._f.nota_feita) : ''}${d._precisaBoleto ? cb(d._idx, 'boleto_feito', '💳 Boleto feito', !!d._f.boleto_feito) : ''}</td>
             <td class="p-2 text-[11px] uppercase font-semibold">${escaparHTML(d.forma_pagamento || 'N/A')}</td>
             <td class="p-2 text-right font-bold text-emerald-600">R$ ${Number(d.valor_total || 0).toFixed(2)}</td>
             <td class="p-2 text-[10px] text-slate-600">${escaparHTML(d.observacao || '-')}</td>
@@ -1499,7 +1571,7 @@
         html += `
           <div>
             <div onclick="toggleNotasVendedor('${chave}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer">
-              <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${docs.length} cliente(s) precisam de documento</p></div>
+              <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${pend.length} cliente(s) a fazer</p></div>
               <div class="flex items-center gap-2 text-xs font-bold">
                 ${qNota ? `<span class="px-2 py-1 rounded-full bg-sky-100 text-sky-700">🧾 ${qNota} nota(s)</span>` : ''}
                 ${qBoleto ? `<span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700">💳 ${qBoleto} boleto(s)</span>` : ''}
@@ -1507,11 +1579,11 @@
                 <span class="text-slate-400">▼</span>
               </div>
             </div>
-            <div id="notas-det-${chave}" class="${aberto ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
+            <div id="notas-det-${chave}" class="${notasAbertas.has(chave) ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
               <div class="overflow-x-auto border border-slate-200 rounded bg-white">
                 <table class="w-full text-xs text-left">
                   <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
-                    <tr><th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Cidade</th><th class="p-2">Documento</th><th class="p-2">Pgto</th><th class="p-2 text-right">Total (R$)</th><th class="p-2">Obs</th></tr>
+                    <tr><th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Cidade</th><th class="p-2">Marcar como feito</th><th class="p-2">Pgto</th><th class="p-2 text-right">Total (R$)</th><th class="p-2">Obs</th></tr>
                   </thead>
                   <tbody>${linhas}</tbody>
                 </table>
@@ -1520,19 +1592,158 @@
           </div>`;
       });
 
-      container.innerHTML = html || '<div class="p-4 text-center text-slate-400">Nenhum cliente com nota ou boleto marcado nesta data.</div>';
+      container.innerHTML = aviso + (html || '<div class="p-4 text-center text-slate-400">Nada a fazer nesta data. 🎉</div>');
       const resumo = document.getElementById('notas-resumo-geral');
-      if (resumo) resumo.innerText = `${totalGeral} cliente(s) no total`;
+      if (resumo) resumo.innerText = `${totalPend} cliente(s) a fazer`;
+
+      if (contFeitos) {
+        listaFeitos.sort((a, b) => String(b._f.feito_em || '').localeCompare(String(a._f.feito_em || '')));
+        contFeitos.innerHTML = listaFeitos.length ? `<div class="overflow-x-auto"><table class="w-full text-xs text-left">
+          <thead class="bg-emerald-50 border-b border-emerald-200 text-emerald-900 uppercase"><tr><th class="p-2">Vendedor</th><th class="p-2">Cliente</th><th class="p-2">Documento</th><th class="p-2">Feito às</th><th class="p-2 text-right">Total (R$)</th><th class="p-2"></th></tr></thead>
+          <tbody>${listaFeitos.map(d => `<tr class="border-b border-slate-100">
+            <td class="p-2 font-bold">${escaparHTML(d.vendedor_nome)}</td>
+            <td class="p-2">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}</td>
+            <td class="p-2">${badgeDocumento(d._tipoDoc)}</td>
+            <td class="p-2 text-slate-500">${d._f.feito_em ? new Date(d._f.feito_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+            <td class="p-2 text-right font-bold text-emerald-600">R$ ${Number(d.valor_total || 0).toFixed(2)}</td>
+            <td class="p-2 text-center"><button onclick="desfazerDocFeito(${d._idx})" class="text-[10px] text-slate-500 underline">desfazer</button></td>
+          </tr>`).join('')}</tbody></table></div>` : '<div class="p-4 text-center text-slate-400">Nada marcado como feito ainda.</div>';
+        const rf = document.getElementById('notas-feitos-resumo');
+        if (rf) rf.innerText = `${listaFeitos.length} feito(s)`;
+      }
     }
 
     // =========================================================================
     // MÓDULO INTERNO / VAREJO
     // =========================================================================
     function alternarSubAbaInterno(sub) {
-      document.getElementById('sub-interno-vendas').classList.toggle('hidden', sub !== 'vendas');
-      document.getElementById('sub-interno-produtos').classList.toggle('hidden', sub !== 'produtos');
-      document.getElementById('btn-sub-vendas').className = sub === 'vendas' ? "px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-lg shadow-sm" : "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
-      document.getElementById('btn-sub-produtos').className = sub === 'produtos' ? "px-4 py-2 bg-sky-600 text-white font-semibold text-sm rounded-lg shadow-sm" : "px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300";
+      ['vendas', 'produtos', 'estoque'].forEach(n => document.getElementById('sub-interno-' + n).classList.toggle('hidden', sub !== n));
+      const ativo = { vendas: 'bg-emerald-600', produtos: 'bg-sky-600', estoque: 'bg-amber-600' };
+      ['vendas', 'produtos', 'estoque'].forEach(n => {
+        document.getElementById('btn-sub-' + n).className = sub === n ? `px-4 py-2 ${ativo[n]} text-white font-semibold text-sm rounded-lg shadow-sm` : 'px-4 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300';
+      });
+      if (sub === 'estoque') carregarEstoqueBarracao();
+    }
+
+    // ---------- ESTOQUE DO BARRACÃO (saldo real da empresa) ----------
+    // Quantidades em unidades (330ml, 900ml, uva) e em fardos (águas). Caixa: 330ml = 80 un, 900ml = 25 un.
+    const ESTOQUE_PRODUTOS = [
+      { k: '330ml', nome: '330ml', cx: 80, un: 'un' }, { k: '900ml', nome: '900ml', cx: 25, un: 'un' }, { k: 'uva', nome: 'Uva', cx: 0, un: 'un' },
+      { k: 'agua_sg', nome: 'Água S/G', cx: 0, un: 'fardos' }, { k: 'agua_cg', nome: 'Água C/G', cx: 0, un: 'fardos' }
+    ];
+    const ESTOQUE_COL_ROTA = { '330ml': 'carga_330ml', '900ml': 'carga_900ml', 'uva': 'carga_uva', 'agua_sg': 'carga_agua', 'agua_cg': 'carga_agua_gas' };
+    const ESTOQUE_COL_CV = { '330ml': 'qtd_330', '900ml': 'qtd_900', 'uva': 'qtd_uva', 'agua_sg': 'qtd_agua', 'agua_cg': 'qtd_aguagas' };
+    let estoqueMovCache = [];
+
+    function fmtEstoque(p, q) {
+      q = Number(q) || 0;
+      const sinal = q < 0 ? '-' : '', a = Math.abs(q);
+      return p.cx > 0 ? `${sinal}${Math.floor(a / p.cx)} cx + ${a % p.cx} un` : `${sinal}${a} ${p.un}`;
+    }
+
+    function ajustarFormEstoque() {
+      const p = ESTOQUE_PRODUTOS.find(x => x.k === document.getElementById('est-produto').value);
+      const cx = document.getElementById('est-cx');
+      cx.disabled = p.cx === 0; if (p.cx === 0) cx.value = 0;
+      document.getElementById('est-un-label').innerText = p.cx > 0 ? 'Unidades soltas' : (p.un === 'fardos' ? 'Fardos' : 'Unidades');
+    }
+
+    async function carregarEstoqueBarracao() {
+      const dEl = document.getElementById('est-data');
+      if (dEl && !dEl.value) dEl.value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      ajustarFormEstoque();
+      const [rm, rf, rc] = await Promise.all([
+        supabaseClient.from('estoque_barracao').select('*').order('data', { ascending: false }).order('created_at', { ascending: false }).limit(5000),
+        supabaseClient.from('fechamentos').select('vendedor_nome,data_fechamento,status,created_at,carga_330ml,carga_900ml,carga_uva,carga_agua,carga_agua_gas').not('data_fechamento', 'is', null).limit(5000),
+        supabaseClient.from('compra_venda_lancamentos').select('vendedor_nome,tipo,data,qtd_330,qtd_900,qtd_uva,qtd_agua,qtd_aguagas').eq('tipo', 'SAIDA').limit(5000)
+      ]);
+      const cards = document.getElementById('estoque-cards');
+      if (rm.error) { cards.innerHTML = `<div class="col-span-5 p-4 text-sm font-bold text-red-600 bg-red-50 rounded">Tabela estoque_barracao não encontrada: rode o SQL v4. (${escaparHTML(rm.error.message)})</div>`; return; }
+      const mov = rm.data || [];
+      estoqueMovCache = mov;
+
+      // contagem de partida por produto: último INVENTARIO; sem ele, a primeira movimentação lançada
+      const res = {};
+      ESTOQUE_PRODUTOS.forEach(p => {
+        const doProd = mov.filter(m => m.produto === p.k);
+        const invs = doProd.filter(m => m.tipo === 'INVENTARIO').sort((a, b) => String(b.data).localeCompare(String(a.data)) || String(b.created_at).localeCompare(String(a.created_at)));
+        const ini = invs.length ? invs[0].data : (doProd.length ? doProd.map(m => m.data).sort()[0] : null);
+        res[p.k] = { ini, temInv: invs.length > 0, inv: invs.length ? Number(invs[0].quantidade) : 0, entr: 0, ret: 0, saiM: 0, rota: 0, cv: 0 };
+      });
+      mov.forEach(m => {
+        const r = res[m.produto]; if (!r || !r.ini || m.data < r.ini || m.tipo === 'INVENTARIO') return;
+        const q = Number(m.quantidade) || 0;
+        if (m.tipo === 'ENTRADA') r.entr += q; else if (m.tipo === 'RETORNO') r.ret += q; else if (m.tipo === 'SAIDA') r.saiM += q;
+      });
+
+      // saídas automáticas: 1 carga por vendedor/dia (vale a última vez que ele confirmou o estoque no app)
+      const autoLinhas = [];
+      const ultimos = {};
+      (rf.data || []).filter(r => !['EXCLUIDO', 'ROTA_FECHADA'].includes(String(r.status || '').toUpperCase()) && Object.values(ESTOQUE_COL_ROTA).some(c => r[c] !== null && r[c] !== undefined))
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+        .forEach(r => { ultimos[normalizarTexto(r.vendedor_nome) + '|' + r.data_fechamento] = r; });
+      Object.values(ultimos).forEach(r => {
+        const linha = { data: r.data_fechamento, origem: 'Rota · ' + r.vendedor_nome, q: {} };
+        ESTOQUE_PRODUTOS.forEach(p => { const q = Number(r[ESTOQUE_COL_ROTA[p.k]]) || 0; linha.q[p.k] = q; if (q && res[p.k].ini && r.data_fechamento >= res[p.k].ini) res[p.k].rota += q; });
+        autoLinhas.push(linha);
+      });
+      (rc.data || []).forEach(r => {
+        const linha = { data: r.data, origem: 'Compra e Venda · ' + r.vendedor_nome, q: {} };
+        ESTOQUE_PRODUTOS.forEach(p => { const q = Number(r[ESTOQUE_COL_CV[p.k]]) || 0; linha.q[p.k] = q; if (q && res[p.k].ini && r.data >= res[p.k].ini) res[p.k].cv += q; });
+        autoLinhas.push(linha);
+      });
+
+      const dataBR = d => d ? String(d).split('-').reverse().join('/') : '';
+      cards.innerHTML = ESTOQUE_PRODUTOS.map(p => {
+        const r = res[p.k];
+        if (!r.ini) return `<div class="bg-white rounded-xl border border-slate-200 p-4"><p class="text-xs font-bold text-slate-500 uppercase">${p.nome}</p><p class="text-xl font-black text-slate-300 mt-1">--</p><p class="text-[11px] text-amber-700 font-semibold mt-2">Sem contagem: lance uma "Contagem física".</p></div>`;
+        const saldo = r.inv + r.entr + r.ret - r.saiM - r.rota - r.cv;
+        return `<div class="bg-white rounded-xl border ${saldo < 0 ? 'border-red-400' : 'border-slate-200'} p-4 shadow-sm">
+          <p class="text-xs font-bold text-slate-500 uppercase">${p.nome}</p>
+          <p class="text-xl font-black ${saldo < 0 ? 'text-red-600' : 'text-slate-800'} mt-1">${fmtEstoque(p, saldo)}</p>
+          ${p.cx > 0 ? `<p class="text-[11px] text-slate-400">${saldo} unidades</p>` : ''}
+          <div class="mt-2 space-y-0.5 text-[11px] text-slate-500">
+            <div class="flex justify-between"><span>${r.temInv ? 'Contagem ' + dataBR(r.ini) : 'Início ' + dataBR(r.ini)}</span><span>${r.inv}</span></div>
+            <div class="flex justify-between text-emerald-700"><span>+ Entradas</span><span>${r.entr}</span></div>
+            ${r.ret ? `<div class="flex justify-between text-emerald-700"><span>+ Retornos</span><span>${r.ret}</span></div>` : ''}
+            <div class="flex justify-between text-red-600"><span>− Rota (carga)</span><span>${r.rota}</span></div>
+            <div class="flex justify-between text-red-600"><span>− Compra e venda</span><span>${r.cv}</span></div>
+            ${r.saiM ? `<div class="flex justify-between text-red-600"><span>− Saídas manuais</span><span>${r.saiM}</span></div>` : ''}
+          </div>
+          ${saldo < 0 ? '<p class="text-[11px] text-red-600 font-bold mt-1">Saldo negativo: falta lançar entrada ou refazer a contagem.</p>' : ''}
+        </div>`;
+      }).join('');
+
+      const tipoBadge = { ENTRADA: 'bg-emerald-100 text-emerald-700', RETORNO: 'bg-emerald-100 text-emerald-700', SAIDA: 'bg-red-100 text-red-700', INVENTARIO: 'bg-sky-100 text-sky-700' };
+      const tipoNome = { ENTRADA: 'Entrada', RETORNO: 'Retorno', SAIDA: 'Saída', INVENTARIO: 'Contagem' };
+      document.getElementById('estoque-mov-body').innerHTML = mov.slice(0, 60).map(m => {
+        const p = ESTOQUE_PRODUTOS.find(x => x.k === m.produto) || { nome: m.produto, cx: 0, un: '' };
+        return `<tr class="border-b border-slate-100"><td class="p-2">${dataBR(m.data)}</td><td class="p-2 font-bold">${escaparHTML(p.nome)}</td><td class="p-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${tipoBadge[m.tipo] || ''}">${tipoNome[m.tipo] || m.tipo}</span></td><td class="p-2 text-right font-bold">${fmtEstoque(p, m.quantidade)}</td><td class="p-2 text-slate-500">${escaparHTML(m.obs || m.responsavel || '')}</td><td class="p-2"><button onclick="excluirMovEstoque(${m.id})" class="text-red-500 text-[11px]">🗑️</button></td></tr>`;
+      }).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma movimentação lançada.</td></tr>';
+
+      autoLinhas.sort((a, b) => String(b.data).localeCompare(String(a.data)));
+      document.getElementById('estoque-auto-body').innerHTML = autoLinhas.slice(0, 40).map(l => `<tr class="border-b border-slate-100"><td class="p-2">${dataBR(l.data)}</td><td class="p-2 font-semibold">${escaparHTML(l.origem)}</td>${ESTOQUE_PRODUTOS.map(p => `<td class="p-2 text-right ${l.q[p.k] ? 'font-bold' : 'text-slate-300'}">${l.q[p.k] || '-'}</td>`).join('')}</tr>`).join('')
+        || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhuma saída ainda.</td></tr>';
+    }
+
+    async function salvarMovEstoque(e) {
+      e.preventDefault();
+      const p = ESTOQUE_PRODUTOS.find(x => x.k === document.getElementById('est-produto').value);
+      const tipo = document.getElementById('est-tipo').value;
+      const q = (parseInt(document.getElementById('est-cx').value) || 0) * p.cx + (parseInt(document.getElementById('est-un').value) || 0);
+      const data = document.getElementById('est-data').value;
+      if (q <= 0 && tipo !== 'INVENTARIO') { alert('Informe a quantidade.'); return; }
+      if (tipo === 'INVENTARIO' && !confirm(`Contagem física: o saldo de ${p.nome} passa a ser ${fmtEstoque(p, q)} a partir de ${data.split('-').reverse().join('/')}. Confirmar?`)) return;
+      const { error } = await supabaseClient.from('estoque_barracao').insert([{ data, produto: p.k, tipo, quantidade: q, obs: document.getElementById('est-obs').value.trim() || null }]);
+      if (error) { alert('Erro ao salvar: ' + error.message); return; }
+      document.getElementById('est-cx').value = 0; document.getElementById('est-un').value = 0; document.getElementById('est-obs').value = '';
+      carregarEstoqueBarracao();
+    }
+
+    async function excluirMovEstoque(id) {
+      if (!confirm('Excluir esta movimentação?')) return;
+      const { error } = await supabaseClient.from('estoque_barracao').delete().eq('id', id);
+      if (error) alert('Erro: ' + error.message); else carregarEstoqueBarracao();
     }
 
     async function carregarProdutosInternos() {
