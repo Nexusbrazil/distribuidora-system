@@ -353,7 +353,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Consulta</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da venda <button type="button" onclick="document.getElementById('selDataNotinhas').value='';carregarNotinhasAPrazo()" class="ml-1 text-sky-600 underline font-normal">todas</button></label>
             <input type="date" id="selDataNotinhas" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500" onchange="carregarNotinhasAPrazo()">
           </div>
         </div>
@@ -385,6 +385,9 @@
             <option value="Alex">Alex</option>
             <option value="Wernek">Wernek</option>
             <option value="Sérgio">Sérgio</option>
+            <optgroup label="Entrega em outra cidade (fora do Caixa)">
+              <option value="Dionei">Dionei</option>
+            </optgroup>
           </select>
         </div>
       </div>
@@ -563,6 +566,19 @@
           <p class="text-xs font-semibold text-slate-600 uppercase">Saldo Final em Caixa</p>
           <p id="caixa-saldo-final" class="text-2xl font-black text-amber-800 mt-1">R$ 0,00</p>
         </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden border-l-4 border-l-amber-500">
+        <div class="p-4 bg-amber-50 border-b border-amber-200 flex justify-between items-center">
+          <h3 class="font-bold text-sm text-amber-900">🧮 Dinheiro dos Fechamentos (conferir e confirmar)</h3>
+          <span id="caixa-aconferir-resumo" class="text-xs font-bold text-amber-800">--</span>
+        </div>
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase text-xs">
+            <tr><th class="p-3">Vendedor</th><th class="p-3 text-right">Dinheiro</th><th class="p-3 text-right">Desp.</th><th class="p-3 text-right">Esperado em mão</th><th class="p-3 text-right text-sky-700">PIX (conta)</th><th class="p-3 text-center">Contado</th><th class="p-3"></th></tr>
+          </thead>
+          <tbody id="caixa-aconferir-body" class="divide-y divide-slate-100"><tr><td colspan="7" class="p-4 text-center text-slate-400">Carregando...</td></tr></tbody>
+        </table>
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-l-slate-800">
@@ -942,10 +958,11 @@
     const TABELA_PRECOS_CV = {
       "Alex": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },
       "Wernek": { p330: 4.20, p900: 9.00, puva: 4.20, pagua: 11.00, paguagas: 12.50 },
-      "Sérgio": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 }
+      "Sérgio": { p330: 4.20, p900: 8.70, puva: 4.20, pagua: 11.00, paguagas: 13.00 },
+      "Dionei": { p330: 4.00, p900: 7.90, puva: 4.00, pagua: 11.00, paguagas: 13.00 }
     };
 
-    const SALDOS_INICIAIS_CV = { "Alex": 0.00, "Wernek": 0.00, "Sérgio": 0.00 };
+    const SALDOS_INICIAIS_CV = { "Alex": 0.00, "Wernek": 0.00, "Sérgio": 0.00, "Dionei": 0.00 };
     let vendedorCVAtual = "Alex";
     let HISTORICO_CV_DADOS = [];
 
@@ -1013,10 +1030,11 @@
       try {
         await supabaseClient.from('compra_venda_lancamentos').insert([{ vendedor_nome: vendedorCVAtual, tipo: 'PAGAMENTO', data: dataInput, desc_pagamento: descInput, valor_pago: valorInput }]);
         
-        if (descInput.includes('DINHEIRO')) {
+        const ehCheque = descInput.includes('CHEQUE');
+        if (vendedorCVAtual !== 'Dionei' && (descInput.includes('DINHEIRO') || ehCheque)) {
           const horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           await supabaseClient.from('caixa_diario').insert([{
-            data: dataInput, hora: horaStr, tipo: 'ENTRADA', forma_pgto: 'DINHEIRO', valor: valorInput, descricao: `C&V - ${vendedorCVAtual} (${descInput})`
+            data: dataInput, hora: horaStr, tipo: 'ENTRADA', forma_pgto: ehCheque ? 'CHEQUE' : 'DINHEIRO', valor: valorInput, descricao: `C&V - ${vendedorCVAtual} (${descInput})`, origem: 'COMPRA_VENDA', vendedor_nome: vendedorCVAtual
           }]);
           alert(`Pagamento salvo e lançado no Caixa Diário Supabase!`);
           if(abaAtiva === 'caixa') carregarCaixaDiario();
@@ -1075,7 +1093,7 @@
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       const mesAtual = hoje.substring(0, 7);
       
-      ['selDataVendedores','selDataNotas','selDataNotinhas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
+      ['selDataVendedores','selDataNotas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
         if (document.getElementById(id)) document.getElementById(id).value = hoje;
       });
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
@@ -1303,106 +1321,103 @@
       return prods.length > 0 ? prods.join(' · ') : 'Sem produtos registrados';
     }
 
+    let notinhasCache = {};
     async function carregarNotinhasAPrazo() {
       const container = document.getElementById('container-notinhas-vendedores');
       if (!container) return;
-      const { inicio, fim } = getIntervaloDataSelecionada('selDataNotinhas');
       const filtroStatus = document.getElementById('filtroStatusNotinha')?.value || 'ABERTAS';
+      const diaSel = document.getElementById('selDataNotinhas')?.value; // vazio = todas as datas
 
-      const { data, error } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
-      if (error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao carregar notinhas: ${escaparHTML(error.message)}</div>`; return; }
+      let q = supabaseClient.from('fechamentos').select('*').ilike('forma_pagamento', '%prazo%').neq('status', 'EXCLUIDO').order('created_at', { ascending: true }).limit(5000);
+      if (diaSel) { const { inicio, fim } = getIntervaloDataSelecionada('selDataNotinhas'); q = q.gte('created_at', inicio).lte('created_at', fim); }
+      const [resVendas, resBaixas] = await Promise.all([q, supabaseClient.from('notinhas_baixas').select('*').limit(5000)]);
+      if (resVendas.error) { container.innerHTML = `<div class="p-4 text-center text-red-500 font-bold">Erro ao carregar notinhas: ${escaparHTML(resVendas.error.message)}</div>`; return; }
+      const baixasErro = resBaixas.error ? 'Tabela notinhas_baixas não encontrada: rode o SQL para registrar recebimentos.' : '';
+
+      const diaDe = r => dataHoraRegistro(r).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      const chaveNota = (vend, cli, dia) => `${String(vend || '').trim().toLowerCase()}|${normalizarTexto(cli)}|${dia}`;
+      const pagoPorChave = {};
+      (resBaixas.data || []).forEach(b => { const k = chaveNota(b.vendedor_nome, b.cliente_nome, b.data_venda); pagoPorChave[k] = (pagoPorChave[k] || 0) + Number(b.valor || 0); });
 
       const porVendedor = {};
-      (data || []).forEach(r => {
-        const nome = (r.vendedor_nome || '').trim();
-        if (!nome) return;
-        const k = nome.toLowerCase();
-        (porVendedor[k] = porVendedor[k] || { nome, regs: [] }).regs.push(r);
-      });
+      (resVendas.data || []).forEach(r => { const nome = (r.vendedor_nome || '').trim(); if (nome) (porVendedor[nome.toLowerCase()] = porVendedor[nome.toLowerCase()] || { nome, regs: [] }).regs.push(r); });
 
-      let totalGeral = 0, valorTotalGeral = 0, html = '';
+      notinhasCache = {};
+      let n = 0, totalGeral = 0, restanteGeral = 0, html = '';
       Object.keys(porVendedor).sort().forEach(k => {
         const v = porVendedor[k];
-        const notinhas = processarRegistosVendedor(v.regs).atendimentos
-          .filter(a => {
-            const pgto = String(a.forma_pagamento || a.forma_pgto || '').toUpperCase();
-            const isPrazo = pgto.includes('PRAZO') || pgto.includes('NOTINHA');
-            if (!isPrazo) return false;
+        const lista = processarRegistosVendedor(v.regs).atendimentos.filter(a => Number(a.valor_total || 0) > 0).map(a => {
+          const dia = diaDe(a), valor = Number(a.valor_total || 0);
+          const legadoPago = String(a.status || '').toUpperCase() === 'PAGO';
+          const pago = legadoPago ? valor : Math.min(valor, pagoPorChave[chaveNota(a.vendedor_nome, a.cliente_nome || a.cliente, dia)] || 0);
+          const restante = Math.max(0, valor - pago);
+          const st = restante <= 0.005 ? 'PAGA' : (pago > 0 ? 'PARCIAL' : 'PENDENTE');
+          return { ...a, _dia: dia, _valor: valor, _pago: pago, _restante: restante, _st: st };
+        }).filter(a => filtroStatus === 'TODAS' || (filtroStatus === 'ABERTAS' ? a._st !== 'PAGA' : a._st === 'PAGA'));
+        if (lista.length === 0) return;
 
-            const st = String(a.status || '').toUpperCase();
-            const isPaga = st === 'PAGO' || st === 'CONCLUIDO';
-            if (filtroStatus === 'ABERTAS') return !isPaga;
-            if (filtroStatus === 'PAGAS') return isPaga;
-            return true;
-          });
-
-        if (notinhas.length === 0) return;
-
-        totalGeral += notinhas.length;
-        const totalVendedor = notinhas.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0);
-        valorTotalGeral += totalVendedor;
-
+        const restanteVend = lista.reduce((t, a) => t + a._restante, 0);
+        totalGeral += lista.length; restanteGeral += restanteVend;
         const chave = encodeURIComponent(k).replace(/%/g, '_');
-        const aberto = notinhasAbertas.has(chave);
 
-        const linhas = notinhas.map(d => {
-          const st = String(d.status || '').toUpperCase();
-          const isPaga = st === 'PAGO' || st === 'CONCLUIDO';
-          const badgeStatus = isPaga 
-            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">✅ PAGA</span>'
-            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">⏳ PENDENTE</span>';
-
-          return `
-            <tr class="border-b border-slate-100 ${d._multiplo ? 'bg-amber-50' : ''}">
-              <td class="p-2 font-mono text-xs text-slate-500">${horaDoRegistro(d)}</td>
-              <td class="p-2 font-bold">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}${d._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}</td>
-              <td class="p-2 text-xs text-slate-600">${escaparHTML(d.cidade || '-')}</td>
-              <td class="p-2 text-xs text-slate-700 font-medium">${formatarProdutosResumo(d)}</td>
-              <td class="p-2 text-right font-bold text-amber-800">R$ ${Number(d.valor_total || 0).toFixed(2)}</td>
-              <td class="p-2 text-center">${badgeStatus}</td>
-              <td class="p-2 text-[10px] text-slate-600">${escaparHTML(d.observacao || '-')}</td>
-              <td class="p-2 text-center">
-                ${!isPaga ? `<button onclick="darBaixaNotinha('${d.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">Dar Baixa</button>` : '<span class="text-[10px] text-slate-400">Ok</span>'}
-              </td>
-            </tr>`;
+        const linhas = lista.map(d => {
+          const id = n++; notinhasCache[id] = d;
+          const badge = d._st === 'PAGA' ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">✅ PAGA</span>'
+            : d._st === 'PARCIAL' ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">◐ PARCIAL</span>'
+            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">⏳ PENDENTE</span>';
+          const dias = Math.floor((Date.now() - new Date(d._dia + 'T12:00:00')) / 86400000);
+          return `<tr class="border-b border-slate-100 ${d._multiplo ? 'bg-amber-50' : ''}">
+            <td class="p-2 text-xs">${fmtData(d._dia)}${d._st !== 'PAGA' ? `<br><span class="text-[10px] ${dias >= 15 ? 'text-red-600 font-bold' : 'text-slate-400'}">${dias} dia(s)</span>` : ''}</td>
+            <td class="p-2 font-bold">${escaparHTML(d.cliente_nome || d.cliente || 'Sem nome')}${d._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}<br><span class="text-[10px] font-normal text-slate-500">${escaparHTML(d.cidade || '')}</span></td>
+            <td class="p-2 text-xs text-slate-700">${formatarProdutosResumo(d)}</td>
+            <td class="p-2 text-right">R$ ${d._valor.toFixed(2)}</td>
+            <td class="p-2 text-right text-emerald-700">R$ ${d._pago.toFixed(2)}</td>
+            <td class="p-2 text-right font-bold text-red-600">R$ ${d._restante.toFixed(2)}</td>
+            <td class="p-2 text-center">${badge}</td>
+            <td class="p-2 text-center">${d._st !== 'PAGA' ? `<button onclick="receberNotinha(${id})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">Receber</button>` : '<span class="text-[10px] text-slate-400">Ok</span>'}</td>
+          </tr>`;
         }).join('');
 
-        html += `
-          <div>
-            <div onclick="toggleNotinhasVendedor('${chave}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer">
-              <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${notinhas.length} notinha(s) registrada(s)</p></div>
-              <div class="flex items-center gap-3">
-                <span class="font-bold text-amber-800">Total: R$ ${totalVendedor.toFixed(2)}</span>
-                <span class="text-slate-400">▼</span>
-              </div>
+        html += `<div>
+          <div onclick="toggleNotinhasVendedor('${chave}')" class="flex justify-between items-center p-4 hover:bg-slate-50 cursor-pointer">
+            <div><span class="font-bold text-slate-800">${escaparHTML(v.nome)}</span><p class="text-xs text-slate-500 mt-1">${lista.length} notinha(s)</p></div>
+            <div class="flex items-center gap-3"><span class="font-bold text-red-600">A receber: R$ ${restanteVend.toFixed(2)}</span><span class="text-slate-400">▼</span></div>
+          </div>
+          <div id="notinhas-det-${chave}" class="${notinhasAbertas.has(chave) ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
+            <div class="overflow-x-auto border border-slate-200 rounded bg-white">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase"><tr><th class="p-2">Venda</th><th class="p-2">Cliente</th><th class="p-2">Produtos</th><th class="p-2 text-right">Valor</th><th class="p-2 text-right">Pago</th><th class="p-2 text-right">Falta</th><th class="p-2 text-center">Status</th><th class="p-2 text-center">Ação</th></tr></thead>
+                <tbody>${linhas}</tbody>
+              </table>
             </div>
-            <div id="notinhas-det-${chave}" class="${aberto ? '' : 'hidden'} bg-slate-50 px-4 pb-4">
-              <div class="overflow-x-auto border border-slate-200 rounded bg-white">
-                <table class="w-full text-xs text-left">
-                  <thead class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase">
-                    <tr><th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Cidade</th><th class="p-2">Produtos / Qtd</th><th class="p-2 text-right">Valor Total</th><th class="p-2 text-center">Status</th><th class="p-2">Obs</th><th class="p-2 text-center">Ação</th></tr>
-                  </thead>
-                  <tbody>${linhas}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>`;
+          </div>
+        </div>`;
       });
 
-      container.innerHTML = html || '<div class="p-4 text-center text-slate-400">Nenhuma notinha a prazo encontrada nesta data.</div>';
+      container.innerHTML = (baixasErro ? `<div class="p-3 text-xs font-bold text-red-600 bg-red-50">${baixasErro}</div>` : '') + (html || '<div class="p-4 text-center text-slate-400">Nenhuma notinha a prazo encontrada.</div>');
       const resumo = document.getElementById('notinhas-resumo-geral');
-      if (resumo) resumo.innerText = `${totalGeral} notinha(s) · R$ ${valorTotalGeral.toFixed(2)}`;
+      if (resumo) resumo.innerText = `${totalGeral} notinha(s) · A receber: R$ ${restanteGeral.toFixed(2)}`;
     }
 
-    async function darBaixaNotinha(id) {
-      if (!confirm('Confirmar o recebimento/baixa desta notinha a prazo?')) return;
+    async function receberNotinha(id) {
+      const d = notinhasCache[id];
+      if (!d) return;
+      const resp = prompt(`Valor recebido de ${d.cliente_nome || d.cliente} (falta R$ ${d._restante.toFixed(2)}):`, d._restante.toFixed(2));
+      if (resp === null) return;
+      const valor = parseFloat(String(resp).replace(',', '.'));
+      if (isNaN(valor) || valor <= 0) { alert('Valor inválido.'); return; }
+      if (valor > d._restante + 0.009 && !confirm('O valor é maior que o que falta. Continuar mesmo assim?')) return;
+      const forma = (prompt('Forma de recebimento (Dinheiro, PIX, Cheque):', 'Dinheiro') || '').trim().toUpperCase();
+      if (!forma) return;
+      const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
       try {
-        const { error } = await supabaseClient.from('fechamentos').update({ status: 'PAGO' }).eq('id', id);
+        const { error } = await supabaseClient.from('notinhas_baixas').insert([{ vendedor_nome: d.vendedor_nome, cliente_nome: d.cliente_nome || d.cliente, data_venda: d._dia, valor, forma, data_pagamento: hoje }]);
         if (error) throw error;
+        if (forma.includes('DINHEIRO') || forma.includes('CHEQUE')) {
+          await supabaseClient.from('caixa_diario').insert([{ data: hoje, hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), tipo: 'ENTRADA', forma_pgto: forma.includes('CHEQUE') ? 'CHEQUE' : 'DINHEIRO', valor, descricao: `Notinha ${d.cliente_nome || d.cliente} (${d.vendedor_nome})`, origem: 'NOTINHA', vendedor_nome: d.vendedor_nome }]);
+        }
         carregarNotinhasAPrazo();
-      } catch (err) {
-        alert('Erro ao dar baixa: ' + err.message);
-      }
+      } catch (err) { alert('Erro ao registrar recebimento: ' + err.message); }
     }
 
     // =========================================================================
@@ -1615,9 +1630,69 @@
 
         if (document.getElementById('caixa-qtd-registros')) document.getElementById('caixa-qtd-registros').innerText = `${caixaMovimentacoesBD.length} registro(s)`;
         calcularTotaisCaixa();
+        carregarCaixaAConferir(dataSel);
       } catch (err) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-red-500 font-bold">Crie a tabela caixa_diario no Supabase para visualizar.</td></tr>';
       }
+    }
+
+    // Dinheiro que cada vendedor deve entregar (calculado dos fechamentos). Só entra no caixa quando a secretária confirma.
+    let caixaPendentesCache = {};
+    async function carregarCaixaAConferir(dataSel) {
+      const tbody = document.getElementById('caixa-aconferir-body');
+      if (!tbody || !dataSel) return;
+      const { inicio, fim } = getIntervaloDataSelecionada('selDataCaixa');
+      const { data, error } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO');
+      if (error) { tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">${escaparHTML(error.message)}</td></tr>`; return; }
+
+      const porVend = {};
+      (data || []).forEach(r => { const n = (r.vendedor_nome || '').trim(); if (n) (porVend[n.toLowerCase()] = porVend[n.toLowerCase()] || { nome: n, regs: [] }).regs.push(r); });
+
+      caixaPendentesCache = {};
+      let html = '', totalEsperado = 0, totalConfirmado = 0, pendentes = 0;
+      Object.keys(porVend).sort().forEach((k, i) => {
+        const v = porVend[k];
+        const atend = processarRegistosVendedor(v.regs).atendimentos;
+        let dinheiro = 0, pix = 0;
+        atend.forEach(a => { const f = String(a.forma_pagamento || '').toUpperCase(); const val = Number(a.valor_total || 0); if (f.includes('DINHEIRO')) dinheiro += val; else if (f.includes('PIX')) pix += val; });
+        const desp = Math.max(0, ...v.regs.map(r => Number(r.despesa_combustivel || 0) + Number(r.despesa_almoco || 0) + Number(r.despesa_outras_valor || 0)));
+        const esperado = Math.max(0, dinheiro - desp);
+        if (dinheiro === 0 && pix === 0) return;
+        const ref = `FECH|${k}|${dataSel}`;
+        const conf = caixaMovimentacoesBD.find(m => m.ref_chave === ref);
+        caixaPendentesCache[i] = { nome: v.nome, ref, esperado, desp, dinheiro, dataSel };
+        let acao, contado;
+        if (conf) {
+          totalConfirmado += Number(conf.valor || 0);
+          const dif = Number(conf.valor || 0) - esperado;
+          contado = `<strong>R$ ${Number(conf.valor).toFixed(2)}</strong>${Math.abs(dif) > 0.009 ? ` <span class="text-[10px] font-bold ${dif < 0 ? 'text-red-600' : 'text-emerald-600'}">(${dif < 0 ? 'falta' : 'sobra'} R$ ${Math.abs(dif).toFixed(2)})</span>` : ''}`;
+          acao = '<span class="text-[11px] font-bold text-emerald-700">✅ Confirmado</span>';
+        } else {
+          pendentes++; totalEsperado += esperado;
+          contado = `<input type="number" step="0.01" id="caixa-contado-${i}" value="${esperado.toFixed(2)}" class="w-24 border border-slate-300 rounded text-right px-1 py-1 text-xs">`;
+          acao = `<button onclick="confirmarDinheiroFechamento(${i})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[11px] font-bold">Confirmar</button>`;
+        }
+        html += `<tr class="${conf ? 'bg-emerald-50/40' : ''}"><td class="p-3 font-bold">${escaparHTML(v.nome)}</td><td class="p-3 text-right">R$ ${dinheiro.toFixed(2)}</td><td class="p-3 text-right text-red-600">- R$ ${desp.toFixed(2)}</td><td class="p-3 text-right font-bold">R$ ${esperado.toFixed(2)}</td><td class="p-3 text-right text-sky-700">R$ ${pix.toFixed(2)}</td><td class="p-3 text-center">${contado}</td><td class="p-3 text-center">${acao}</td></tr>`;
+      });
+      tbody.innerHTML = html || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Nenhum fechamento com dinheiro ou PIX nesta data.</td></tr>';
+      const r = document.getElementById('caixa-aconferir-resumo');
+      if (r) r.innerText = pendentes > 0 ? `${pendentes} a conferir · R$ ${totalEsperado.toFixed(2)} esperado` : 'Tudo conferido ✅';
+    }
+
+    async function confirmarDinheiroFechamento(i) {
+      const c = caixaPendentesCache[i];
+      if (!c) return;
+      const contado = parseFloat(document.getElementById(`caixa-contado-${i}`)?.value);
+      if (isNaN(contado) || contado < 0) { alert('Informe o valor contado.'); return; }
+      const dif = contado - c.esperado;
+      if (Math.abs(dif) > 0.009 && !confirm(`Contado R$ ${contado.toFixed(2)} e esperado R$ ${c.esperado.toFixed(2)}. Diferença de R$ ${dif.toFixed(2)} (${dif < 0 ? 'FALTA' : 'SOBRA'}). Confirmar assim mesmo?`)) return;
+      const { error } = await supabaseClient.from('caixa_diario').insert([{
+        data: c.dataSel, hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), tipo: 'ENTRADA', forma_pgto: 'DINHEIRO', valor: contado,
+        descricao: `Fechamento ${c.nome} (esperado R$ ${c.esperado.toFixed(2)}${Math.abs(dif) > 0.009 ? `, ${dif < 0 ? 'falta' : 'sobra'} R$ ${Math.abs(dif).toFixed(2)}` : ''})`,
+        origem: 'FECHAMENTO', vendedor_nome: c.nome, ref_chave: c.ref, valor_esperado: c.esperado, conferido_em: new Date().toISOString()
+      }]);
+      if (error) { alert(error.code === '23505' ? 'Este fechamento já foi confirmado.' : 'Erro: ' + error.message); }
+      carregarCaixaDiario();
     }
 
     async function salvarMovimentacaoCaixa(e) {
