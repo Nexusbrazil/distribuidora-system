@@ -2458,24 +2458,56 @@
     }
 
       // painel individual do carro
+      function selecionarCarro(id) {
+      carroSelecionadoId = id;
+
       const painel = document.getElementById('carro-painel');
       const c = carroPorId(carroSelecionadoId);
+
+      if (!painel) return;
+
       painel.classList.toggle('hidden', !c);
-      if (!c) { popularSelectsContas(); return; }
-      const contas = contasCache.filter(x => String(x.carro_id) === String(c.id)).sort((a, b) => String(b.vencimento).localeCompare(String(a.vencimento)));
+
+      if (!c) {
+        popularSelectsContas();
+        return;
+      }
+
+      const contas = contasCache
+        .filter(x => String(x.carro_id) === String(c.id))
+        .sort((a, b) => String(b.vencimento).localeCompare(String(a.vencimento)));
+
       document.getElementById('carro-painel-titulo').innerText = `🚗 ${carroRotulo(c)}`;
       document.getElementById('carro-painel-sub').innerText = `Despesas do veículo · ${contas.length} lançamento(s)`;
-      document.getElementById('carro-painel-pendente').innerText = fmtR$(contas.filter(x => x.status !== 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0));
-      document.getElementById('carro-painel-pago').innerText = fmtR$(contas.filter(x => x.status === 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0));
-      document.getElementById('carro-despesas-body').innerHTML = contas.map(x => `<tr class="border-b border-slate-100">
-        <td class="p-2 font-mono">${fmtData(x.vencimento)}</td>
-        <td class="p-2"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">${escaparHTML(x.tipo_despesa || '-')}</span></td>
-        <td class="p-2 font-semibold">${escaparHTML(x.descricao)}</td>
-        <td class="p-2 text-right font-bold">${fmtR$(x.valor)}</td>
-        <td class="p-2 text-center">${badgeStatusConta(x)}</td>
-        <td class="p-2 text-center whitespace-nowrap">${botoesConta(x)}</td>
-      </tr>`).join('') || '<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma despesa lançada para este veículo.</td></tr>';
+
+      document.getElementById('carro-painel-pendente').innerText =
+        fmtR$(contas
+          .filter(x => x.status !== 'PAGO')
+          .reduce((t, x) => t + Number(x.valor || 0), 0));
+
+      document.getElementById('carro-painel-pago').innerText =
+        fmtR$(contas
+          .filter(x => x.status === 'PAGO')
+          .reduce((t, x) => t + Number(x.valor || 0), 0));
+
+      document.getElementById('carro-despesas-body').innerHTML =
+        contas.map(x => `<tr class="border-b border-slate-100">
+          <td class="p-2 font-mono">${fmtData(x.vencimento)}</td>
+          <td class="p-2">
+            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">
+              ${escaparHTML(x.tipo_despesa || '-')}
+            </span>
+          </td>
+          <td class="p-2 font-semibold">${escaparHTML(x.descricao)}</td>
+          <td class="p-2 text-right font-bold">${fmtR$(x.valor)}</td>
+          <td class="p-2 text-center">${badgeStatusConta(x)}</td>
+          <td class="p-2 text-center whitespace-nowrap">${botoesConta(x)}</td>
+        </tr>`).join('') ||
+        '<tr><td colspan="6" class="p-4 text-center text-slate-400">Nenhuma despesa lançada para este veículo.</td></tr>';
+
       popularSelectsContas();
+      renderizarCarros();
+    };
 
     async function salvarDespesaCarro(e) {
       e.preventDefault();
