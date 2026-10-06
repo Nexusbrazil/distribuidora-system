@@ -5,10 +5,20 @@
       "has": [
         {
           "type": "host",
-          "value": "painel-mestre-sunap.vercel.app"
+          "value": "https://painel-mestre-sunap.vercel.app/"
         }
       ],
       "destination": "/master.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "https://distribuidora-system-sunap-system.vercel.app/"
+        }
+      ],
+      "destination": "/index.html"
     }
   ]
 }
