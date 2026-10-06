@@ -1,24 +1,14 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/:path*",
+      "src": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "painel-mestre-sunap.vercel.app"
         }
       ],
-      "destination": "/master.html"
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "distribuidora-system-sunap-system.vercel.app"
-        }
-      ],
-      "destination": "/index.html"
+      "dest": "/master.html"
     }
   ]
 }
