@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunap · Painel do Escritório</title>
+  <!-- Biblioteca para ler arquivos Excel (XLSX) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -98,6 +100,9 @@
         </button>
         <button onclick="mudarAba('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>📊</span> Relatório Mensal
+        </button>
+        <button onclick="mudarAba('integracao')" id="nav-integracao" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>📥</span> Integração (XLSX)
         </button>
       </nav>
     </div>
@@ -831,35 +836,48 @@
     <section id="sec-carros" class="hidden p-6 space-y-6">
       <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">Carros da Frota</h2>
-          <p class="text-slate-500 text-sm">Cadastre os veículos e acompanhe as despesas de cada um. Tudo é sincronizado com Contas a Pagar.</p>
+          <h2 class="text-2xl font-bold text-slate-900">Frota de Carros</h2>
+          <p class="text-slate-500 text-sm">Controle completo de dados, documentos e despesas dos veículos.</p>
         </div>
         <button onclick="carregarDadosFrota()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
       </div>
       <div id="frota-aviso-carros" class="hidden p-3 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg"></div>
 
+      <!-- FORMULÁRIO DETALHADO DO VEÍCULO -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-5xl border-l-4 border-l-sky-500">
-        <h3 id="titulo-form-carro" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2"><span>🚗</span> Cadastrar Veículo</h3>
+        <h3 id="titulo-form-carro" class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2"><span>🚗</span> Cadastrar / Editar Veículo</h3>
         <form id="form-carro" onsubmit="salvarCarro(event)" class="space-y-4">
           <input type="hidden" id="carro-edit-id" value="">
+          
           <div class="grid grid-cols-4 gap-4">
             <div><label class="block text-xs font-semibold text-slate-600 mb-1">Placa</label><input type="text" id="carro-placa" required placeholder="ABC1D23" maxlength="8" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase font-bold"></div>
-            <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Modelo</label><input type="text" id="carro-modelo" required placeholder="Ex: VW Delivery 9.170" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Marca / Modelo</label><input type="text" id="carro-modelo" required placeholder="Ex: VW Delivery" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase"></div>
             <div><label class="block text-xs font-semibold text-slate-600 mb-1">Ano</label><input type="number" id="carro-ano" min="1950" max="2100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-center"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Cor</label><input type="text" id="carro-cor" placeholder="Ex: Branco" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase"></div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Motorista / Vendedor</label><input type="text" id="carro-motorista" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
-            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Observações</label><input type="text" id="carro-obs" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          
+          <div class="grid grid-cols-4 gap-4">
+            <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Vendedor / Responsável</label><input type="text" id="carro-vendedor" required placeholder="Nome do Vendedor (ex: Sérgio)" class="w-full border border-sky-400 bg-sky-50 rounded-lg px-3 py-2 text-sm font-bold text-sky-900 uppercase"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Renavam</label><input type="text" id="carro-renavam" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono"></div>
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Chassi</label><input type="text" id="carro-chassi" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono uppercase"></div>
           </div>
-          <div class="flex gap-3">
+          
+          <div class="grid grid-cols-4 gap-4">
+            <div><label class="block text-xs font-semibold text-slate-600 mb-1">KM Atual</label><input type="number" id="carro-km" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-right font-bold"></div>
+            <div class="col-span-3"><label class="block text-xs font-semibold text-slate-600 mb-1">Observações Gerais</label><input type="text" id="carro-obs" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+          </div>
+
+          <div class="flex gap-3 pt-2 border-t border-slate-100">
             <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">💾 Salvar Veículo</button>
-            <button type="button" onclick="limparFormCarro()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">Limpar</button>
+            <button type="button" onclick="limparFormCarro()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm">Limpar Formulario</button>
           </div>
         </form>
       </div>
 
+      <!-- CARDS DOS VEÍCULOS -->
       <div id="carros-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
 
+      <!-- PAINEL DE DESPESAS DO VEÍCULO SELECIONADO -->
       <div id="carro-painel" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 bg-slate-900 text-white flex flex-wrap justify-between items-center gap-3">
           <div><span class="font-bold text-base" id="carro-painel-titulo">Veículo</span><p class="text-xs text-slate-400" id="carro-painel-sub"></p></div>
@@ -889,6 +907,57 @@
         </div>
       </div>
     </section>
+    <section id="sec-integracao" class="hidden p-6 space-y-6">
+      <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Integração Inteligente (Excel / Google Sheets)</h2>
+          <p class="text-slate-500 text-sm">Importe planilhas .xlsx. O sistema analisa as colunas, descarta automaticamente os lixos/formatações vazias e mapeia os dados.</p>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-3xl border-l-4 border-l-emerald-500">
+        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2"><span>📥</span> Selecione o Arquivo (.xlsx)</h3>
+        <input type="file" id="arquivo-xlsx" accept=".xlsx, .xls" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-slate-200 p-2 rounded-lg cursor-pointer">
+        <div class="flex gap-3 mt-4">
+          <button onclick="processarPlanilha()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow transition flex items-center gap-2">
+            ⚙️ Analisar Dados
+          </button>
+        </div>
+      </div>
+
+      <!-- Resultados da Análise -->
+      <div id="resultado-analise" class="hidden space-y-6">
+        
+        <!-- CARD DE LIXO / RUÍDO -->
+        <div id="card-ruido" class="bg-amber-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden">
+          <div class="p-4 bg-amber-100 border-b border-amber-200 flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-sm text-amber-900">⚠️ Ruído / Linhas Inválidas Encontradas</h3>
+              <p class="text-[10px] text-amber-700">Foram identificadas linhas que parecem formatação em branco, totais soltos ou lixo gerado por exportação.</p>
+            </div>
+            <button onclick="descartarRuido()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition">Descartar Lixo e Continuar</button>
+          </div>
+          <div class="p-4 text-xs text-amber-800 max-h-48 overflow-y-auto font-mono" id="lista-ruido"></div>
+        </div>
+
+        <!-- CARD DE DADOS VÁLIDOS -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center text-sm">
+            <span>✅ Preview dos Dados Válidos</span>
+            <button onclick="confirmarImportacao()" id="btn-confirmar-importacao" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded text-xs font-bold shadow transition hidden">
+              Confirmar Importação no Banco
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-[500px]">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 sticky top-0" id="tabela-validos-head"></thead>
+              <tbody id="tabela-validos-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+    
 
     <!-- ========================================================================= -->
     <!-- SEÇÃO: CONTAS A PAGAR                                                     -->
@@ -1319,13 +1388,13 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-integracao'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'sec-integracao'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'integracao': 'sec-integracao'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -2309,9 +2378,13 @@
       const id = document.getElementById('carro-edit-id').value;
       const payload = {
         placa: document.getElementById('carro-placa').value.trim().toUpperCase(),
-        modelo: document.getElementById('carro-modelo').value.trim(),
+        modelo: document.getElementById('carro-modelo').value.trim().toUpperCase(),
         ano: parseInt(document.getElementById('carro-ano').value) || null,
-        motorista: document.getElementById('carro-motorista').value.trim() || null,
+        cor: document.getElementById('carro-cor').value.trim().toUpperCase() || null,
+        renavam: document.getElementById('carro-renavam').value.trim() || null,
+        chassi: document.getElementById('carro-chassi').value.trim().toUpperCase() || null,
+        km_atual: parseInt(document.getElementById('carro-km').value) || null,
+        vendedor: document.getElementById('carro-vendedor').value.trim().toUpperCase() || null,
         obs: document.getElementById('carro-obs').value.trim() || null
       };
       const { error } = id ? await supabaseClient.from('carros').update(payload).eq('id', id) : await supabaseClient.from('carros').insert([payload]);
@@ -2321,61 +2394,68 @@
     }
 
     function editarCarro(id) {
-      const c = carroPorId(id); if (!c) return;
+      const c = carrosCache.find(x => String(x.id) === String(id)); if (!c) return;
       document.getElementById('carro-edit-id').value = c.id;
       document.getElementById('carro-placa').value = c.placa || '';
       document.getElementById('carro-modelo').value = c.modelo || '';
       document.getElementById('carro-ano').value = c.ano || '';
-      document.getElementById('carro-motorista').value = c.motorista || '';
+      document.getElementById('carro-cor').value = c.cor || '';
+      document.getElementById('carro-renavam').value = c.renavam || '';
+      document.getElementById('carro-chassi').value = c.chassi || '';
+      document.getElementById('carro-km').value = c.km_atual || '';
+      // Trata retrocompatibilidade caso o banco tenha 'motorista'
+      document.getElementById('carro-vendedor').value = c.vendedor || c.motorista || ''; 
       document.getElementById('carro-obs').value = c.obs || '';
-      document.getElementById('titulo-form-carro').innerHTML = `<span>✏️</span> Editando: ${escaparHTML(carroRotulo(c))}`;
+      
+      document.getElementById('titulo-form-carro').innerHTML = `<span>✏️</span> Editando: ${escaparHTML(c.placa)} · ${escaparHTML(c.vendedor || 'Sem vendedor')}`;
       window.scrollTo(0, 0);
-    }
-
-    async function excluirCarro(id) {
-      const c = carroPorId(id); if (!c) return;
-      const qtd = contasCache.filter(x => String(x.carro_id) === String(id)).length;
-      if (!confirm(`Excluir ${carroRotulo(c)}?` + (qtd ? `\n\nAtenção: as ${qtd} despesa(s) deste veículo também serão excluídas de Contas a Pagar.` : ''))) return;
-      const { error } = await supabaseClient.from('carros').delete().eq('id', id);
-      if (error) { alert('Erro: ' + error.message); return; }
-      if (String(carroSelecionadoId) === String(id)) carroSelecionadoId = null;
-      carregarDadosFrota();
-    }
-
-    function selecionarCarro(id) {
-      carroSelecionadoId = id;
-      const v = document.getElementById('dc-venc'); if (v && !v.value) v.value = hojeBR();
-      renderizarCarros();
-      document.getElementById('carro-painel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function renderizarCarros() {
       const cards = document.getElementById('carros-cards');
       if (!cards) return;
-      if (carroSelecionadoId && !carroPorId(carroSelecionadoId)) carroSelecionadoId = null;
-
+      
       cards.innerHTML = carrosCache.map(c => {
         const contas = contasCache.filter(x => String(x.carro_id) === String(c.id));
         const aberto = contas.filter(x => x.status !== 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0);
-        const pago = contas.filter(x => x.status === 'PAGO').reduce((t, x) => t + Number(x.valor || 0), 0);
-        const vencidas = contas.filter(x => statusConta(x) === 'VENCIDA').length;
         const sel = String(c.id) === String(carroSelecionadoId);
-        return `<div class="bg-white rounded-xl shadow-sm border ${sel ? 'border-sky-500 ring-2 ring-sky-200' : 'border-slate-200'} p-4">
-          <div class="flex justify-between items-start">
-            <div><p class="font-black text-lg text-slate-900 tracking-wider">${escaparHTML(c.placa)}</p><p class="text-sm text-slate-600">${escaparHTML(c.modelo)}${c.ano ? ' · ' + c.ano : ''}</p>${c.motorista ? `<p class="text-[11px] text-slate-400 mt-0.5">👤 ${escaparHTML(c.motorista)}</p>` : ''}</div>
-            ${vencidas ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">⚠️ ${vencidas} vencida(s)</span>` : ''}
+        
+        return `
+        <div class="bg-white rounded-xl shadow-sm border ${sel ? 'border-sky-500 ring-2 ring-sky-200' : 'border-slate-200'} p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start border-b border-slate-100 pb-2 mb-2">
+              <div>
+                <p class="font-black text-lg text-slate-900 tracking-wider">${escaparHTML(c.placa)}</p>
+                <p class="text-sm font-bold text-sky-700 uppercase">👤 ${escaparHTML(c.vendedor || c.motorista || 'Sem Vendedor')}</p>
+              </div>
+              <span class="px-2 py-1 bg-slate-100 text-slate-600 font-bold rounded text-xs">${c.ano || '-'}</span>
+            </div>
+            
+            <div class="text-[11px] text-slate-600 space-y-1 mb-3">
+              <p><strong>Mod:</strong> ${escaparHTML(c.modelo || '-')}</p>
+              <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                <p><strong>Cor:</strong> ${escaparHTML(c.cor || '-')}</p>
+                <p><strong>KM:</strong> <span class="font-bold">${c.km_atual || '-'}</span></p>
+                <p><strong>Ren:</strong> ${escaparHTML(c.renavam || '-')}</p>
+                <p><strong>Chassi:</strong> ${escaparHTML(c.chassi || '-')}</p>
+              </div>
+              ${c.obs ? `<p class="text-[10px] italic text-slate-400 mt-1 border-t border-slate-50 pt-1">Obs: ${escaparHTML(c.obs)}</p>` : ''}
+            </div>
           </div>
-          <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
-            <div class="bg-amber-50 border border-amber-200 rounded p-2"><span class="block text-[10px] uppercase text-amber-800 font-bold">A pagar</span><strong class="text-amber-700">${fmtR$(aberto)}</strong></div>
-            <div class="bg-emerald-50 border border-emerald-200 rounded p-2"><span class="block text-[10px] uppercase text-emerald-800 font-bold">Pago</span><strong class="text-emerald-700">${fmtR$(pago)}</strong></div>
-          </div>
-          <div class="flex gap-2 mt-3">
-            <button onclick="selecionarCarro('${c.id}')" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-1.5 rounded text-xs">📋 Despesas</button>
-            <button onclick="editarCarro('${c.id}')" class="bg-amber-100 text-amber-800 px-2 py-1.5 rounded text-xs font-bold">Editar</button>
-            <button onclick="excluirCarro('${c.id}')" class="bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs">🗑️</button>
+          
+          <div>
+            <div class="bg-amber-50 border border-amber-200 rounded p-2 mb-3 flex justify-between items-center">
+              <span class="text-[10px] uppercase text-amber-800 font-bold">A pagar (pendente):</span>
+              <strong class="text-amber-700 text-sm">${fmtR$(aberto)}</strong>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="selecionarCarro('${c.id}')" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-1.5 rounded text-xs shadow-sm">📋 Despesas</button>
+              <button onclick="editarCarro('${c.id}')" class="bg-sky-100 text-sky-800 hover:bg-sky-200 px-3 py-1.5 rounded text-xs font-bold">Editar</button>
+            </div>
           </div>
         </div>`;
-      }).join('') || '<div class="col-span-full p-6 text-center text-slate-400 bg-white rounded-xl border border-slate-200">Nenhum veículo cadastrado ainda.</div>';
+      }).join('') || '<div class="col-span-full p-6 text-center text-slate-400">Nenhum veículo cadastrado.</div>';
+    }
 
       // painel individual do carro
       const painel = document.getElementById('carro-painel');
@@ -2508,6 +2588,115 @@
       if (error) { alert('Erro: ' + error.message); return; }
       carregarDadosFrota();
     }
+
+    let dadosImportacaoPendentes = [];
+    let dadosRuido = [];
+
+    function processarPlanilha() {
+      const fileInput = document.getElementById('arquivo-xlsx');
+      if (!fileInput.files.length) { 
+        alert("Selecione um arquivo .xlsx ou .xls para analisar!"); 
+        return; 
+      }
+      
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, {type: 'array'});
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          const jsonOriginal = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          analisarLimparDados(jsonOriginal);
+        } catch (err) {
+          alert("Falha ao ler o arquivo. Certifique-se de que é um Excel (.xlsx ou .xls) válido.\n\nDetalhe: " + err.message);
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+    }
+
+    function analisarLimparDados(json) {
+      dadosImportacaoPendentes = [];
+      dadosRuido = [];
+      
+      if (json.length === 0) {
+        alert("A planilha parece estar vazia!");
+        return;
+      }
+
+      const chavesPossiveis = Object.keys(json[0]);
+
+      json.forEach((row, index) => {
+        let colunasPreenchidas = 0;
+        let objetoLimpo = {};
+
+        chavesPossiveis.forEach(key => {
+          let valorString = String(row[key] || "").trim();
+          objetoLimpo[key] = valorString;
+          if (valorString !== "") colunasPreenchidas++;
+        });
+
+        if (colunasPreenchidas < 2) {
+          dadosRuido.push(`Linha Excel nº ${index + 2}: [Lixo/Vazia] -> ${JSON.stringify(objetoLimpo).substring(0, 80)}...`);
+        } else {
+          dadosImportacaoPendentes.push(objetoLimpo);
+        }
+      });
+
+      document.getElementById('resultado-analise').classList.remove('hidden');
+      
+      const listaRuidoEl = document.getElementById('lista-ruido');
+      const cardRuido = document.getElementById('card-ruido');
+      const btnConfirmar = document.getElementById('btn-confirmar-importacao');
+
+      if (dadosRuido.length > 0) {
+        cardRuido.classList.remove('hidden');
+        listaRuidoEl.innerHTML = `<ul class="list-disc pl-5 space-y-1">` + dadosRuido.map(r => `<li>${escaparHTML(r)}</li>`).join('') + `</ul>`;
+        btnConfirmar.classList.add('hidden');
+      } else {
+        cardRuido.classList.add('hidden');
+        btnConfirmar.classList.remove('hidden');
+      }
+
+      renderizarTabelaPreviewImportacao();
+    }
+
+    function descartarRuido() {
+      document.getElementById('card-ruido').classList.add('hidden');
+      document.getElementById('btn-confirmar-importacao').classList.remove('hidden');
+      alert("Ruído descartado com sucesso! Agora você pode visualizar os dados limpos e confirmar a importação.");
+    }
+
+    function renderizarTabelaPreviewImportacao() {
+      const thead = document.getElementById('tabela-validos-head');
+      const tbody = document.getElementById('tabela-validos-body');
+      thead.innerHTML = ''; tbody.innerHTML = '';
+      
+      if (dadosImportacaoPendentes.length === 0) {
+         tbody.innerHTML = '<tr><td class="p-4 text-center font-bold text-red-500">Nenhum dado válido para importar.</td></tr>';
+         return;
+      }
+
+      const chaves = Object.keys(dadosImportacaoPendentes[0]);
+      thead.innerHTML = '<tr>' + chaves.map(c => `<th class="p-2 font-bold uppercase whitespace-nowrap">${escaparHTML(c)}</th>`).join('') + '</tr>';
+      
+      dadosImportacaoPendentes.slice(0, 50).forEach(row => {
+        tbody.innerHTML += '<tr class="border-b border-slate-100 hover:bg-slate-50">' + chaves.map(c => `<td class="p-2 whitespace-nowrap">${escaparHTML(row[c])}</td>`).join('') + '</tr>';
+      });
+      
+      if (dadosImportacaoPendentes.length > 50) {
+        tbody.innerHTML += `<tr><td colspan="${chaves.length}" class="p-4 text-center text-slate-500 font-bold bg-slate-50">... e mais ${dadosImportacaoPendentes.length - 50} registros ocultos. (Total: ${dadosImportacaoPendentes.length} válidos)</td></tr>`;
+      }
+    }
+
+    async function confirmarImportacao() {
+      alert(`Preparando para importar ${dadosImportacaoPendentes.length} registros!\n\nMande a estrutura desejada para eu gerar o Prompt SQL e conectar as colunas desta planilha direto na tabela do banco.`);
+    }
+
   </script>
 </body>
 </html>
