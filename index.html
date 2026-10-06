@@ -1389,7 +1389,7 @@
     function mudarAba(aba) {
       abaAtiva = aba;
       ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-integracao'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'sec-integracao'].forEach(id => {
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-integracao'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
