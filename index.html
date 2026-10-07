@@ -272,6 +272,8 @@
               <p id="folha-data" class="font-bold text-slate-800">--/--/----</p>
             </div>
           </div>
+          
+          <div id="container-conflitos-multiplos" class="hidden mb-6 space-y-4"></div>
 
           <h3 class="font-bold text-md mb-2 text-slate-700">Atendimentos Registrados no Sistema</h3>
           <div id="aviso-multiplos-envios" class="hidden mb-3 p-3 rounded border border-amber-300 bg-amber-50 text-xs text-amber-800"></div>
@@ -1422,6 +1424,8 @@
     function dataHoraRegistro(r) { return new Date(r.created_at || r.data_atendimento); }
     function horaDoRegistro(r) { const d = dataHoraRegistro(r); return isNaN(d.getTime()) ? '--:--' : d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}); }
 
+    let conflitosMultiplosCache = [];
+
     function unificarEnvios(registros) {
       const porCliente = {};
       (registros || []).slice().sort((a, b) => dataHoraRegistro(a) - dataHoraRegistro(b)).forEach(r => {
@@ -1432,35 +1436,93 @@
         (porCliente[chave] = porCliente[chave] || []).push(r);
       });
 
-      const resultado = [];
-      let clientesMultiplos = 0, enviosIguais = 0;
-      Object.values(porCliente).forEach(lista => {
+      const atendimentosValidos = [];
+      const conflitosDiferentes = [];
+      let enviosIguais = 0;
+
+      Object.keys(porCliente).forEach(chave => {
+        const lista = porCliente[chave];
         const grupos = {};
         lista.forEach(r => {
-          const assinatura = [r.qtd_330ml, r.qtd_900ml, r.qtd_uva, r.qtd_agua_sg, r.qtd_agua_cg, r.qtd_copo, r.qtd_gelo, r.qtd_venda_troca, r.valor_venda_troca, r.troca_330ml, r.troca_900ml, r.troca_uva].map(v => Number(v || 0)).join('|') + '|' + Number(r.valor_total || 0).toFixed(2);
+          const assinatura = [
+            r.qtd_330ml, r.qtd_900ml, r.qtd_uva, r.qtd_agua_sg, r.qtd_agua_cg,
+            r.qtd_copo, r.qtd_gelo, r.qtd_venda_troca, r.valor_venda_troca,
+            r.troca_330ml, r.troca_900ml, r.troca_uva
+          ].map(v => Number(v || 0)).join('|') + '|' + Number(r.valor_total || 0).toFixed(2);
           (grupos[assinatura] = grupos[assinatura] || []).push(r);
         });
+
         const listaGrupos = Object.values(grupos);
-        const multiplo = listaGrupos.length > 1;
-        if (multiplo) clientesMultiplos++;
-        listaGrupos.forEach(g => {
+
+        if (listaGrupos.length === 1) {
+          // Reenvios idênticos (mesmos produtos e valores): unifica pegando apenas o último
+          const g = listaGrupos[0];
           if (g.length > 1) enviosIguais += g.length - 1;
-          resultado.push({ ...g[g.length - 1], _envios: g.length, _multiplo: multiplo, _horas: g.map(horaDoRegistro) });
-        });
+          atendimentosValidos.push({
+            ...g[g.length - 1],
+            _envios: g.length,
+            _multiplo: false,
+            _horas: g.map(horaDoRegistro)
+          });
+        } else {
+          // MÚLTIPLOS ENVIOS COM VALORES DIFERENTES!
+          // NÃO entra na soma nem na tabela comum: vai para conferência!
+          const opcoes = listaGrupos.map((g, idx) => {
+            const ult = g[g.length - 1];
+            return {
+              indice: idx,
+              id: ult.id,
+              hora: g.map(horaDoRegistro).join(', '),
+              registro: ult,
+              valor: Number(ult.valor_total || 0),
+              formaPgto: ult.forma_pagamento || ult.forma_pgto || 'N/A',
+              qtd_330: Number(ult.qtd_330ml || 0),
+              qtd_900: Number(ult.qtd_900ml || 0),
+              qtd_uva: Number(ult.qtd_uva || 0),
+              qtd_sg: Number(ult.qtd_agua_sg || 0),
+              qtd_cg: Number(ult.qtd_agua_cg || 0),
+              obs: ult.observacao || ult.obs || ''
+            };
+          });
+
+          conflitosDiferentes.push({
+            chave,
+            clienteNome: lista[0].cliente_nome || lista[0].cliente || 'Sem nome',
+            cidade: lista[0].cidade || '-',
+            opcoes
+          });
+        }
       });
-      resultado.sort((a, b) => dataHoraRegistro(a) - dataHoraRegistro(b));
-      return { atendimentos: resultado, totalClientes: Object.keys(porCliente).length, clientesMultiplos, enviosIguais };
+
+      atendimentosValidos.sort((a, b) => dataHoraRegistro(a) - dataHoraRegistro(b));
+      return {
+        atendimentos: atendimentosValidos,
+        conflitos: conflitosDiferentes,
+        totalClientes: Object.keys(porCliente).length,
+        clientesMultiplos: conflitosDiferentes.length,
+        enviosIguais
+      };
     }
 
     function processarRegistosVendedor(registos) {
       const cabecalhos = [], brutos = [], marcadores = [];
       (registos || []).forEach(r => {
         const ehCliente = (r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null;
-        if (!ehCliente && String(r.status||'').toUpperCase() === 'ROTA_FECHADA') marcadores.push(r); // aviso do app: "fechei o dia"
-        else if (ehCliente) brutos.push(r); else cabecalhos.push(r);
+        if (!ehCliente && String(r.status||'').toUpperCase() === 'ROTA_FECHADA') marcadores.push(r);
+        else if (ehCliente && r.status !== 'DUPLICADO_DESCARTADO' && r.status !== 'EXCLUIDO') brutos.push(r);
+        else cabecalhos.push(r);
       });
       const u = unificarEnvios(brutos);
-      return { cabecalhos, marcadores, atendimentos: u.atendimentos, totalClientes: u.totalClientes, clientesMultiplos: u.clientesMultiplos, enviosIguais: u.enviosIguais, totalValor: u.atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0) };
+      return {
+        cabecalhos,
+        marcadores,
+        atendimentos: u.atendimentos,
+        conflitos: u.conflitos,
+        totalClientes: u.totalClientes,
+        clientesMultiplos: u.clientesMultiplos,
+        enviosIguais: u.enviosIguais,
+        totalValor: u.atendimentos.reduce((acc, curr) => acc + Number(curr.valor_total || 0), 0)
+      };
     }
 
     async function carregarAbaVendedores() {
@@ -1469,7 +1531,7 @@
       const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
       const { data: fechamentosData } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).neq('status', 'EXCLUIDO');
       
-      const FORA_DA_LISTA = ['guilherme', 'sergio', 'alex', 'wernek', 'werneck', 'verneck']; // compra e venda e ex-vendedores: sem rota/vendas no app
+      const FORA_DA_LISTA = ['guilherme', 'sergio', 'alex', 'wernek', 'werneck', 'verneck'];
       const nomesVendedores = [...new Set(['Luan', 'Charles', 'Gustavo', 'Felipe', 'Alessandro', 'Aroldo', 'Elton', ...(fechamentosData||[]).map(f=>f.vendedor_nome).filter(Boolean)])]
         .filter(n => !FORA_DA_LISTA.includes(normalizarTexto(n)));
 
@@ -1501,28 +1563,43 @@
       document.getElementById('visao-lista-vendedores').classList.add('hidden');
       document.getElementById('visao-detalhe-vendedor').classList.remove('hidden');
 
-      const { inicio, fim, dataFormatada } = getIntervaloDataSelecionada('selDataVendedores');
+      const { inicio, fim, dataFormatada, dataStr } = getIntervaloDataSelecionada('selDataVendedores');
       document.getElementById('folha-vendedor-nome').innerText = vendedorNome;
       document.getElementById('folha-data').innerText = dataFormatada;
 
-      const { data } = await supabaseClient.from('fechamentos').select('*').gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorNome).neq('status', 'EXCLUIDO').order('created_at', { ascending: true });
-      const { atendimentos, cabecalhos, clientesMultiplos, enviosIguais } = processarRegistosVendedor(data);
-      dadosAtendimentoAtuais = atendimentos;
+      const { data } = await supabaseClient.from('fechamentos').select('*')
+        .or(`created_at.gte.${inicio},created_at.lte.${fim},data_fechamento.eq.${dataStr}`)
+        .ilike('vendedor_nome', vendedorNome)
+        .neq('status', 'EXCLUIDO')
+        .order('created_at', { ascending: true });
 
+      const { atendimentos, conflitos, cabecalhos, clientesMultiplos, enviosIguais } = processarRegistosVendedor(data);
+      dadosAtendimentoAtuais = atendimentos;
+      conflitosMultiplosCache = conflitos;
+
+      // Renderiza o quadro de conflitos separados
+      renderizarConflitosMultiplosUI();
+
+      // Aviso discreto para reenvios idênticos unificados
       const avisoEl = document.getElementById('aviso-multiplos-envios');
       if (avisoEl) {
-        const partes = [];
-        if (clientesMultiplos > 0) partes.push(`⚠️ <strong>${clientesMultiplos} cliente(s) com múltiplos envios diferentes</strong> (produtos ou valor mudaram) — aparecem em linhas separadas e destacadas. Todas entram no total.`);
-        if (enviosIguais > 0) partes.push(`🔁 ${enviosIguais} reenvio(s) idêntico(s) (mesmos produtos e valor) foram unificados em um só.`);
-        avisoEl.innerHTML = partes.join('<br>');
-        avisoEl.classList.toggle('hidden', partes.length === 0);
+        if (enviosIguais > 0) {
+          avisoEl.innerHTML = `🔁 ${enviosIguais} reenvio(s) idêntico(s) (mesmos produtos e valor) foram unificados automaticamente em um só.`;
+          avisoEl.classList.remove('hidden');
+        } else {
+          avisoEl.classList.add('hidden');
+        }
       }
 
+      // Carga
       if (cabecalhos.length > 0) {
         const ult = cabecalhos[cabecalhos.length - 1];
-        ['330', '900', 'uva', 'sg', 'cg'].forEach(t => { if(document.getElementById(`carga-${t}`)) document.getElementById(`carga-${t}`).value = ult[`carga_${t}`] || 0; });
+        ['330', '900', 'uva', 'sg', 'cg'].forEach(t => { 
+          if(document.getElementById(`carga-${t}`)) document.getElementById(`carga-${t}`).value = ult[`carga_${t}`] || 0; 
+        });
       }
-      // CARREGA AS DESPESAS QUE O MOTORISTA DIGITOU NO APLICATIVO
+
+      // Despesas do motorista
       const despComb = Math.max(0, ...(data||[]).map(r => Number(r.despesa_combustivel || 0)));
       const despAlm = Math.max(0, ...(data||[]).map(r => Number(r.despesa_almoco || 0)));
       const despOut = Math.max(0, ...(data||[]).map(r => Number(r.despesa_outras_valor || 0)));
@@ -1530,28 +1607,213 @@
       if (document.getElementById('desp-folha-almoco')) document.getElementById('desp-folha-almoco').value = despAlm;
       if (document.getElementById('desp-folha-outras')) document.getElementById('desp-folha-outras').value = despOut;
 
+      renderizarTabelaAtendimentos();
+      calcularFechamentoFisico();
+    }
+
+    function renderizarTabelaAtendimentos() {
       const tbody = document.getElementById('tabela-atendimentos-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
-      if (dadosAtendimentoAtuais.length === 0) tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum registro.</td></tr>`;
-      else {
+      if (dadosAtendimentoAtuais.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento finalizado nesta rota.</td></tr>`;
+      } else {
         dadosAtendimentoAtuais.forEach(item => {
           const dataHora = new Date(item.created_at || item.data_atendimento);
           const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+          
+          let badgeStatus = '';
+          if (item._validadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">✅ Venda Validada</span>';
+          else if (item._unificadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[9px] font-bold">🔗 Vendas Unificadas</span>';
+          else if (item._envios > 1) badgeStatus = ` <span class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold">🔁 ${item._envios}x unificado</span>`;
+
           tbody.innerHTML += `
-            <tr class="hover:bg-sky-50 border-b border-slate-100 ${item._multiplo ? 'bg-amber-50' : ''}">
+            <tr class="hover:bg-sky-50 border-b border-slate-100">
               <td class="p-2 text-slate-500 font-mono text-xs">${horaString}</td>
-              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}${item._multiplo ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold uppercase">⚠️ Múltiplos envios</span>' : ''}${item._envios > 1 ? ` <span title="Enviado às: ${item._horas.join(', ')}" class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold">🔁 ${item._envios}x unificado</span>` : ''}</td>
+              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}${badgeStatus}</td>
               <td class="p-2 text-slate-600 text-[10px] truncate max-w-[100px]">${item.observacao || item.obs || '-'}</td>
               <td class="p-2 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
-              <td class="p-2 text-center">${item.qtd_330ml || 0}</td><td class="p-2 text-center">${item.qtd_900ml || 0}</td><td class="p-2 text-center">${item.qtd_uva || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td><td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
+              <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
+              <td class="p-2 text-center">${item.qtd_900ml || 0}</td>
+              <td class="p-2 text-center">${item.qtd_uva || 0}</td>
+              <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td>
+              <td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
               <td class="p-2 text-right font-bold text-emerald-600 bg-emerald-50/30">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
             </tr>`;
         });
       }
+    }
+
+    // DESENHA O QUADRO DE CONFLITOS SEPARADO NO TOPO
+    function renderizarConflitosMultiplosUI() {
+      const container = document.getElementById('container-conflitos-multiplos');
+      if (!container) return;
+
+      if (conflitosMultiplosCache.length === 0) {
+        container.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+      }
+
+      container.classList.remove('hidden');
+      container.innerHTML = `
+        <div class="p-3 bg-amber-50 border-2 border-amber-400 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-2 text-amber-900 font-bold text-xs">
+            <span class="text-base">⚠️</span>
+            <span><strong>${conflitosMultiplosCache.length} cliente(s) com múltiplos envios de valores diferentes detectados:</strong> Selecione qual venda é a correta, descarte a incorreta ou unifique ambas para evitar duplicação no caixa.</span>
+          </div>
+        </div>
+      `;
+
+      conflitosMultiplosCache.forEach(conflito => {
+        let cardsOpcoes = '';
+        conflito.opcoes.forEach(op => {
+          cardsOpcoes += `
+            <div class="bg-white border-2 border-slate-300 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+              <div>
+                <div class="flex justify-between items-center text-xs font-bold text-slate-700 border-b pb-1 mb-1.5">
+                  <span>Envio às ${op.hora}</span>
+                  <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded uppercase font-bold">${op.formaPgto}</span>
+                </div>
+                <div class="text-xs space-y-1 text-slate-700">
+                  <p><strong>Produtos:</strong> 330ml: ${op.qtd_330} · 900ml: ${op.qtd_900} · Uva: ${op.qtd_uva} · Água: ${op.qtd_sg + op.qtd_cg}</p>
+                  ${op.obs ? `<p class="text-[10px] italic text-slate-500">Obs: ${op.obs}</p>` : ''}
+                  <p class="text-base font-black text-emerald-700 mt-1.5">Valor: R$ ${op.valor.toFixed(2)}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3 pt-2 border-t border-slate-100">
+                <button onclick="escolherEnvioValido('${conflito.chave}', ${op.indice})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow-sm transition">
+                  ✅ Manter esta (Validar)
+                </button>
+                <button onclick="descartarEnvioOpcao('${conflito.chave}', ${op.indice})" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1.5 rounded text-xs transition">
+                  🗑️ Descartar
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML += `
+          <div class="border-2 border-amber-400 bg-amber-50/60 rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex flex-wrap justify-between items-start border-b border-amber-200 pb-2 gap-2">
+              <div>
+                <span class="text-[10px] font-black uppercase text-amber-900 bg-amber-200 px-2.5 py-0.5 rounded-full">
+                  ⚠️ Múltiplos Envios Separados
+                </span>
+                <h4 class="font-bold text-base text-slate-900 mt-1">${conflito.clienteNome} <span class="text-xs font-normal text-slate-600">(${conflito.cidade})</span></h4>
+                <p class="text-[11px] text-amber-800">${conflito.opcoes.length} envios distintos recebidos para este cliente no mesmo dia.</p>
+              </div>
+              <button onclick="unificarEnviosCliente('${conflito.chave}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow flex items-center gap-1.5 transition">
+                <span>🔗</span> Unificar Todas as Vendas deste Cliente
+              </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-${conflito.opcoes.length} gap-3">
+              ${cardsOpcoes}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // AÇÃO 1: ESCOLHER UMA VENDA VÁLIDA E DESCARTAR AS OUTRAS
+    async function escolherEnvioValido(chave, opcaoIndice) {
+      const conflito = conflitosMultiplosCache.find(c => c.chave === chave);
+      if (!conflito) return;
+      const escolhida = conflito.opcoes[opcaoIndice];
+      const descartadas = conflito.opcoes.filter((_, i) => i !== opcaoIndice);
+
+      // Marca descartadas no banco
+      for (const d of descartadas) {
+        if (d.id) {
+          await supabaseClient.from('fechamentos').update({ status: 'DUPLICADO_DESCARTADO' }).eq('id', d.id);
+        }
+      }
+
+      dadosAtendimentoAtuais.push({
+        ...escolhida.registro,
+        _validadoManual: true
+      });
+
+      conflitosMultiplosCache = conflitosMultiplosCache.filter(c => c.chave !== chave);
+      renderizarConflitosMultiplosUI();
+      renderizarTabelaAtendimentos();
       calcularFechamentoFisico();
     }
 
+    // AÇÃO 2: DESCARTAR UM ENVIO ESPECÍFICO
+    async function descartarEnvioOpcao(chave, opcaoIndice) {
+      const conflito = conflitosMultiplosCache.find(c => c.chave === chave);
+      if (!conflito) return;
+      const descartada = conflito.opcoes[opcaoIndice];
+
+      if (descartada.id) {
+        await supabaseClient.from('fechamentos').update({ status: 'DUPLICADO_DESCARTADO' }).eq('id', descartada.id);
+      }
+
+      const restantes = conflito.opcoes.filter((_, i) => i !== opcaoIndice);
+
+      if (restantes.length === 1) {
+        // Se sobrou apenas uma venda, valida ela automaticamente
+        dadosAtendimentoAtuais.push({
+          ...restantes[0].registro,
+          _validadoManual: true
+        });
+        conflitosMultiplosCache = conflitosMultiplosCache.filter(c => c.chave !== chave);
+      } else {
+        conflito.opcoes = restantes;
+      }
+
+      renderizarConflitosMultiplosUI();
+      renderizarTabelaAtendimentos();
+      calcularFechamentoFisico();
+    }
+
+    // AÇÃO 3: UNIFICAR AMBAS AS VENDAS EM UMA SÓ
+    async function unificarEnviosCliente(chave) {
+      const conflito = conflitosMultiplosCache.find(c => c.chave === chave);
+      if (!conflito) return;
+
+      let soma330 = 0, soma900 = 0, somaUva = 0, somaSg = 0, somaCg = 0, somaTotal = 0;
+      const formas = [];
+      const obsArr = [];
+
+      conflito.opcoes.forEach(op => {
+        soma330 += op.qtd_330;
+        soma900 += op.qtd_900;
+        somaUva += op.qtd_uva;
+        somaSg += op.qtd_sg;
+        somaCg += op.qtd_cg;
+        somaTotal += op.valor;
+        if (op.formaPgto && !formas.includes(op.formaPgto)) formas.push(op.formaPgto);
+        if (op.obs) obsArr.push(op.obs);
+      });
+
+      // Marca no banco como consolidadas
+      for (const op of conflito.opcoes) {
+        if (op.id) {
+          await supabaseClient.from('fechamentos').update({ status: 'UNIFICADO_CONSOLIDADO' }).eq('id', op.id);
+        }
+      }
+
+      dadosAtendimentoAtuais.push({
+        ...conflito.opcoes[conflito.opcoes.length - 1].registro,
+        qtd_330ml: soma330,
+        qtd_900ml: soma900,
+        qtd_uva: somaUva,
+        qtd_agua_sg: somaSg,
+        qtd_agua_cg: somaCg,
+        valor_total: somaTotal,
+        forma_pagamento: formas.join(' + ') || 'Dinheiro',
+        observacao: (obsArr.join(' | ') + ' (Unificado)').trim(),
+        _unificadoManual: true
+      });
+
+      conflitosMultiplosCache = conflitosMultiplosCache.filter(c => c.chave !== chave);
+      renderizarConflitosMultiplosUI();
+      renderizarTabelaAtendimentos();
+      calcularFechamentoFisico();
+    }
+    
     function calcularFechamentoFisico() {
       let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0, totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
       dadosAtendimentoAtuais.forEach(item => {
