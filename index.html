@@ -1522,6 +1522,13 @@
         const ult = cabecalhos[cabecalhos.length - 1];
         ['330', '900', 'uva', 'sg', 'cg'].forEach(t => { if(document.getElementById(`carga-${t}`)) document.getElementById(`carga-${t}`).value = ult[`carga_${t}`] || 0; });
       }
+      // CARREGA AS DESPESAS QUE O MOTORISTA DIGITOU NO APLICATIVO
+      const despComb = Math.max(0, ...(data||[]).map(r => Number(r.despesa_combustivel || 0)));
+      const despAlm = Math.max(0, ...(data||[]).map(r => Number(r.despesa_almoco || 0)));
+      const despOut = Math.max(0, ...(data||[]).map(r => Number(r.despesa_outras_valor || 0)));
+      if (document.getElementById('desp-folha-combustivel')) document.getElementById('desp-folha-combustivel').value = despComb;
+      if (document.getElementById('desp-folha-almoco')) document.getElementById('desp-folha-almoco').value = despAlm;
+      if (document.getElementById('desp-folha-outras')) document.getElementById('desp-folha-outras').value = despOut;
 
       const tbody = document.getElementById('tabela-atendimentos-body');
       tbody.innerHTML = '';
@@ -1561,6 +1568,10 @@
       document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
       document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
       document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+      const c = Number(document.getElementById('desp-folha-combustivel')?.value || 0);
+      const a = Number(document.getElementById('desp-folha-almoco')?.value || 0);
+      const o = Number(document.getElementById('desp-folha-outras')?.value || 0);
+      if (document.getElementById('desp-folha-total')) document.getElementById('desp-folha-total').innerText = fmtR$(c + a + o);
     }
 
     function voltarParaListaVendedores() { vendedorSelecionadoAtual = null; document.getElementById('visao-detalhe-vendedor').classList.add('hidden'); document.getElementById('visao-lista-vendedores').classList.remove('hidden'); carregarAbaVendedores(); }
@@ -2288,38 +2299,140 @@
 
     async function carregarRelatorioMensal() {
       const vendedor = document.getElementById('selVendedorDashboard')?.value || 'Alessandro';
-      const mesAno = document.getElementById('selMesDashboard')?.value || '2026-08';
+      const mesAno = document.getElementById('selMesDashboard')?.value || new Date().toISOString().substring(0, 7);
       const filtroDias = document.getElementById('selFiltroDias')?.value || 'seg-sex';
-      if (document.getElementById('titulo-relatorio-mensal')) document.getElementById('titulo-relatorio-mensal').innerText = `${vendedor.toUpperCase()} - RELATÓRIO MENSAL (${mesAno})`;
+      if (document.getElementById('titulo-relatorio-mensal')) {
+        document.getElementById('titulo-relatorio-mensal').innerText = `${vendedor.toUpperCase()} - RELATÓRIO MENSAL (${mesAno})`;
+      }
 
       const [ano, mes] = mesAno.split('-');
       const ultimoDia = new Date(ano, mes, 0).getDate();
       
-      const { data } = await supabaseClient.from('fechamentos').select('*').gte('created_at', `${mesAno}-01T00:00:00-03:00`).lte('created_at', `${mesAno}-${ultimoDia}T23:59:59-03:00`).ilike('vendedor_nome', vendedor).neq('status', 'EXCLUIDO');
+      // Busca todos os registros do mês (vendas, despesas e fechamentos)
+      const { data } = await supabaseClient.from('fechamentos')
+        .select('*')
+        .or(`created_at.gte.${mesAno}-01T00:00:00-03:00,created_at.lte.${mesAno}-${ultimoDia}T23:59:59-03:00,data_fechamento.gte.${mesAno}-01,data_fechamento.lte.${mesAno}-${ultimoDia}`)
+        .ilike('vendedor_nome', vendedor)
+        .neq('status', 'EXCLUIDO');
 
-      const corpo = document.getElementById('corpo-tabela-mensal'); if(!corpo) return; corpo.innerHTML = '';
-      let tot330=0, tot900=0, totUva=0, totAgua=0, totBruto=0;
+      const corpo = document.getElementById('corpo-tabela-mensal'); 
+      if (!corpo) return; 
+      corpo.innerHTML = '';
+      
+      let tot330=0, tot900=0, totUva=0, totAgua=0, totTroca330=0, totTroca900=0, totTrocaUva=0, totBruto=0;
+      let totComb=0, totAlm=0, totOutras=0, totVale=0;
 
       for (let dia = 1; dia <= ultimoDia; dia++) {
         const diaSemana = new Date(ano, mes-1, dia).getDay();
         if (filtroDias === 'seg-sex' && (diaSemana === 0 || diaSemana === 6)) continue;
         const diaStr = String(dia).padStart(2,'0');
+        const dataAlvo = `${mesAno}-${diaStr}`;
         
-        const regDia = processarRegistosVendedor((data||[]).filter(r => (r.created_at||r.data_atendimento)?.startsWith(`${mesAno}-${diaStr}`))).atendimentos;
-        let d330=0, d900=0, duva=0, dagua=0, dBruto=0;
-        regDia.forEach(r => { d330+=Number(r.qtd_330ml||0); d900+=Number(r.qtd_900ml||0); duva+=Number(r.qtd_uva||0); dagua+=Number(r.qtd_agua_sg||0)+Number(r.qtd_agua_cg||0); dBruto+=Number(r.valor_total||0); });
+        // Pega todos os registros deste dia
+        const regsDia = (data||[]).filter(r => {
+          const dCriacao = (r.created_at || '').substring(0, 10);
+          const dAtend = (r.data_atendimento || '').substring(0, 10);
+          const dFech = (r.data_fechamento || '').substring(0, 10);
+          return dCriacao === dataAlvo || dAtend === dataAlvo || dFech === dataAlvo;
+        });
 
-        tot330+=d330; tot900+=d900; totUva+=duva; totAgua+=dagua; totBruto+=dBruto;
-        corpo.innerHTML += `<tr class="border-b border-black"><td class="border border-black p-1">${diaStr}/${mes}</td><td class="border border-black p-1">${d330||'-'}</td><td class="border border-black p-1">${d900||'-'}</td><td class="border border-black p-1">${duva||'-'}</td><td class="border border-black p-1">${dagua||'-'}</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 bg-amber-50">-</td><td class="border border-black p-1 font-bold">${d330+d900+duva+dagua||'-'}</td><td class="border border-black p-1 text-right">R$ ${dBruto.toFixed(2)}</td><td class="border border-black p-1 bg-indigo-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td><td class="border border-black p-1 bg-red-50">-</td></tr>`;
+        // 1. Vendas de Clientes
+        const vendasClientes = regsDia.filter(r => (r.cliente_nome && r.cliente_nome.trim().length > 0) || r.cliente_id !== null);
+
+        let d330=0, d900=0, duva=0, dagua=0, dBruto=0;
+        let t330=0, t900=0, tuva=0;
+        vendasClientes.forEach(r => { 
+          d330 += Number(r.qtd_330ml||0); 
+          d900 += Number(r.qtd_900ml||0); 
+          duva += Number(r.qtd_uva||0); 
+          dagua += Number(r.qtd_agua_sg||0) + Number(r.qtd_agua_cg||0); 
+          dBruto += Number(r.valor_total||0);
+          t330 += Number(r.troca_330ml||0);
+          t900 += Number(r.troca_900ml||0);
+          tuva += Number(r.troca_uva||0);
+        });
+
+        // 2. DESPESAS DO DIA (Recupera Combustível, Almoço, Diversas e Vale)
+        const comb = Math.max(0, ...regsDia.map(r => Number(r.despesa_combustivel || 0)));
+        const alm = Math.max(0, ...regsDia.map(r => Number(r.despesa_almoco || 0)));
+        const outras = Math.max(0, ...regsDia.map(r => Number(r.despesa_outras_valor || 0)));
+        const vale = Math.max(0, ...regsDia.map(r => Number(r.vale || r.despesa_vale || 0)));
+
+        tot330 += d330; tot900 += d900; totUva += duva; totAgua += dagua;
+        totTroca330 += t330; totTroca900 += t900; totTrocaUva += tuva;
+        totBruto += dBruto;
+        totComb += comb; totAlm += alm; totOutras += outras; totVale += vale;
+
+        corpo.innerHTML += `
+          <tr class="border-b border-black hover:bg-amber-50/20">
+            <td class="border border-black p-1 font-bold">${diaStr}/${mes}</td>
+            <td class="border border-black p-1">${d330 || '-'}</td>
+            <td class="border border-black p-1">${d900 || '-'}</td>
+            <td class="border border-black p-1">${duva || '-'}</td>
+            <td class="border border-black p-1">${dagua || '-'}</td>
+            <td class="border border-black p-1 bg-amber-50">${t330 || '-'}</td>
+            <td class="border border-black p-1 bg-amber-50">${t900 || '-'}</td>
+            <td class="border border-black p-1 bg-amber-50">${tuva || '-'}</td>
+            <td class="border border-black p-1 font-bold">${d330+d900+duva+dagua || '-'}</td>
+            <td class="border border-black p-1 text-right font-bold text-emerald-800 bg-emerald-50/20">${dBruto > 0 ? fmtR$(dBruto) : '-'}</td>
+            <td class="border border-black p-1 bg-indigo-50">-</td>
+            <td class="border border-black p-1 bg-red-50 text-right ${comb > 0 ? 'font-bold text-red-700' : 'text-slate-400'}">${comb > 0 ? fmtR$(comb) : '-'}</td>
+            <td class="border border-black p-1 bg-red-50 text-right ${alm > 0 ? 'font-bold text-red-700' : 'text-slate-400'}">${alm > 0 ? fmtR$(alm) : '-'}</td>
+            <td class="border border-black p-1 bg-red-50 text-right ${outras > 0 ? 'font-bold text-red-700' : 'text-slate-400'}">${outras > 0 ? fmtR$(outras) : '-'}</td>
+            <td class="border border-black p-1 bg-red-50 text-right ${vale > 0 ? 'font-bold text-red-700' : 'text-slate-400'}">${vale > 0 ? fmtR$(vale) : '-'}</td>
+          </tr>
+        `;
       }
       
-      ['330','900','uva','total'].forEach(k => {
-        const v = k==='330'?tot330:k==='900'?tot900:k==='uva'?totUva:tot330+tot900+totUva;
-        if(document.getElementById(`res-bruta-${k}`)) document.getElementById(`res-bruta-${k}`).innerText = v;
-        if(document.getElementById(`res-liq-${k}`)) document.getElementById(`res-liq-${k}`).innerText = v;
-      });
-      document.getElementById('res-fin-recebido').innerText = `R$ ${totBruto.toFixed(2)}`;
-      document.getElementById('res-fin-saldo-patrao').innerText = `R$ ${totBruto.toFixed(2)}`;
+      // RODAPÉ COM TOTAIS DO MÊS
+      const totDespesasGeral = totComb + totAlm + totOutras + totVale;
+      const rodape = document.getElementById('rodape-tabela-mensal');
+      if (rodape) {
+        rodape.innerHTML = `
+          <td class="border border-black p-1 font-bold">TOTAIS</td>
+          <td class="border border-black p-1">${tot330}</td>
+          <td class="border border-black p-1">${tot900}</td>
+          <td class="border border-black p-1">${totUva}</td>
+          <td class="border border-black p-1">${totAgua}</td>
+          <td class="border border-black p-1 bg-amber-100">${totTroca330}</td>
+          <td class="border border-black p-1 bg-amber-100">${totTroca900}</td>
+          <td class="border border-black p-1 bg-amber-100">${totTrocaUva}</td>
+          <td class="border border-black p-1 font-bold">${tot330+tot900+totUva+totAgua}</td>
+          <td class="border border-black p-1 text-right bg-emerald-100 text-emerald-950 font-bold">${fmtR$(totBruto)}</td>
+          <td class="border border-black p-1 bg-indigo-100">0</td>
+          <td class="border border-black p-1 text-right bg-red-100 text-red-900 font-bold">${fmtR$(totComb)}</td>
+          <td class="border border-black p-1 text-right bg-red-100 text-red-900 font-bold">${fmtR$(totAlm)}</td>
+          <td class="border border-black p-1 text-right bg-red-100 text-red-900 font-bold">${fmtR$(totOutras)}</td>
+          <td class="border border-black p-1 text-right bg-red-100 text-red-900 font-bold">${fmtR$(totVale)}</td>
+        `;
+      }
+
+      // CARDS DO RESUMO
+      if(document.getElementById('res-bruta-330')) document.getElementById('res-bruta-330').innerText = tot330;
+      if(document.getElementById('res-bruta-900')) document.getElementById('res-bruta-900').innerText = tot900;
+      if(document.getElementById('res-bruta-uva')) document.getElementById('res-bruta-uva').innerText = totUva;
+      if(document.getElementById('res-bruta-total')) document.getElementById('res-bruta-total').innerText = tot330 + tot900 + totUva;
+
+      if(document.getElementById('res-troca-330')) document.getElementById('res-troca-330').innerText = totTroca330;
+      if(document.getElementById('res-troca-900')) document.getElementById('res-troca-900').innerText = totTroca900;
+      if(document.getElementById('res-troca-uva')) document.getElementById('res-troca-uva').innerText = totTrocaUva;
+      if(document.getElementById('res-troca-total')) document.getElementById('res-troca-total').innerText = totTroca330 + totTroca900 + totTrocaUva;
+
+      if(document.getElementById('res-liq-330')) document.getElementById('res-liq-330').innerText = tot330 - totTroca330;
+      if(document.getElementById('res-liq-900')) document.getElementById('res-liq-900').innerText = tot900 - totTroca900;
+      if(document.getElementById('res-liq-uva')) document.getElementById('res-liq-uva').innerText = totUva - totTrocaUva;
+      if(document.getElementById('res-liq-total')) document.getElementById('res-liq-total').innerText = (tot330 + tot900 + totUva) - (totTroca330 + totTroca900 + totTrocaUva);
+
+      // Despesas preenchidas no card
+      if(document.getElementById('res-desp-combustivel')) document.getElementById('res-desp-combustivel').innerText = fmtR$(totComb);
+      if(document.getElementById('res-desp-almoco')) document.getElementById('res-desp-almoco').innerText = fmtR$(totAlm);
+      if(document.getElementById('res-desp-diversas')) document.getElementById('res-desp-diversas').innerText = fmtR$(totOutras);
+      if(document.getElementById('res-desp-vale')) document.getElementById('res-desp-vale').innerText = fmtR$(totVale);
+
+      // Acerto Final com desconto de despesas
+      if(document.getElementById('res-fin-recebido')) document.getElementById('res-fin-recebido').innerText = fmtR$(totBruto);
+      if(document.getElementById('res-fin-despesas')) document.getElementById('res-fin-despesas').innerText = "- " + fmtR$(totDespesasGeral);
+      if(document.getElementById('res-fin-saldo-patrao')) document.getElementById('res-fin-saldo-patrao').innerText = fmtR$(totBruto - totDespesasGeral);
     }
 
     // =========================================================================
