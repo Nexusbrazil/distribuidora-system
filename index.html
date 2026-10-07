@@ -1417,7 +1417,9 @@
     // =========================================================================
     function getIntervaloDataSelecionada(idInputData) {
       let dataStr = document.getElementById(idInputData)?.value || new Date().toISOString().split('T')[0];
-      return { inicio: `${dataStr}T00:00:00-03:00`, fim: `${dataStr}T23:59:59-03:00`, dataFormatada: dataStr.split('-').reverse().join('/') };
+      return { inicio: `${dataStr}T00:00:00-03:00`, fim: `${dataStr}T23:59:59-03:00`,
+              dataStr: dataStr,
+              dataFormatada: dataStr.split('-').reverse().join('/') };
     }
 
     function normalizarTexto(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
