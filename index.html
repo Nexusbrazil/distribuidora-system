@@ -1570,11 +1570,11 @@
       document.getElementById('folha-data').innerText = dataFormatada;
 
       const { data } = await supabaseClient.from('fechamentos').select('*')
-        .or(`created_at.gte.${inicio},created_at.lte.${fim},data_fechamento.eq.${dataStr}`)
         .ilike('vendedor_nome', vendedorNome)
         .neq('status', 'EXCLUIDO')
+        .or(`data_fechamento.eq.${dataStr},and(created_at.gte.${inicio},created_at.lte.${fim})`)
         .order('created_at', { ascending: true });
-
+      
       const { atendimentos, conflitos, cabecalhos, clientesMultiplos, enviosIguais } = processarRegistosVendedor(data);
       dadosAtendimentoAtuais = atendimentos;
       conflitosMultiplosCache = conflitos;
