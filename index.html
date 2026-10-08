@@ -1617,35 +1617,75 @@
       const tbody = document.getElementById('tabela-atendimentos-body');
       if (!tbody) return;
       tbody.innerHTML = '';
+
+      // Atualiza o cabeçalho dinamicamente para ter todas as 15 colunas detalhadas
+      const table = tbody.closest('table');
+      if (table) {
+        let thead = table.querySelector('thead');
+        if (!thead) {
+          thead = document.createElement('thead');
+          table.insertBefore(thead, tbody);
+        }
+        thead.innerHTML = `
+          <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 uppercase font-bold text-[10px] text-left">
+            <th class="p-2">Hora</th>
+            <th class="p-2">Cliente</th>
+            <th class="p-2">Obs</th>
+            <th class="p-2">Pgto</th>
+            <th class="p-2 text-center">330ml</th>
+            <th class="p-2 text-center">900ml</th>
+            <th class="p-2 text-center">Uva</th>
+            <th class="p-2 text-center">S/G</th>
+            <th class="p-2 text-center">C/G</th>
+            <th class="p-2 text-center bg-sky-50 text-sky-900">Gelo</th>
+            <th class="p-2 text-center bg-sky-50 text-sky-900">Cx Copo</th>
+            <th class="p-2 text-center bg-orange-50 text-orange-900">Trocas</th>
+            <th class="p-2 text-right">Total (R$)</th>
+          </tr>
+        `;
+      }
+
       if (dadosAtendimentoAtuais.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Nenhum atendimento finalizado nesta rota.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="15" class="p-6 text-center text-slate-400">Nenhum atendimento finalizado nesta rota.</td></tr>`;
       } else {
         dadosAtendimentoAtuais.forEach(item => {
           const dataHora = new Date(item.created_at || item.data_atendimento);
           const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
           
           let badgeStatus = '';
-          if (item._validadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">✅ Venda Validada</span>';
-          else if (item._unificadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[9px] font-bold">🔗 Vendas Unificadas</span>';
-          else if (item._envios > 1) badgeStatus = ` <span class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold">🔁 ${item._envios}x unificado</span>`;
+          if (item._validadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">✅ Validado</span>';
+          else if (item._unificadoManual) badgeStatus = ' <span class="ml-1 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[9px] font-bold">🔗 Unificado</span>';
+          else if (item._envios > 1) badgeStatus = ` <span class="ml-1 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold">2x unificado</span>`;
 
+          const totalTrocas = Number(item.qtd_venda_troca || 0);
+          
           tbody.innerHTML += `
-            <tr class="hover:bg-sky-50 border-b border-slate-100">
-              <td class="p-2 text-slate-500 font-mono text-xs">${horaString}</td>
-              <td class="p-2 font-bold">${item.cliente_nome || item.cliente || 'Sem nome'}${badgeStatus}</td>
-              <td class="p-2 text-slate-600 text-[10px] truncate max-w-[100px]">${item.observacao || item.obs || '-'}</td>
-              <td class="p-2 font-semibold text-[11px] uppercase">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
-              <td class="p-2 text-center">${item.qtd_330ml || 0}</td>
-              <td class="p-2 text-center">${item.qtd_900ml || 0}</td>
-              <td class="p-2 text-center">${item.qtd_uva || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_sg || 0}</td>
-              <td class="p-2 text-center">${item.qtd_agua_cg || 0}</td>
-              <td class="p-2 text-right font-bold text-emerald-600 bg-emerald-50/30">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
+            <tr class="hover:bg-sky-50 border-b border-slate-100 text-xs">
+              <td class="p-2 text-slate-500 font-mono">${horaString}</td>
+              <td class="p-2 font-bold text-slate-800">${item.cliente_nome || item.cliente || 'Sem nome'}${badgeStatus}</td>
+              <td class="p-2 text-slate-500 text-[10px] truncate max-w-[100px]">${item.observacao || item.obs || '-'}</td>
+              <td class="p-2 font-semibold text-[11px] uppercase text-slate-700">${item.forma_pagamento || item.forma_pgto || 'N/A'}</td>
+              
+              <!-- Vendas Normais -->
+              <td class="p-2 text-center font-semibold">${item.qtd_330ml || 0}</td>
+              <td class="p-2 text-center font-semibold">${item.qtd_900ml || 0}</td>
+              <td class="p-2 text-center font-semibold">${item.qtd_uva || 0}</td>
+              <td class="p-2 text-center font-semibold">${item.qtd_agua_sg || 0}</td>
+              <td class="p-2 text-center font-semibold">${item.qtd_agua_cg || 0}</td>
+              
+              <!-- Extras Solicitados (Gelo e Caixa Copo) -->
+              <td class="p-2 text-center font-bold bg-sky-50/50 text-sky-900">${item.qtd_gelo || 0}</td>
+              <td class="p-2 text-center font-bold bg-sky-50/50 text-sky-900">${item.qtd_copo || item.qtd_caixa_copo || 0}</td>
+              
+              <!-- Trocas Separadas -->
+              <td class="p-2 text-center font-bold bg-orange-50/50 text-orange-800">${totalTrocas}</td>
+              
+              <!-- Total Finaceiro -->
+              <td class="p-2 text-right font-black text-emerald-600 bg-emerald-50/20">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
             </tr>`;
         });
       }
     }
-
     // DESENHA O QUADRO DE CONFLITOS SEPARADO NO TOPO
     function renderizarConflitosMultiplosUI() {
       const container = document.getElementById('container-conflitos-multiplos');
