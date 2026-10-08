@@ -330,6 +330,7 @@
                 <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>Dinheiro:</span><strong id="fin-folha-dinheiro" class="text-emerald-700">R$ 0,00</strong></div>
                 <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>PIX:</span><strong id="fin-folha-pix" class="text-blue-700">R$ 0,00</strong></div>
                 <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>A Prazo:</span><strong id="fin-folha-prazo" class="text-amber-700">R$ 0,00</strong></div>
+                <div class="flex justify-between py-1 text-xs border-b border-slate-200"><span>Nota e Boleto:</span><strong id="fin-folha-boleto" class="text-purple-700">R$ 0,00</strong></div>
                 <div class="flex justify-between py-2 text-sm font-bold bg-white border border-slate-300 px-2 rounded mt-2 shadow-sm"><span>TOTAL VENDIDO:</span><span id="fin-folha-total-geral">R$ 0,00</span></div>
               </div>
 
@@ -1857,27 +1858,49 @@
     }
     
     function calcularFechamentoFisico() {
-      let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0, totDinheiro = 0, totPix = 0, totPrazo = 0, totGeral = 0;
+      let v330 = 0, v900 = 0, vuva = 0, vsg = 0, vcg = 0;
+      let totDinheiro = 0, totPix = 0, totNotinha = 0, totBoleto = 0, totGeral = 0;
+
       dadosAtendimentoAtuais.forEach(item => {
-        v330 += Number(item.qtd_330ml||0); v900 += Number(item.qtd_900ml||0); vuva += Number(item.qtd_uva||0); vsg += Number(item.qtd_agua_sg||0); vcg += Number(item.qtd_agua_cg||0);
-        const val = Number(item.valor_total||0); totGeral += val;
+        v330 += Number(item.qtd_330ml||0); 
+        v900 += Number(item.qtd_900ml||0); 
+        vuva += Number(item.qtd_uva||0); 
+        vsg += Number(item.qtd_agua_sg||0); 
+        vcg += Number(item.qtd_agua_cg||0);
+
+        const val = Number(item.valor_total||0); 
+        totGeral += val;
+        
         const pgto = String(item.forma_pagamento||item.forma_pgto||'').toUpperCase();
-        if (pgto.includes('DINHEIRO')) totDinheiro += val; else if (pgto.includes('PIX')) totPix += val; else totPrazo += val;
+        
+        if (pgto.includes('DINHEIRO')) {
+          totDinheiro += val; 
+        } else if (pgto.includes('PIX')) {
+          totPix += val; 
+        } else if (pgto.includes('BOLETO') || Number(item.valor_nota_boleto || 0) > 0) {
+          totBoleto += (Number(item.valor_nota_boleto || 0) > 0 ? Number(item.valor_nota_boleto) : val);
+        } else {
+          totNotinha += val;
+        }
       });
+
+      const prodMap = { '330': v330, '900': v900, 'uva': vuva, 'sg': vsg, 'cg': vcg };
       ['330','900','uva','sg','cg'].forEach(id => {
-        if(document.getElementById(`venda-${id}`)) document.getElementById(`venda-${id}`).innerText = eval(`v${id}`);
-        if(document.getElementById(`ret-atual-${id}`)) document.getElementById(`ret-atual-${id}`).innerText = Number(document.getElementById(`carga-${id}`)?.value||0) - eval(`v${id}`);
+        if(document.getElementById(`venda-${id}`)) document.getElementById(`venda-${id}`).innerText = prodMap[id];
+        if(document.getElementById(`ret-atual-${id}`)) document.getElementById(`ret-atual-${id}`).innerText = Number(document.getElementById(`carga-${id}`)?.value||0) - prodMap[id];
       });
-      document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
-      document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
-      document.getElementById('fin-folha-prazo').innerText = `R$ ${totPrazo.toFixed(2)}`;
-      document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+
+      if (document.getElementById('fin-folha-dinheiro')) document.getElementById('fin-folha-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
+      if (document.getElementById('fin-folha-pix')) document.getElementById('fin-folha-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+      if (document.getElementById('fin-folha-prazo')) document.getElementById('fin-folha-prazo').innerText = `R$ ${totNotinha.toFixed(2)}`;
+      if (document.getElementById('fin-folha-boleto')) document.getElementById('fin-folha-boleto').innerText = `R$ ${totBoleto.toFixed(2)}`;
+      if (document.getElementById('fin-folha-total-geral')) document.getElementById('fin-folha-total-geral').innerText = `R$ ${totGeral.toFixed(2)}`;
+
       const c = Number(document.getElementById('desp-folha-combustivel')?.value || 0);
       const a = Number(document.getElementById('desp-folha-almoco')?.value || 0);
       const o = Number(document.getElementById('desp-folha-outras')?.value || 0);
       if (document.getElementById('desp-folha-total')) document.getElementById('desp-folha-total').innerText = fmtR$(c + a + o);
     }
-
     function voltarParaListaVendedores() { vendedorSelecionadoAtual = null; document.getElementById('visao-detalhe-vendedor').classList.add('hidden'); document.getElementById('visao-lista-vendedores').classList.remove('hidden'); carregarAbaVendedores(); }
 
     async function excluirFechamentoAtual() {
