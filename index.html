@@ -283,7 +283,12 @@
                 <tr>
                   <th class="p-2">Hora</th><th class="p-2">Cliente</th><th class="p-2">Obs</th><th class="p-2">Pgto</th>
                   <th class="p-2 text-center">330ml</th><th class="p-2 text-center">900ml</th><th class="p-2 text-center">Uva</th>
-                  <th class="p-2 text-center">S/G</th><th class="p-2 text-center">C/G</th><th class="p-2 text-right">Total (R$)</th>
+                  <th class="p-2 text-center">S/G</th><th class="p-2 text-center">C/G</th>
+                  <th class="p-2 text-center bg-sky-50 text-sky-900">Gelo</th>
+                  <th class="p-2 text-center bg-sky-50 text-sky-900">Cx Copo</th>
+                  <th class="p-2 text-center bg-orange-50 text-orange-900">Trocas</th>
+                  <th class="p-2 text-right">Total (R$)</th>
+                  <th class="p-2 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody id="tabela-atendimentos-body" class="divide-y divide-slate-100"></tbody>
@@ -1619,7 +1624,7 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      // Atualiza o cabeçalho dinamicamente para ter todas as 15 colunas detalhadas
+      // Atualiza o cabeçalho dinamicamente para incluir todas as colunas e o botão Editar
       const table = tbody.closest('table');
       if (table) {
         let thead = table.querySelector('thead');
@@ -1642,14 +1647,15 @@
             <th class="p-2 text-center bg-sky-50 text-sky-900">Cx Copo</th>
             <th class="p-2 text-center bg-orange-50 text-orange-900">Trocas</th>
             <th class="p-2 text-right">Total (R$)</th>
+            <th class="p-2 text-center">Ações</th>
           </tr>
         `;
       }
 
       if (dadosAtendimentoAtuais.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="15" class="p-6 text-center text-slate-400">Nenhum atendimento finalizado nesta rota.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-400">Nenhum atendimento finalizado nesta rota.</td></tr>`;
       } else {
-        dadosAtendimentoAtuais.forEach(item => {
+        dadosAtendimentoAtuais.forEach((item, index) => {
           const dataHora = new Date(item.created_at || item.data_atendimento);
           const horaString = isNaN(dataHora.getTime()) ? '--:--' : dataHora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
           
@@ -1681,8 +1687,15 @@
               <!-- Trocas Separadas -->
               <td class="p-2 text-center font-bold bg-orange-50/50 text-orange-800">${totalTrocas}</td>
               
-              <!-- Total Finaceiro -->
+              <!-- Total Financeiro -->
               <td class="p-2 text-right font-black text-emerald-600 bg-emerald-50/20">R$ ${Number(item.valor_total || 0).toFixed(2)}</td>
+
+              <!-- Botão Editar / Detalhes -->
+              <td class="p-2 text-center">
+                <button onclick="abrirModalEditarVenda(${index})" class="bg-sky-100 hover:bg-sky-200 text-sky-800 px-2.5 py-1 rounded-lg text-xs font-bold transition border border-sky-300 flex items-center gap-1 mx-auto">
+                  ✏️ Editar
+                </button>
+              </td>
             </tr>`;
         });
       }
