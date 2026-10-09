@@ -101,6 +101,9 @@
         <button onclick="mudarAba('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>📊</span> Relatório Mensal
         </button>
+        <button onclick="mudarAba('senhas')" id="nav-senhas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>🔑</span> Senhas dos Vendedores
+        </button>
         <button onclick="mudarAba('integracao')" id="nav-integracao" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>📥</span> Integração (XLSX)
         </button>
@@ -991,6 +994,43 @@
         </div>
       </div>
     </section>
+    <!-- ========================================================================= -->
+    <!-- SEÇÃO: SENHAS DOS VENDEDORES (tabela vendedores_senhas no Supabase)      -->
+    <!-- ========================================================================= -->
+    <section id="sec-senhas" class="hidden p-6 space-y-6">
+      <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">🔑 Senhas dos Vendedores</h2>
+          <p class="text-slate-500 text-sm">Senha de 4 números que o vendedor digita no aplicativo para iniciar a rota. Salva direto no Supabase.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="toggleVerSenhas()" id="btn-ver-senhas" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold transition">👁️ Mostrar senhas</button>
+          <button onclick="carregarAbaSenhas()" class="bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg text-xs font-bold transition">🔄 Atualizar</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="grid grid-cols-12 gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
+          <div class="col-span-4">Vendedor</div>
+          <div class="col-span-2">Situação</div>
+          <div class="col-span-3">Senha (4 números)</div>
+          <div class="col-span-3 text-right">Ação</div>
+        </div>
+        <div id="container-senhas" class="divide-y divide-slate-100">
+          <div class="p-4 text-center text-slate-400">Carregando vendedores...</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Adicionar vendedor que não está na lista</p>
+        <div class="flex flex-wrap gap-2 items-center">
+          <input type="text" id="novo-senha-nome" placeholder="Nome do vendedor" class="border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-sky-500 outline-none">
+          <input type="password" id="novo-senha-valor" maxlength="4" inputmode="numeric" placeholder="••••" class="w-24 border border-slate-300 rounded-lg px-3 py-2 text-sm text-center tracking-widest font-bold focus:ring-2 focus:ring-sky-500 outline-none">
+          <button onclick="adicionarVendedorSenha()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">+ Adicionar</button>
+        </div>
+      </div>
+    </section>
+
     <section id="sec-integracao" class="hidden p-6 space-y-6">
       <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
         <div>
@@ -1470,15 +1510,165 @@
         .subscribe();
     }
 
+
+    // =========================================================================
+    // SENHAS DOS VENDEDORES  (tabela: vendedores_senhas -> vendedor_nome, senha)
+    // =========================================================================
+    let senhasVisiveis = false;
+
+    function toggleVerSenhas() {
+      senhasVisiveis = !senhasVisiveis;
+      document.querySelectorAll('.input-senha-vend').forEach(i => i.type = senhasVisiveis ? 'text' : 'password');
+      const b = document.getElementById('btn-ver-senhas');
+      if (b) b.innerText = senhasVisiveis ? '🙈 Ocultar senhas' : '👁️ Mostrar senhas';
+    }
+
+    function escAttr(t) {
+      return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    async function carregarAbaSenhas() {
+      const container = document.getElementById('container-senhas');
+      if (!container) return;
+      container.innerHTML = '<div class="p-4 text-center text-slate-400">Carregando vendedores...</div>';
+
+      // 1) vendedores que aparecem no app (mesma API do app)
+      let nomesAPI = [];
+      try {
+        const res = await fetch(`${URL_API}/vendedores-cidades`);
+        const lista = await res.json();
+        if (Array.isArray(lista)) nomesAPI = lista.filter(Boolean);
+      } catch (e) {
+        nomesAPI = ['Luan', 'Charles', 'Gustavo', 'Felipe', 'Alessandro', 'Aroldo', 'Elton'];
+      }
+
+      // 2) senhas já cadastradas
+      const { data: senhas, error } = await supabaseClient.from('vendedores_senhas').select('vendedor_nome, senha');
+      if (error) {
+        container.innerHTML = `<div class="p-4 text-center text-red-600 text-sm">Erro ao ler vendedores_senhas: ${error.message}</div>`;
+        return;
+      }
+      const mapaSenhas = {};
+      (senhas || []).forEach(r => { mapaSenhas[(r.vendedor_nome || '').trim().toLowerCase()] = r; });
+
+      // 3) junta nomes da API + nomes que só existem na tabela (sem duplicar)
+      const vistos = new Set();
+      const nomes = [];
+      [...nomesAPI, ...(senhas || []).map(r => r.vendedor_nome)].forEach(n => {
+        const k = (n || '').trim().toLowerCase();
+        if (k && !vistos.has(k)) { vistos.add(k); nomes.push(n.trim()); }
+      });
+      nomes.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+      if (nomes.length === 0) {
+        container.innerHTML = '<div class="p-4 text-center text-slate-400">Nenhum vendedor encontrado.</div>';
+        return;
+      }
+
+      container.innerHTML = nomes.map((nome, i) => {
+        const atual = mapaSenhas[nome.toLowerCase()]?.senha || '';
+        const tem = !!atual;
+        return `<div class="grid grid-cols-12 gap-2 items-center px-4 py-3 hover:bg-slate-50">
+          <div class="col-span-4 font-bold text-slate-800">${escAttr(nome)}</div>
+          <div class="col-span-2" id="senha-status-${i}">${tem
+            ? '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">✔ Cadastrada</span>'
+            : '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">⚠ Sem senha</span>'}</div>
+          <div class="col-span-3">
+            <input type="${senhasVisiveis ? 'text' : 'password'}" id="senha-input-${i}" data-nome="${escAttr(nome)}" value="${escAttr(atual)}" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••"
+              oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 4)"
+              onkeydown="if(event.key==='Enter') salvarSenhaVendedor(${i})"
+              class="input-senha-vend w-28 border border-slate-300 rounded-lg px-3 py-2 text-center text-lg tracking-widest font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 outline-none">
+          </div>
+          <div class="col-span-3 text-right">
+            <button onclick="salvarSenhaVendedor(${i})" id="senha-btn-${i}" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition">${tem ? 'Alterar' : 'Salvar'}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Grava (insere ou atualiza) a senha de um vendedor
+    async function gravarSenhaNoSupabase(nome, senha) {
+      if (!/^\d{4}$/.test(senha)) throw new Error('A senha precisa ter exatamente 4 números.');
+
+      const { data: existente, error: errBusca } = await supabaseClient
+        .from('vendedores_senhas')
+        .select('vendedor_nome')
+        .ilike('vendedor_nome', nome)
+        .limit(1)
+        .maybeSingle();
+      if (errBusca) throw errBusca;
+
+      if (existente) {
+        const { error } = await supabaseClient
+          .from('vendedores_senhas')
+          .update({ senha: senha })
+          .eq('vendedor_nome', existente.vendedor_nome);
+        if (error) throw error;
+      } else {
+        const { error } = await supabaseClient
+          .from('vendedores_senhas')
+          .insert({ vendedor_nome: nome, senha: senha });
+        if (error) throw error;
+      }
+    }
+
+    async function salvarSenhaVendedor(i) {
+      const input = document.getElementById(`senha-input-${i}`);
+      const btn = document.getElementById(`senha-btn-${i}`);
+      if (!input) return;
+      const nome = input.dataset.nome;
+      const senha = input.value.trim();
+
+      if (!/^\d{4}$/.test(senha)) {
+        alert('A senha precisa ter exatamente 4 números.');
+        input.focus();
+        return;
+      }
+
+      const textoOriginal = btn.innerText;
+      btn.innerText = 'Salvando...'; btn.disabled = true;
+      try {
+        await gravarSenhaNoSupabase(nome, senha);
+        document.getElementById(`senha-status-${i}`).innerHTML = '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">✔ Cadastrada</span>';
+        btn.innerText = '✔ Salvo!';
+        btn.classList.replace('bg-sky-600', 'bg-emerald-600');
+        setTimeout(() => {
+          btn.innerText = 'Alterar';
+          btn.classList.replace('bg-emerald-600', 'bg-sky-600');
+          btn.disabled = false;
+        }, 1500);
+      } catch (err) {
+        console.error('Erro ao salvar senha:', err);
+        alert('Erro ao salvar a senha de ' + nome + ': ' + (err.message || err));
+        btn.innerText = textoOriginal; btn.disabled = false;
+      }
+    }
+
+    async function adicionarVendedorSenha() {
+      const nomeEl = document.getElementById('novo-senha-nome');
+      const senhaEl = document.getElementById('novo-senha-valor');
+      const nome = nomeEl.value.trim();
+      const senha = senhaEl.value.replace(/\D/g, '').slice(0, 4);
+      if (!nome) { alert('Digite o nome do vendedor.'); nomeEl.focus(); return; }
+      if (!/^\d{4}$/.test(senha)) { alert('A senha precisa ter exatamente 4 números.'); senhaEl.focus(); return; }
+      try {
+        await gravarSenhaNoSupabase(nome, senha);
+        nomeEl.value = ''; senhaEl.value = '';
+        carregarAbaSenhas();
+      } catch (err) {
+        alert('Erro ao adicionar: ' + (err.message || err));
+      }
+    }
+
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-integracao'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-integracao'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-integracao', 'sec-senhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-integracao', 'nav-senhas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'integracao': 'sec-integracao'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'integracao': 'sec-integracao', 'senhas': 'sec-senhas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -1492,6 +1682,7 @@
       else if (aba === 'notas') carregarAbaNotas();
       else if (aba === 'notinhas') carregarNotinhasAPrazo();
       else if (aba === 'carros' || aba === 'contas') carregarDadosFrota();
+      else if (aba === 'senhas') carregarAbaSenhas();
     }
 
     // =========================================================================
