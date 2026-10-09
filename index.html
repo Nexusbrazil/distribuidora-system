@@ -1700,6 +1700,110 @@
         });
       }
     }
+    // ==========================================
+    // FUNÇÕES DO MODAL DE EDITAR VENDA
+    // ==========================================
+    function abrirModalEditarVenda(idx) {
+      const item = dadosAtendimentoAtuais[idx];
+      if (!item) return;
+
+      document.getElementById('edit-venda-idx').value = idx;
+      document.getElementById('edit-venda-id').value = item.id || '';
+      document.getElementById('edit-venda-cliente').value = item.cliente_nome || item.cliente || '';
+      document.getElementById('edit-venda-cliente-sub').innerText = (item.cidade || 'Rota') + ' · ' + (item.cliente_nome || item.cliente || '');
+      
+      const pgtoVal = (item.forma_pagamento || item.forma_pgto || 'DINHEIRO').toUpperCase();
+      const selPgto = document.getElementById('edit-venda-pgto');
+      let encontrou = false;
+      for (let i = 0; i < selPgto.options.length; i++) {
+        if (selPgto.options[i].value === pgtoVal || pgtoVal.includes(selPgto.options[i].value)) {
+          selPgto.selectedIndex = i;
+          encontrou = true;
+          break;
+        }
+      }
+      if (!encontrou) selPgto.value = 'DINHEIRO';
+
+      document.getElementById('edit-venda-330').value = item.qtd_330ml || 0;
+      document.getElementById('edit-venda-900').value = item.qtd_900ml || 0;
+      document.getElementById('edit-venda-uva').value = item.qtd_uva || 0;
+      document.getElementById('edit-venda-sg').value = item.qtd_agua_sg || 0;
+      document.getElementById('edit-venda-cg').value = item.qtd_agua_cg || 0;
+      document.getElementById('edit-venda-gelo').value = item.qtd_gelo || 0;
+      document.getElementById('edit-venda-copo').value = item.qtd_copo || item.qtd_caixa_copo || 0;
+      document.getElementById('edit-venda-trocas').value = item.qtd_venda_troca || 0;
+      document.getElementById('edit-venda-total').value = Number(item.valor_total || 0).toFixed(2);
+      document.getElementById('edit-venda-obs').value = item.observacao || item.obs || '';
+
+      document.getElementById('modal-editar-venda').classList.remove('hidden');
+    }
+
+    function fecharModalEditarVenda() {
+      document.getElementById('modal-editar-venda').classList.add('hidden');
+    }
+
+    async function salvarEdicaoVenda(event) {
+      event.preventDefault();
+      const idx = parseInt(document.getElementById('edit-venda-idx').value);
+      const id = document.getElementById('edit-venda-id').value;
+      const itemAtual = dadosAtendimentoAtuais[idx];
+      if (!itemAtual) return;
+
+      const payload = {
+        cliente_nome: document.getElementById('edit-venda-cliente').value.trim().toUpperCase(),
+        forma_pagamento: document.getElementById('edit-venda-pgto').value.toUpperCase(),
+        qtd_330ml: parseInt(document.getElementById('edit-venda-330').value) || 0,
+        qtd_900ml: parseInt(document.getElementById('edit-venda-900').value) || 0,
+        qtd_uva: parseInt(document.getElementById('edit-venda-uva').value) || 0,
+        qtd_agua_sg: parseInt(document.getElementById('edit-venda-sg').value) || 0,
+        qtd_agua_cg: parseInt(document.getElementById('edit-venda-cg').value) || 0,
+        qtd_gelo: parseInt(document.getElementById('edit-venda-gelo').value) || 0,
+        qtd_copo: parseInt(document.getElementById('edit-venda-copo').value) || 0,
+        qtd_venda_troca: parseInt(document.getElementById('edit-venda-trocas').value) || 0,
+        valor_total: parseFloat(document.getElementById('edit-venda-total').value) || 0,
+        observacao: document.getElementById('edit-venda-obs').value.trim()
+      };
+
+      try {
+        if (id) {
+          const { error } = await supabaseClient.from('fechamentos').update(payload).eq('id', id);
+          if (error) throw error;
+        }
+
+        Object.assign(dadosAtendimentoAtuais[idx], payload);
+        fecharModalEditarVenda();
+        renderizarTabelaAtendimentos();
+        calcularFechamentoFisico();
+        alert('Venda atualizada com sucesso!');
+      } catch (err) {
+        alert('Erro ao salvar alteração: ' + err.message);
+      }
+    }
+
+    async function excluirVendaModal() {
+      const idx = parseInt(document.getElementById('edit-venda-idx').value);
+      const id = document.getElementById('edit-venda-id').value;
+      const itemAtual = dadosAtendimentoAtuais[idx];
+      if (!itemAtual) return;
+
+      if (!confirm(`Deseja realmente excluir a venda de "${itemAtual.cliente_nome || itemAtual.cliente}"?`)) return;
+
+      try {
+        if (id) {
+          const { error } = await supabaseClient.from('fechamentos').update({ status: 'EXCLUIDO' }).eq('id', id);
+          if (error) throw error;
+        }
+
+        dadosAtendimentoAtuais.splice(idx, 1);
+        fecharModalEditarVenda();
+        renderizarTabelaAtendimentos();
+        calcularFechamentoFisico();
+        alert('Venda excluída do fechamento!');
+      } catch (err) {
+        alert('Erro ao excluir venda: ' + err.message);
+      }
+    }
+
     // DESENHA O QUADRO DE CONFLITOS SEPARADO NO TOPO
     function renderizarConflitosMultiplosUI() {
       const container = document.getElementById('container-conflitos-multiplos');
