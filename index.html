@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunap · Painel do Escritório</title>
-  <!-- Biblioteca para ler arquivos Excel (XLSX) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -103,9 +101,6 @@
         </button>
         <button onclick="mudarAba('senhas')" id="nav-senhas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>🔑</span> Senhas dos Vendedores
-        </button>
-        <button onclick="mudarAba('integracao')" id="nav-integracao" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
-          <span>📥</span> Integração (XLSX)
         </button>
       </nav>
     </div>
@@ -1031,56 +1026,6 @@
       </div>
     </section>
 
-    <section id="sec-integracao" class="hidden p-6 space-y-6">
-      <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 gap-4">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-900">Integração Inteligente (Excel / Google Sheets)</h2>
-          <p class="text-slate-500 text-sm">Importe planilhas .xlsx. O sistema analisa as colunas, descarta automaticamente os lixos/formatações vazias e mapeia os dados.</p>
-        </div>
-      </div>
-      
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-3xl border-l-4 border-l-emerald-500">
-        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2"><span>📥</span> Selecione o Arquivo (.xlsx)</h3>
-        <input type="file" id="arquivo-xlsx" accept=".xlsx, .xls" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-slate-200 p-2 rounded-lg cursor-pointer">
-        <div class="flex gap-3 mt-4">
-          <button onclick="processarPlanilha()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow transition flex items-center gap-2">
-            ⚙️ Analisar Dados
-          </button>
-        </div>
-      </div>
-
-      <!-- Resultados da Análise -->
-      <div id="resultado-analise" class="hidden space-y-6">
-        
-        <!-- CARD DE LIXO / RUÍDO -->
-        <div id="card-ruido" class="bg-amber-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden">
-          <div class="p-4 bg-amber-100 border-b border-amber-200 flex justify-between items-center">
-            <div>
-              <h3 class="font-bold text-sm text-amber-900">⚠️ Ruído / Linhas Inválidas Encontradas</h3>
-              <p class="text-[10px] text-amber-700">Foram identificadas linhas que parecem formatação em branco, totais soltos ou lixo gerado por exportação.</p>
-            </div>
-            <button onclick="descartarRuido()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition">Descartar Lixo e Continuar</button>
-          </div>
-          <div class="p-4 text-xs text-amber-800 max-h-48 overflow-y-auto font-mono" id="lista-ruido"></div>
-        </div>
-
-        <!-- CARD DE DADOS VÁLIDOS -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div class="p-4 bg-slate-800 text-white font-bold flex justify-between items-center text-sm">
-            <span>✅ Preview dos Dados Válidos</span>
-            <button onclick="confirmarImportacao()" id="btn-confirmar-importacao" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded text-xs font-bold shadow transition hidden">
-              Confirmar Importação no Banco
-            </button>
-          </div>
-          <div class="overflow-x-auto max-h-[500px]">
-            <table class="w-full text-xs text-left">
-              <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 sticky top-0" id="tabela-validos-head"></thead>
-              <tbody id="tabela-validos-body" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
     
 
     <!-- ========================================================================= -->
@@ -1662,13 +1607,13 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-integracao', 'sec-senhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-integracao', 'nav-senhas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-senhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-senhas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'integracao': 'sec-integracao', 'senhas': 'sec-senhas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'senhas': 'sec-senhas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -3454,114 +3399,6 @@
       const { error } = await supabaseClient.from('contas_pagar').delete().eq('id', id);
       if (error) { alert('Erro: ' + error.message); return; }
       carregarDadosFrota();
-    }
-
-    let dadosImportacaoPendentes = [];
-    let dadosRuido = [];
-
-    function processarPlanilha() {
-      const fileInput = document.getElementById('arquivo-xlsx');
-      if (!fileInput.files.length) { 
-        alert("Selecione um arquivo .xlsx ou .xls para analisar!"); 
-        return; 
-      }
-      
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, {type: 'array'});
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          
-          const jsonOriginal = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-          analisarLimparDados(jsonOriginal);
-        } catch (err) {
-          alert("Falha ao ler o arquivo. Certifique-se de que é um Excel (.xlsx ou .xls) válido.\n\nDetalhe: " + err.message);
-        }
-      };
-      
-      reader.readAsArrayBuffer(file);
-    }
-
-    function analisarLimparDados(json) {
-      dadosImportacaoPendentes = [];
-      dadosRuido = [];
-      
-      if (json.length === 0) {
-        alert("A planilha parece estar vazia!");
-        return;
-      }
-
-      const chavesPossiveis = Object.keys(json[0]);
-
-      json.forEach((row, index) => {
-        let colunasPreenchidas = 0;
-        let objetoLimpo = {};
-
-        chavesPossiveis.forEach(key => {
-          let valorString = String(row[key] || "").trim();
-          objetoLimpo[key] = valorString;
-          if (valorString !== "") colunasPreenchidas++;
-        });
-
-        if (colunasPreenchidas < 2) {
-          dadosRuido.push(`Linha Excel nº ${index + 2}: [Lixo/Vazia] -> ${JSON.stringify(objetoLimpo).substring(0, 80)}...`);
-        } else {
-          dadosImportacaoPendentes.push(objetoLimpo);
-        }
-      });
-
-      document.getElementById('resultado-analise').classList.remove('hidden');
-      
-      const listaRuidoEl = document.getElementById('lista-ruido');
-      const cardRuido = document.getElementById('card-ruido');
-      const btnConfirmar = document.getElementById('btn-confirmar-importacao');
-
-      if (dadosRuido.length > 0) {
-        cardRuido.classList.remove('hidden');
-        listaRuidoEl.innerHTML = `<ul class="list-disc pl-5 space-y-1">` + dadosRuido.map(r => `<li>${escaparHTML(r)}</li>`).join('') + `</ul>`;
-        btnConfirmar.classList.add('hidden');
-      } else {
-        cardRuido.classList.add('hidden');
-        btnConfirmar.classList.remove('hidden');
-      }
-
-      renderizarTabelaPreviewImportacao();
-    }
-
-    function descartarRuido() {
-      document.getElementById('card-ruido').classList.add('hidden');
-      document.getElementById('btn-confirmar-importacao').classList.remove('hidden');
-      alert("Ruído descartado com sucesso! Agora você pode visualizar os dados limpos e confirmar a importação.");
-    }
-
-    function renderizarTabelaPreviewImportacao() {
-      const thead = document.getElementById('tabela-validos-head');
-      const tbody = document.getElementById('tabela-validos-body');
-      thead.innerHTML = ''; tbody.innerHTML = '';
-      
-      if (dadosImportacaoPendentes.length === 0) {
-         tbody.innerHTML = '<tr><td class="p-4 text-center font-bold text-red-500">Nenhum dado válido para importar.</td></tr>';
-         return;
-      }
-
-      const chaves = Object.keys(dadosImportacaoPendentes[0]);
-      thead.innerHTML = '<tr>' + chaves.map(c => `<th class="p-2 font-bold uppercase whitespace-nowrap">${escaparHTML(c)}</th>`).join('') + '</tr>';
-      
-      dadosImportacaoPendentes.slice(0, 50).forEach(row => {
-        tbody.innerHTML += '<tr class="border-b border-slate-100 hover:bg-slate-50">' + chaves.map(c => `<td class="p-2 whitespace-nowrap">${escaparHTML(row[c])}</td>`).join('') + '</tr>';
-      });
-      
-      if (dadosImportacaoPendentes.length > 50) {
-        tbody.innerHTML += `<tr><td colspan="${chaves.length}" class="p-4 text-center text-slate-500 font-bold bg-slate-50">... e mais ${dadosImportacaoPendentes.length - 50} registros ocultos. (Total: ${dadosImportacaoPendentes.length} válidos)</td></tr>`;
-      }
-    }
-
-    async function confirmarImportacao() {
-      alert(`Preparando para importar ${dadosImportacaoPendentes.length} registros!\n\nMande a estrutura desejada para eu gerar o Prompt SQL e conectar as colunas desta planilha direto na tabela do banco.`);
     }
 
   </script>
