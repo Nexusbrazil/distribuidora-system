@@ -2255,11 +2255,17 @@
     function voltarParaListaVendedores() { vendedorSelecionadoAtual = null; document.getElementById('visao-detalhe-vendedor').classList.add('hidden'); document.getElementById('visao-lista-vendedores').classList.remove('hidden'); carregarAbaVendedores(); }
 
     async function excluirFechamentoAtual() {
-      if (!vendedorSelecionadoAtual || !confirm(`EXCLUIR TUDO de ${vendedorSelecionadoAtual}?`)) return;
-      const { inicio, fim } = getIntervaloDataSelecionada('selDataVendedores');
-      await supabaseClient.from('fechamentos').update({ status: 'EXCLUIDO' }).gte('created_at', inicio).lte('created_at', fim).ilike('vendedor_nome', vendedorSelecionadoAtual);
-      voltarParaListaVendedores(); 
-    }
+  if (!vendedorSelecionadoAtual || !confirm(`EXCLUIR TUDO de ${vendedorSelecionadoAtual}?`)) return;
+  
+  const { inicio, fim, dataStr } = getIntervaloDataSelecionada('selDataVendedores');
+  
+  await supabaseClient.from('fechamentos')
+    .update({ status: 'EXCLUIDO' })
+    .ilike('vendedor_nome', vendedorSelecionadoAtual)
+    .or(`data_fechamento.eq.${dataStr},and(created_at.gte.${inicio},created_at.lte.${fim})`);
+    
+  voltarParaListaVendedores(); 
+}
 
     // =========================================================================
     // NOTINHAS A PRAZO (NOVA ABA)
