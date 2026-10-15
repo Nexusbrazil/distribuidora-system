@@ -1811,11 +1811,20 @@
         }
       }
 
-      // Carga
-      if (cabecalhos.length > 0) {
-        const ult = cabecalhos[cabecalhos.length - 1];
+      // ✅ DEPOIS: Busca o registro de estoque correto e mapeia os nomes das colunas do Supabase
+      const regEstoque = cabecalhos.find(c => c.status === 'ESTOQUE' || c.carga_330ml != null || c.carga_900ml != null) || cabecalhos[cabecalhos.length - 1];
+      if (regEstoque) {
+        const mapaColunas = {
+          '330': 'carga_330ml',
+          '900': 'carga_900ml',
+          'uva': 'carga_uva',
+          'sg':  'carga_agua',
+          'cg':  'carga_agua_gas'
+        };
         ['330', '900', 'uva', 'sg', 'cg'].forEach(t => { 
-          if(document.getElementById(`carga-${t}`)) document.getElementById(`carga-${t}`).value = ult[`carga_${t}`] || 0; 
+          const colBanco = mapaColunas[t];
+          const el = document.getElementById(`carga-${t}`);
+          if (el) el.value = regEstoque[colBanco] ?? 0; 
         });
       }
 
