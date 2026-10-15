@@ -87,9 +87,6 @@
         <button onclick="mudarAba('caixa')" id="nav-caixa" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>💵</span> Caixa Diário
         </button>
-        <button onclick="mudarAba('lancamentos')" id="nav-lancamentos" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
-          <span>🎁</span> Lançamentos
-        </button>
         <button onclick="mudarAba('carros')" id="nav-carros" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition">
           <span>🚗</span> Carros
         </button>
@@ -761,36 +758,6 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SEÇÃO: LANÇAMENTOS EXTRAS                                                 -->
-    <!-- ========================================================================= -->
-    <section id="sec-lancamentos" class="hidden p-6 space-y-8">
-      <div>
-        <div class="mb-6"><h2 class="text-2xl font-bold text-slate-900">Lançamentos Extras e Brindes</h2></div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl">
-          <form id="form-lancamento" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Vendedor</label><select id="lanc-vendedor" class="w-full border border-slate-300 rounded-lg px-3 py-2"><option value="Sérgio">Sérgio</option><option value="Alex">Alex</option><option value="Wernek">Wernek</option><option value="Luan">Luan</option><option value="Charles">Charles</option><option value="Guilherme">Guilherme</option><option value="Gustavo">Gustavo</option><option value="Felipe">Felipe</option><option value="Alessandro">Alessandro</option></select></div>
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Data</label><input type="date" id="lanc-data" class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="col-span-2"><label class="block text-sm font-semibold text-slate-600 mb-1">Produto / Brinde</label><input type="text" id="lanc-produto" class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-              <div><label class="block text-sm font-semibold text-slate-600 mb-1">Quantidade</label><input type="number" id="lanc-qtd" value="1" min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center"></div>
-            </div>
-            <div><label class="block text-sm font-semibold text-slate-600 mb-1">Obs</label><textarea id="lanc-obs" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2"></textarea></div>
-            <button type="button" onclick="salvarLancamentoMock()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-lg transition">Registrar Lançamento</button>
-          </form>
-          <div class="mt-8 border-t border-slate-200 pt-6">
-            <h3 class="font-bold text-slate-700 mb-3">Lançamentos Recentes</h3>
-            <table class="w-full text-sm text-left">
-              <thead class="bg-slate-100 border-b border-slate-200"><tr><th class="p-2">Data</th><th class="p-2">Vendedor</th><th class="p-2">Descrição</th><th class="p-2 text-center">Qtd</th></tr></thead>
-              <tbody id="tabela-lancamentos-body" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================= -->
     <!-- SEÇÃO: RELATÓRIO MENSAL                                                   -->
     <!-- ========================================================================= -->
     <section id="sec-dashboard" class="hidden p-6">
@@ -1094,7 +1061,6 @@
     let listaProdutosCache = [];
     let listaClientesAPICache = []; 
     let abaAtiva = 'vendedores';
-    let lancamentosMemoria = [];
     let caixaMovimentacoesBD = [];
     let notasAbertas = new Set();
     let notinhasAbertas = new Set();
@@ -1607,13 +1573,13 @@
 
     function mudarAba(aba) {
       abaAtiva = aba;
-      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-lancamentos', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-senhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-lancamentos', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-senhas'].forEach(id => {
+      ['aba-vendedores', 'sec-compra-venda', 'sec-interno', 'sec-caixa', 'sec-dashboard', 'sec-rotas', 'sec-notas', 'sec-notinhas', 'sec-carros', 'sec-contas', 'sec-senhas'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      ['nav-vendedores', 'nav-compra-venda', 'nav-interno', 'nav-caixa', 'nav-dashboard', 'nav-rotas', 'nav-notas', 'nav-notinhas', 'nav-carros', 'nav-contas', 'nav-senhas'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) { btn.classList.remove('bg-sky-600', 'text-white'); btn.classList.add('text-slate-300'); }
       });
       
-      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'lancamentos': 'sec-lancamentos', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'senhas': 'sec-senhas'};
+      const mapaAbas = { 'vendedores': 'aba-vendedores', 'compra-venda': 'sec-compra-venda', 'interno': 'sec-interno', 'caixa': 'sec-caixa', 'dashboard': 'sec-dashboard', 'rotas': 'sec-rotas', 'notas': 'sec-notas', 'notinhas': 'sec-notinhas', 'carros': 'sec-carros', 'contas': 'sec-contas', 'senhas': 'sec-senhas'};
       document.getElementById(mapaAbas[aba])?.classList.remove('hidden');
       document.getElementById(`nav-${aba}`)?.classList.replace('text-slate-300', 'bg-sky-600');
       document.getElementById(`nav-${aba}`)?.classList.add('text-white');
@@ -2966,19 +2932,6 @@
       if (document.getElementById('caixa-total-entradas')) document.getElementById('caixa-total-entradas').innerText = `R$ ${totalEntradas.toFixed(2)}`;
       if (document.getElementById('caixa-total-saidas')) document.getElementById('caixa-total-saidas').innerText = `R$ ${totalSaidas.toFixed(2)}`;
       if (document.getElementById('caixa-saldo-final')) document.getElementById('caixa-saldo-final').innerText = `R$ ${saldoFinal.toFixed(2)}`;
-    }
-
-    // =========================================================================
-    // LANÇAMENTOS EXTRAS E DASHBOARD 
-    // =========================================================================
-    function salvarLancamentoMock() {
-      const v = document.getElementById('lanc-vendedor').value, d = document.getElementById('lanc-data').value, p = document.getElementById('lanc-produto').value, q = document.getElementById('lanc-qtd').value;
-      if (!p) { alert('Digite o produto!'); return; }
-      lancamentosMemoria.push({ vendedor: v, data: d, produto: p, qtd: q });
-      const tbody = document.getElementById('tabela-lancamentos-body');
-      tbody.innerHTML = '';
-      lancamentosMemoria.forEach(l => tbody.innerHTML += `<tr class="border-b"><td class="p-2 text-xs">${l.data}</td><td class="p-2 font-bold">${l.vendedor}</td><td class="p-2">${l.produto}</td><td class="p-2 text-center text-indigo-600">${l.qtd}</td></tr>`);
-      document.getElementById('lanc-produto').value = '';
     }
 
     async function carregarRelatorioMensal() {
