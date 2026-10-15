@@ -1728,7 +1728,7 @@
       const cabecalhos = [], brutos = [], marcadores = [];
       (registos || []).forEach(r => {
         const ehCliente = (r.cliente_nome||r.cliente||'').trim().length > 0 || r.cliente_id !== null;
-        if (!ehCliente && String(r.status||'').toUpperCase() === 'ROTA_FECHADA') marcadores.push(r);
+        if (!ehCliente && ['ROTA_FECHADA', 'FECHAMENTO_CONCLUIDO', 'FECHADO_ESCRITORIO', 'FECHADO'].includes(String(r.status||'').toUpperCase())) marcadores.push(r);
         else if (ehCliente && r.status !== 'DUPLICADO_DESCARTADO' && r.status !== 'EXCLUIDO') brutos.push(r);
         else cabecalhos.push(r);
       });
@@ -1765,7 +1765,8 @@
         if (todosRegistros.length > 0) {
           const ultFechou = Math.max(0, ...marcadores.map(m => dataHoraRegistro(m).getTime() || 0));
           const ultVendeu = Math.max(0, ...atendLista.map(a => dataHoraRegistro(a).getTime() || 0));
-          const fechadoNoEscritorio = todosRegistros.some(f => !marcadores.includes(f) && ['ROTA_FECHADA','FECHADO_ESCRITORIO','CONCLUIDO_ESCRITORIO','FECHADO'].includes(String(f.status||'').toUpperCase()));
+          const fechadoNoEscritorio = todosRegistros.some(f => 
+  ['ROTA_FECHADA','FECHADO_ESCRITORIO','CONCLUIDO_ESCRITORIO','FECHADO','FECHAMENTO_CONCLUIDO'].includes(String(f.status||'').toUpperCase()));
           if (fechadoNoEscritorio || (ultFechou > 0 && ultFechou >= ultVendeu)) {
             statusHTML = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">🔴 Fechada</span>`;
           } else {
