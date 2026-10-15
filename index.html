@@ -1387,7 +1387,7 @@
       const hoje = (new Date(dataLocal - offset)).toISOString().split('T')[0];
       const mesAtual = hoje.substring(0, 7);
       
-      ['selDataVendedores','selDataNotas','lanc-data','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
+      ['selDataVendedores','selDataNotas','var-data','selDataCaixa','cv-saida-data','cv-pag-data'].forEach(id => {
         if (document.getElementById(id)) document.getElementById(id).value = hoje;
       });
       if (document.getElementById('selMesDashboard')) document.getElementById('selMesDashboard').value = mesAtual;
